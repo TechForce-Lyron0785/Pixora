@@ -1,6 +1,6 @@
 // models/savedSearch.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Saved Search schema definition
@@ -77,4 +77,4 @@ savedSearchSchema.statics.deleteSavedSearch = async function (savedSearchId) {
 // Create the Saved Search model
 const SavedSearch = mongoose.model('SavedSearch', savedSearchSchema);
 
-module.exports = SavedSearch;
+export {SavedSearch};

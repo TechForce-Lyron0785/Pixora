@@ -1,7 +1,5 @@
-// models/user.model.js
-
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // For password hashing
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 const { Schema } = mongoose;
 
 // User schema definition
@@ -168,4 +166,4 @@ userSchema.methods.removeSavedSearch = function (searchTerm) {
 // Create the User model
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export { User };

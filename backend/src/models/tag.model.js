@@ -1,6 +1,6 @@
 // models/tag.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Tag schema definition
@@ -77,4 +77,4 @@ tagSchema.statics.getImagesByTag = async function (tagName) {
 // Create the Tag model
 const Tag = mongoose.model('Tag', tagSchema);
 
-module.exports = Tag;
+export {Tag};

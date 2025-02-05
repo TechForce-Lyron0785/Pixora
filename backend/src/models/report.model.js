@@ -1,6 +1,6 @@
 // models/report.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Report schema definition
@@ -78,4 +78,4 @@ reportSchema.statics.getReportsByStatus = async function (status) {
 // Create the Report model
 const Report = mongoose.model('Report', reportSchema);
 
-module.exports = Report;
+export {Report};

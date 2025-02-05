@@ -1,6 +1,6 @@
 // models/follow.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Follow schema definition
@@ -15,10 +15,6 @@ const followSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // Reference to the User model for the following user
       required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   {
@@ -59,4 +55,4 @@ followSchema.statics.unfollowUser = async function (followerId, followingId) {
 // Create the Follow model
 const Follow = mongoose.model('Follow', followSchema);
 
-module.exports = Follow;
+export {Follow};

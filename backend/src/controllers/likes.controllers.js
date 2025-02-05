@@ -1,85 +1,88 @@
-const Like = require('../models/like.model');
-const Notification = require('../models/notification.model');
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Like } from "../models/like.model.js";
+import { Photo } from "../models/photo.model.js";
+import { Notification } from "../models/notification.model.js";
 
 // Create like
-exports.createLike = async (req, res) => {
-  try {
-    const { photoId } = req.body;
-    
-    const existingLike = await Like.findOne({
-      user: req.user._id,
-      photo: photoId
-    });
+const createLike = asyncHandler(async (req, res) => {
+  const { photoId } = req.body;
+  
+  const existingLike = await Like.findOne({
+    user: req.user._id,
+    photo: photoId
+  });
 
-    if (existingLike) {
-      return res.status(400).json({ message: 'Already liked this photo' });
-    }
-
-    const like = new Like({
-      user: req.user._id,
-      photo: photoId
-    });
-
-    await like.save();
-
-    // Create notification for photo owner if it's not their own photo
-    const photo = await Photo.findById(photoId);
-    if (photo.user.toString() !== req.user._id.toString()) {
-      await Notification.create({
-        type: 'like',
-        user: photo.user,
-        sender: req.user._id,
-        photo: photoId
-      });
-    }
-
-    res.status(201).json(like);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (existingLike) {
+    throw new ApiError(400, "Already liked this photo");
   }
-};
+
+  const like = new Like({
+    user: req.user._id,
+    photo: photoId
+  });
+
+  await like.save();
+
+  // Create notification for photo owner if it's not their own photo
+  const photo = await Photo.findById(photoId);
+  if (photo.user.toString() !== req.user._id.toString()) {
+    await Notification.create({
+      type: 'like',
+      user: photo.user,
+      sender: req.user._id,
+      photo: photoId
+    });
+  }
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "Like created successfully", like));
+});
 
 // Delete like
-exports.deleteLike = async (req, res) => {
-  try {
-    const like = await Like.findOneAndDelete({
-      user: req.user._id,
-      photo: req.params.photoId
-    });
+const deleteLike = asyncHandler(async (req, res) => {
+  const like = await Like.findOneAndDelete({
+    user: req.user._id,
+    photo: req.params.photoId
+  });
 
-    if (!like) {
-      return res.status(404).json({ message: 'Like not found' });
-    }
-
-    res.json({ message: 'Like removed successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!like) {
+    throw new ApiError(404, "Like not found");
   }
-};
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Like removed successfully"));
+});
 
 // Get likes for a photo
-exports.getPhotoLikes = async (req, res) => {
-  try {
-    const likes = await Like.find({ photo: req.params.photoId })
-      .populate('user', 'username profilePicture')
-      .sort({ createdAt: -1 });
+const getPhotoLikes = asyncHandler(async (req, res) => {
+  const likes = await Like.find({ photo: req.params.photoId })
+    .populate('user', 'username profilePicture')
+    .sort({ createdAt: -1 });
 
-    res.json(likes);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Likes fetched successfully", likes));
+});
 
 // Check if user liked a photo
-exports.checkLikeStatus = async (req, res) => {
-  try {
-    const like = await Like.findOne({
-      user: req.user._id,
-      photo: req.params.photoId
-    });
+const checkLikeStatus = asyncHandler(async (req, res) => {
+  const like = await Like.findOne({
+    user: req.user._id,
+    photo: req.params.photoId
+  });
 
-    res.json({ hasLiked: !!like });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Like status checked successfully", { hasLiked: !!like }));
+});
+
+export {
+  createLike,
+  deleteLike,
+  getPhotoLikes,
+  checkLikeStatus
 };

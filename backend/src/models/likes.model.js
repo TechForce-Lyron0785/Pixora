@@ -1,6 +1,6 @@
 // models/likes.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Likes schema definition
@@ -15,10 +15,6 @@ const likeSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Image', // Reference to the Image model that is liked
       required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the image was liked
     },
   },
   {
@@ -42,8 +38,10 @@ likeSchema.statics.addLike = async function (userId, imageId) {
 
   // Increment the likes count on the image
   const image = await mongoose.model('Image').findById(imageId);
-  image.likesCount += 1;
-  await image.save();
+  if (image) {
+    image.likesCount = (image.likesCount || 0) + 1; // Ensure likesCount is initialized
+    await image.save();
+  }
 
   return like.save();
 };
@@ -58,8 +56,10 @@ likeSchema.statics.removeLike = async function (userId, imageId) {
 
   // Decrement the likes count on the image
   const image = await mongoose.model('Image').findById(imageId);
-  image.likesCount -= 1;
-  await image.save();
+  if (image) {
+    image.likesCount = (image.likesCount || 0) - 1; // Ensure likesCount is initialized
+    await image.save();
+  }
 
   return like;
 };
@@ -67,4 +67,4 @@ likeSchema.statics.removeLike = async function (userId, imageId) {
 // Create the Likes model
 const Like = mongoose.model('Like', likeSchema);
 
-module.exports = Like;
+export { Like };

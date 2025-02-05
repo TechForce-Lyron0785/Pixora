@@ -1,6 +1,6 @@
 // models/image.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Image schema definition
@@ -61,14 +61,6 @@ const imageSchema = new Schema(
         ref: 'User', // Users who have saved this image as a favorite
       },
     ],
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the image was uploaded
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the image was last updated
-    },
   },
   {
     timestamps: true, // Automatically handle createdAt and updatedAt fields
@@ -127,4 +119,4 @@ imageSchema.methods.removeFromFavorites = function (userId) {
 // Create the Image model
 const Image = mongoose.model('Image', imageSchema);
 
-module.exports = Image;
+export {Image};

@@ -1,103 +1,105 @@
-const Comment = require('../models/comment.model');
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Comment } from "../models/comment.model.js";
 
 // Create new comment
-exports.createComment = async (req, res) => {
-  try {
-    const { content, photoId } = req.body;
-    
-    const comment = new Comment({
-      content,
-      photo: photoId,
-      user: req.user._id
-    });
+const createComment = asyncHandler(async (req, res) => {
+  const { content, photoId } = req.body;
+  
+  const comment = await Comment.create({
+    content,
+    photo: photoId,
+    user: req.user._id
+  });
 
-    await comment.save();
-    res.status(201).json(comment);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "Comment created successfully", comment));
+});
 
 // Get comments for a photo
-exports.getPhotoComments = async (req, res) => {
-  try {
-    const comments = await Comment.find({ photo: req.params.photoId })
-      .populate('user', 'username profilePicture')
-      .sort({ createdAt: -1 });
-    
-    res.json(comments);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+const getPhotoComments = asyncHandler(async (req, res) => {
+  const comments = await Comment.find({ photo: req.params.photoId })
+    .populate('user', 'username profilePicture')
+    .sort({ createdAt: -1 });
+  
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Comments fetched successfully", comments));
+});
 
 // Update comment
-exports.updateComment = async (req, res) => {
-  try {
-    const { content } = req.body;
-    const comment = await Comment.findById(req.params.commentId);
+const updateComment = asyncHandler(async (req, res) => {
+  const { content } = req.body;
+  const comment = await Comment.findById(req.params.commentId);
 
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    // Check if user owns the comment
-    if (comment.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to modify this comment' });
-    }
-
-    comment.content = content;
-    await comment.save();
-
-    res.json(comment);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
   }
-};
+
+  // Check if user owns the comment
+  if (comment.user.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "Not authorized to modify this comment");
+  }
+
+  comment.content = content;
+  await comment.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Comment updated successfully", comment));
+});
 
 // Delete comment
-exports.deleteComment = async (req, res) => {
-  try {
-    const comment = await Comment.findById(req.params.commentId);
+const deleteComment = asyncHandler(async (req, res) => {
+  const comment = await Comment.findById(req.params.commentId);
 
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    // Check if user owns the comment
-    if (comment.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to delete this comment' });
-    }
-
-    await comment.remove();
-    res.json({ message: 'Comment deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
   }
-};
+
+  // Check if user owns the comment
+  if (comment.user.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "Not authorized to delete this comment");
+  }
+
+  await comment.deleteOne();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Comment deleted successfully"));
+});
 
 // Like/Unlike comment
-exports.toggleCommentLike = async (req, res) => {
-  try {
-    const comment = await Comment.findById(req.params.commentId);
+const toggleCommentLike = asyncHandler(async (req, res) => {
+  const comment = await Comment.findById(req.params.commentId);
 
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    const userLikedIndex = comment.likes.indexOf(req.user._id);
-    
-    if (userLikedIndex === -1) {
-      // Like comment
-      comment.likes.push(req.user._id);
-    } else {
-      // Unlike comment
-      comment.likes.splice(userLikedIndex, 1);
-    }
-
-    await comment.save();
-    res.json(comment);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
   }
+
+  const userLikedIndex = comment.likes.indexOf(req.user._id);
+  
+  if (userLikedIndex === -1) {
+    // Like comment
+    comment.likes.push(req.user._id);
+  } else {
+    // Unlike comment
+    comment.likes.splice(userLikedIndex, 1);
+  }
+
+  await comment.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Comment like toggled successfully", comment));
+});
+
+export {
+  createComment,
+  getPhotoComments,
+  updateComment,
+  deleteComment,
+  toggleCommentLike
 };

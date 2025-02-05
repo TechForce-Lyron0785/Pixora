@@ -1,6 +1,6 @@
 // models/favorites.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Favorites schema definition
@@ -15,10 +15,6 @@ const favoritesSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Image', // Reference to the Image model
       required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the image was favorited
     },
   },
   {
@@ -45,16 +41,16 @@ favoritesSchema.statics.addFavorite = async function (userId, imageId) {
 
 // Method to remove an image from a user's favorites
 favoritesSchema.statics.removeFavorite = async function (userId, imageId) {
-  const favorite = await this.deleteOne({ user: userId, image: imageId });
+  const result = await this.deleteOne({ user: userId, image: imageId });
   
-  if (favorite.deletedCount === 0) {
+  if (result.deletedCount === 0) {
     throw new Error('This image is not in your favorites.');
   }
 
-  return favorite;
+  return result;
 };
 
 // Create the Favorites model
 const Favorite = mongoose.model('Favorite', favoritesSchema);
 
-module.exports = Favorite;
+export { Favorite };

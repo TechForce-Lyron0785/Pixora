@@ -1,6 +1,6 @@
 // models/comment.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Comment schema definition
@@ -25,14 +25,6 @@ const commentSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Comment', // For threaded replies (parent comment reference)
     },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp when the comment is created
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now, // Timestamp when the comment is updated
-    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
@@ -50,8 +42,12 @@ commentSchema.statics.createComment = async function (userId, imageId, text, par
 
   // Increment the comment count on the image
   const image = await mongoose.model('Image').findById(imageId);
-  image.commentsCount += 1;
-  await image.save();
+  if (image) {
+    image.commentsCount += 1;
+    await image.save();
+  } else {
+    throw new Error('Image not found');
+  }
 
   return newComment.save();
 };
@@ -74,8 +70,10 @@ commentSchema.statics.deleteComment = async function (commentId) {
 
   // Decrement the comment count on the image
   const image = await mongoose.model('Image').findById(comment.image);
-  image.commentsCount -= 1;
-  await image.save();
+  if (image) {
+    image.commentsCount -= 1;
+    await image.save();
+  }
 
   return this.deleteOne({ _id: commentId });
 };
@@ -83,4 +81,4 @@ commentSchema.statics.deleteComment = async function (commentId) {
 // Create the Comment model
 const Comment = mongoose.model('Comment', commentSchema);
 
-module.exports = Comment;
+export {Comment};

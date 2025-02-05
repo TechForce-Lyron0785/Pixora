@@ -1,6 +1,6 @@
 // models/album.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Album schema definition
@@ -32,10 +32,6 @@ const albumSchema = new Schema(
       type: String,
       enum: ['public', 'private'], // Album visibility (public or private)
       default: 'private', // Default visibility setting
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the album was created
     },
   },
   {
@@ -84,4 +80,4 @@ albumSchema.statics.getAlbumsByUser = async function (userId) {
 // Create the Album model
 const Album = mongoose.model('Album', albumSchema);
 
-module.exports = Album;
+export {Album};

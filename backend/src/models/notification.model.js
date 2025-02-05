@@ -1,6 +1,6 @@
 // models/notification.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Define notification types
@@ -84,4 +84,4 @@ notificationSchema.statics.createNotification = async function (userId, senderId
 // Create the Notification model
 const Notification = mongoose.model('Notification', notificationSchema);
 
-module.exports = Notification;
+export {Notification};

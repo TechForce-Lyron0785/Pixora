@@ -1,6 +1,6 @@
 // models/repost.model.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Repost schema definition
@@ -20,10 +20,6 @@ const repostSchema = new Schema(
       type: String,
       maxlength: 500, // Optionally, allow the user to add a custom message with the repost
     },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the image was reposted
-    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
@@ -41,8 +37,10 @@ repostSchema.statics.createRepost = async function (userId, imageId, message = '
 
   // Optionally, you can increment a repost count or add repost reference in the Image model
   const image = await mongoose.model('Image').findById(imageId);
-  image.repostsCount += 1; // Increment repost count for the image
-  await image.save();
+  if (image) {
+    image.repostsCount = (image.repostsCount || 0) + 1; // Increment repost count for the image
+    await image.save();
+  }
 
   return repost.save();
 };
@@ -57,8 +55,10 @@ repostSchema.statics.removeRepost = async function (userId, imageId) {
 
   // Decrement repost count for the image
   const image = await mongoose.model('Image').findById(imageId);
-  image.repostsCount -= 1;
-  await image.save();
+  if (image) {
+    image.repostsCount = (image.repostsCount || 0) - 1;
+    await image.save();
+  }
 
   return repost;
 };
@@ -66,4 +66,4 @@ repostSchema.statics.removeRepost = async function (userId, imageId) {
 // Create the Repost model
 const Repost = mongoose.model('Repost', repostSchema);
 
-module.exports = Repost;
+export {Repost};
