@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const repostController = require('../controllers/repost.controllers');
+import auth from '../middleware/auth.js';
+import * as repostController from '../controllers/repost.controllers.js';
 
 // Create a repost
 router.post('/:type/:id', auth, repostController.createRepost);
@@ -21,4 +21,4 @@ router.delete('/:type/:id', auth, repostController.deleteRepost);
 // Get repost count for an item
 router.get('/:type/:id/count', repostController.getRepostCount);
 
-module.exports = router;
+export default router;

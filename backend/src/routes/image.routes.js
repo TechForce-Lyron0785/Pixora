@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const imageController = require('../controllers/image.controllers');
-const upload = require('../middleware/upload');
+import * as imageController from '../controllers/image.controllers.js';
+import upload from '../middleware/upload.js';
+import auth from '../middleware/auth.js';
 
 // Upload a new image
 router.post('/', auth, upload.single('image'), imageController.uploadImage);
@@ -40,4 +40,4 @@ router.get('/discover/trending', imageController.getTrendingImages);
 // Search images
 router.get('/search/query', imageController.searchImages);
 
-module.exports = router;
+export default router;

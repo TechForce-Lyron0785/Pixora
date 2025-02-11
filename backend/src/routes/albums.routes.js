@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const albumController = require('../controllers/album.controllers');
+import auth from '../middleware/auth.js';
+import * as albumController from '../controllers/albums.controllers.js';
 
 // Create album
 router.post('/', auth, albumController.createAlbum);
@@ -24,4 +24,4 @@ router.post('/:albumId/images/:imageId', auth, albumController.addImageToAlbum);
 // Remove image from album
 router.delete('/:albumId/images/:imageId', auth, albumController.removeImageFromAlbum);
 
-module.exports = router;
+export default router;

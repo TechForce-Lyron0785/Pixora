@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const commentController = require('../controllers/comment.controllers');
+import auth from '../middleware/auth.js';
+import * as commentController from '../controllers/comment.controllers.js';
 
 // Create a comment on an image
 router.post('/images/:imageId', auth, commentController.createComment);
@@ -27,4 +27,4 @@ router.delete('/:commentId/like', auth, commentController.unlikeComment);
 // Get likes for a comment
 router.get('/:commentId/likes', commentController.getCommentLikes);
 
-module.exports = router;
+export default router;

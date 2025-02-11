@@ -1,21 +1,24 @@
-const express = require('express');
+import express from "express";
+import { authenticateUser } from "../middlewares/auth.middleware.js";
+import {
+  followUser,
+  unfollowUser,
+  getFollowers,
+  getFollowing,
+  checkFollowStatus
+} from "../controllers/follow.controllers.js";
+
 const router = express.Router();
-const auth = require('../middleware/auth');
-const followController = require('../controllers/follow.controllers');
 
-// Follow a user
-router.post('/:userId', auth, followController.followUser);
+// Routes for follow/unfollow
+router.post("/:userId", authenticateUser, followUser);
+router.delete("/:userId", authenticateUser, unfollowUser);
 
-// Unfollow a user
-router.delete('/:userId', auth, followController.unfollowUser);
+// Routes for getting followers and following lists
+router.get("/followers/:userId", getFollowers);
+router.get("/following/:userId", getFollowing);
 
-// Get followers of a user
-router.get('/:userId/followers', followController.getFollowers);
+// Route to check if the authenticated user is following someone
+router.get("/status/:userId", authenticateUser, checkFollowStatus);
 
-// Get users that a user is following
-router.get('/:userId/following', followController.getFollowing);
-
-// Check if user is following another user
-router.get('/:userId/check', auth, followController.checkFollowing);
-
-module.exports = router;
+export default router;

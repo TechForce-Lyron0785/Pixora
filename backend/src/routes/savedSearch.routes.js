@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const savedSearchController = require('../controllers/savedSearch.controllers');
+import auth from '../middleware/auth.js';
+import * as savedSearchController from '../controllers/savedSearch.controllers.js';
 
 // Create a new saved search
 router.post('/', auth, savedSearchController.createSavedSearch);
@@ -24,4 +24,4 @@ router.get('/:savedSearchId/execute', auth, savedSearchController.executeSavedSe
 // Get trending saved searches
 router.get('/discover/trending', savedSearchController.getTrendingSavedSearches);
 
-module.exports = router;
+export default router;

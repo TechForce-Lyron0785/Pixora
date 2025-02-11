@@ -1,19 +1,12 @@
 class ApiError extends Error {
-  constructor(
-    statusCode,
-    message = "Something went wrong",
-    errors = [],
-    stack = "",
-    data = null
-  ) {
+  constructor(statusCode, message = "Something went wrong", errors = [], stack = "", data = null) {
     super(message);
     this.statusCode = statusCode;
-    this.data = data; // For passing back any relevant data
-    this.errors = errors; // For validation errors or detailed error info
-    this.message = message;
+    this.data = data; 
+    this.errors = errors;
     this.success = false;
-    this.errorType = this.getErrorType(statusCode); // Add error type based on status code
-    
+    this.errorType = ApiError.getErrorType(statusCode);
+
     if (stack) {
       this.stack = stack;
     } else {
@@ -21,27 +14,18 @@ class ApiError extends Error {
     }
   }
 
-  getErrorType(statusCode) {
-    switch(statusCode) {
-      case 400:
-        return 'BAD_REQUEST';
-      case 401:
-        return 'UNAUTHORIZED';
-      case 403:
-        return 'FORBIDDEN';
-      case 404:
-        return 'NOT_FOUND';
-      case 409:
-        return 'CONFLICT';
-      case 422:
-        return 'VALIDATION_ERROR';
-      case 429:
-        return 'TOO_MANY_REQUESTS';
-      case 500:
-        return 'INTERNAL_SERVER';
-      default:
-        return 'SERVER_ERROR';
-    }
+  static getErrorType(statusCode) {
+    const errorTypes = {
+      400: "BAD_REQUEST",
+      401: "UNAUTHORIZED",
+      403: "FORBIDDEN",
+      404: "NOT_FOUND",
+      409: "CONFLICT",
+      422: "VALIDATION_ERROR",
+      429: "TOO_MANY_REQUESTS",
+      500: "INTERNAL_SERVER",
+    };
+    return errorTypes[statusCode] || "SERVER_ERROR";
   }
 }
 

@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const reportController = require('../controllers/report.controllers');
+import auth from '../middleware/auth.js';
+import * as reportController from '../controllers/report.controllers.js';
 
 // Create a new report
 router.post('/', auth, reportController.createReport);
@@ -24,4 +24,4 @@ router.delete('/:reportId', auth, reportController.deleteReport);
 // Get reports statistics (admin only)
 router.get('/stats/overview', auth, reportController.getReportStats);
 
-module.exports = router;
+export default router;

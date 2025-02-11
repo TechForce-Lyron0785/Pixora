@@ -1,4 +1,4 @@
-const multer = require("multer");
+import multer from "multer";
 
 // Configure storage in memory before sending to Cloudinary
 const storage = multer.memoryStorage();
@@ -14,4 +14,4 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-module.exports = upload;
+export default upload;

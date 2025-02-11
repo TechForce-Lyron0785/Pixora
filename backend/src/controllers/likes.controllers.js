@@ -1,8 +1,8 @@
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Like } from "../models/like.model.js";
-import { Photo } from "../models/photo.model.js";
+import { Like } from "../models/likes.model.js";
+import { Image } from "../models/image.model.js"; // Corrected import statement
 import { Notification } from "../models/notification.model.js";
 
 // Create like

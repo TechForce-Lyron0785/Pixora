@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const favoriteController = require('../controllers/favorite.controllers');
+import auth from '../middleware/auth.js';
+import * as favoriteController from '../controllers/favorites.controllers.js';
 
 // Add image to favorites
 router.post('/images/:imageId', auth, favoriteController.addToFavorites);
@@ -15,4 +15,4 @@ router.get('/', auth, favoriteController.getFavorites);
 // Check if image is favorited
 router.get('/images/:imageId', auth, favoriteController.checkFavorite);
 
-module.exports = router;
+export default router;

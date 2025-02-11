@@ -1,34 +1,23 @@
 class ApiResponse {
-  constructor(
-    statusCode,
-    message = "Success",
-    data = null,
-    metadata = null
-  ) {
+  constructor(statusCode, message = "Success", data = null, metadata = null) {
     this.statusCode = statusCode;
     this.message = message;
     this.data = data;
     this.success = statusCode < 400;
-    this.responseType = this.getResponseType(statusCode);
-    this.metadata = metadata; // For pagination, counts etc.
+    this.responseType = ApiResponse.getResponseType(statusCode);
+    this.metadata = metadata;
     this.timestamp = new Date().toISOString();
   }
 
-  getResponseType(statusCode) {
-    switch(statusCode) {
-      case 200:
-        return 'OK';
-      case 201:
-        return 'CREATED';
-      case 204:
-        return 'NO_CONTENT'; 
-      case 206:
-        return 'PARTIAL_CONTENT';
-      case 304:
-        return 'NOT_MODIFIED';
-      default:
-        return 'SUCCESS';
-    }
+  static getResponseType(statusCode) {
+    const responseTypes = {
+      200: "OK",
+      201: "CREATED",
+      204: "NO_CONTENT",
+      206: "PARTIAL_CONTENT",
+      304: "NOT_MODIFIED",
+    };
+    return responseTypes[statusCode] || "SUCCESS";
   }
 }
 

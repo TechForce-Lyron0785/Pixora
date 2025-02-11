@@ -1,113 +1,83 @@
+import { Follow } from "../models/follow.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Follow } from "../models/follow.model.js";
-import { User } from "../models/user.model.js";
-import { Notification } from "../models/notification.model.js";
 
-// Follow a user
-const followUser = asyncHandler(async (req, res) => {
+// list of controllers
+// 1. followUser
+// 2. unfollowUser
+// 3. getFollowers
+// 4. getFollowing
+// 5. checkFollowStatus
+
+/**
+ * @desc Follow a user
+ * @route POST /api/follow/:userId
+ * @access Private
+ */
+export const followUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
-  
-  if (userId === req.user._id.toString()) {
-    throw new ApiError(400, "Cannot follow yourself");
+  const followerId = req.user._id;
+
+  if (followerId.toString() === userId) {
+    throw new ApiError(400, "You cannot follow yourself.");
   }
 
-  const targetUser = await User.findById(userId);
-  if (!targetUser) {
-    throw new ApiError(404, "User not found");
-  }
+  await Follow.followUser(followerId, userId);
 
-  const existingFollow = await Follow.findOne({
-    follower: req.user._id,
-    following: userId
-  });
-
-  if (existingFollow) {
-    throw new ApiError(400, "Already following this user");
-  }
-
-  const follow = new Follow({
-    follower: req.user._id,
-    following: userId
-  });
-
-  await follow.save();
-
-  // Create notification for the followed user
-  await Notification.create({
-    type: 'follow',
-    user: userId,
-    sender: req.user._id
-  });
-
-  return res
-    .status(201)
-    .json(new ApiResponse(201, "Successfully followed user", follow));
+  res.status(201).json(new ApiResponse(201, "User followed successfully."));
 });
 
-// Unfollow a user
-const unfollowUser = asyncHandler(async (req, res) => {
+/**
+ * @desc Unfollow a user
+ * @route DELETE /api/follow/:userId
+ * @access Private
+ */
+export const unfollowUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
+  const followerId = req.user._id;
 
-  const follow = await Follow.findOneAndDelete({
-    follower: req.user._id,
-    following: userId
-  });
+  await Follow.unfollowUser(followerId, userId);
 
-  if (!follow) {
-    throw new ApiError(404, "Follow relationship not found");
-  }
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Successfully unfollowed user"));
+  res.status(200).json(new ApiResponse(200, "User unfollowed successfully."));
 });
 
-// Get followers of a user
-const getFollowers = asyncHandler(async (req, res) => {
-  const userId = req.params.userId || req.user._id;
-
-  const followers = await Follow.find({ following: userId })
-    .populate('follower', 'username profilePicture')
-    .sort({ createdAt: -1 });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Followers fetched successfully", followers));
-});
-
-// Get users that a user is following
-const getFollowing = asyncHandler(async (req, res) => {
-  const userId = req.params.userId || req.user._id;
-
-  const following = await Follow.find({ follower: userId })
-    .populate('following', 'username profilePicture')
-    .sort({ createdAt: -1 });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Following list fetched successfully", following));
-});
-
-// Check if user is following another user
-const checkFollowStatus = asyncHandler(async (req, res) => {
+/**
+ * @desc Get followers of a user
+ * @route GET /api/followers/:userId
+ * @access Public
+ */
+export const getFollowers = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
-  const follow = await Follow.findOne({
-    follower: req.user._id,
-    following: userId
-  });
+  const followers = await Follow.getFollowers(userId);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Follow status checked successfully", { isFollowing: !!follow }));
+  res.status(200).json(new ApiResponse(200, "Followers fetched successfully.", followers));
 });
 
-export {
-  followUser,
-  unfollowUser,
-  getFollowers,
-  getFollowing,
-  checkFollowStatus
-};
+/**
+ * @desc Get users the current user is following
+ * @route GET /api/following/:userId
+ * @access Public
+ */
+export const getFollowing = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const following = await Follow.getFollowing(userId);
+
+  res.status(200).json(new ApiResponse(200, "Following users fetched successfully.", following));
+});
+
+/**
+ * @desc Check if the authenticated user is following another user
+ * @route GET /api/follow/status/:userId
+ * @access Private
+ */
+export const checkFollowStatus = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const followerId = req.user._id;
+
+  const isFollowing = await Follow.checkFollowStatus(followerId, userId);
+
+  res.status(200).json(new ApiResponse(200, "Follow status retrieved.", { isFollowing }));
+});

@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const notificationController = require('../controllers/notification.controllers');
+import auth from '../middleware/auth.js';
+import * as notificationController from '../controllers/notification.controllers.js';
 
 // Get all notifications for logged in user
 router.get('/', auth, notificationController.getNotifications);
@@ -21,4 +21,4 @@ router.delete('/', auth, notificationController.deleteAllNotifications);
 // Get unread notification count
 router.get('/unread/count', auth, notificationController.getUnreadCount);
 
-module.exports = router;
+export default router;

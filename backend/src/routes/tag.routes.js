@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
+import auth from '../middleware/auth.js';
 const tagController = require('../controllers/tag.controllers');
 
 // Create a new tag
@@ -30,4 +30,4 @@ router.get('/search/suggestions', tagController.getTagSuggestions);
 // Get tag statistics
 router.get('/stats/overview', auth, tagController.getTagStats);
 
-module.exports = router;
+export default router;;
