@@ -1,105 +1,168 @@
+import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Comment } from "../models/comment.model.js";
 
-// Create new comment
-const createComment = asyncHandler(async (req, res) => {
-  const { content, photoId } = req.body;
-  
-  const comment = await Comment.create({
-    content,
-    photo: photoId,
-    user: req.user._id
-  });
+/**
+ * @desc Create a new comment
+ * @route POST /api/comments/:imageId
+ * @access Private
+ */
+export const createComment = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const { text, parentCommentId } = req.body;
+  const userId = req.user._id;
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, "Comment created successfully", comment));
+  if (!text) {
+    throw new ApiError(400, "Comment text is required");
+  }
+
+  const comment = await Comment.createComment(userId, imageId, text, parentCommentId);
+
+  res.status(201).json(
+    new ApiResponse(201, "Comment created successfully", comment)
+  );
 });
 
-// Get comments for a photo
-const getPhotoComments = asyncHandler(async (req, res) => {
-  const comments = await Comment.find({ photo: req.params.photoId })
+/**
+ * @desc Get comments for an image
+ * @route GET /api/comments/:imageId
+ * @access Public
+ */
+export const getImageComments = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const result = await Comment.getImageComments(imageId, page, limit);
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      "Comments fetched successfully",
+      result.comments,
+      result.metadata
+    )
+  );
+});
+
+/**
+ * @desc Get replies to a comment
+ * @route GET /api/comments/:commentId/replies
+ * @access Public
+ */
+export const getCommentReplies = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const replies = await Comment.find({ parentComment: commentId })
     .populate('user', 'username profilePicture')
-    .sort({ createdAt: -1 });
-  
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Comments fetched successfully", comments));
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Comment.countDocuments({ parentComment: commentId });
+
+  const metadata = {
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit)
+  };
+
+  res.status(200).json(
+    new ApiResponse(200, "Comment replies fetched successfully", replies, metadata)
+  );
 });
 
-// Update comment
-const updateComment = asyncHandler(async (req, res) => {
-  const { content } = req.body;
-  const comment = await Comment.findById(req.params.commentId);
+/**
+ * @desc Update a comment
+ * @route PATCH /api/comments/:commentId
+ * @access Private
+ */
+export const updateComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const { text } = req.body;
+  const userId = req.user._id;
+
+  if (!text) {
+    throw new ApiError(400, "Comment text is required");
+  }
+
+  const comment = await Comment.findById(commentId);
 
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
 
-  // Check if user owns the comment
-  if (comment.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Not authorized to modify this comment");
+  if (comment.user.toString() !== userId.toString()) {
+    throw new ApiError(403, "Not authorized to update this comment");
   }
 
-  comment.content = content;
+  comment.text = text;
   await comment.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Comment updated successfully", comment));
+  res.status(200).json(
+    new ApiResponse(200, "Comment updated successfully", comment)
+  );
 });
 
-// Delete comment
-const deleteComment = asyncHandler(async (req, res) => {
-  const comment = await Comment.findById(req.params.commentId);
+/**
+ * @desc Delete a comment
+ * @route DELETE /api/comments/:commentId
+ * @access Private
+ */
+export const deleteComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.user._id;
 
-  if (!comment) {
-    throw new ApiError(404, "Comment not found");
-  }
+  const comment = await Comment.deleteComment(commentId, userId);
 
-  // Check if user owns the comment
-  if (comment.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Not authorized to delete this comment");
-  }
-
-  await comment.deleteOne();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Comment deleted successfully"));
+  res.status(200).json(
+    new ApiResponse(200, "Comment deleted successfully", comment)
+  );
 });
 
-// Like/Unlike comment
-const toggleCommentLike = asyncHandler(async (req, res) => {
-  const comment = await Comment.findById(req.params.commentId);
+/**
+ * @desc Toggle like/unlike on a comment
+ * @route POST /api/comments/:commentId/like
+ * @access Private
+ */
+export const toggleCommentLike = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.user._id;
 
-  if (!comment) {
-    throw new ApiError(404, "Comment not found");
-  }
+  const result = await Comment.toggleLike(commentId, userId);
 
-  const userLikedIndex = comment.likes.indexOf(req.user._id);
-  
-  if (userLikedIndex === -1) {
-    // Like comment
-    comment.likes.push(req.user._id);
-  } else {
-    // Unlike comment
-    comment.likes.splice(userLikedIndex, 1);
-  }
-
-  await comment.save();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Comment like toggled successfully", comment));
+  res.status(200).json(
+    new ApiResponse(
+      200, 
+      result.liked ? "Comment liked successfully" : "Comment unliked successfully",
+      result
+    )
+  );
 });
 
-export {
-  createComment,
-  getPhotoComments,
-  updateComment,
-  deleteComment,
-  toggleCommentLike
-};
+/**
+ * @desc Get users who liked a comment
+ * @route GET /api/comments/:commentId/likes
+ * @access Public
+ */
+export const getCommentLikes = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const result = await Comment.getLikedUsers(commentId, page, limit);
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      "Comment likes fetched successfully",
+      result.users,
+      result.metadata
+    )
+  );
+});

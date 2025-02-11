@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
 import followRoutes from "./routes/follow.routes.js";
 import imageRoutes from "./routes/image.routes.js";
+import favoriteRoutes from "./routes/favorite.routes.js";
+import likeRoutes from "./routes/like.routes.js";
 
 const app = express();
 
@@ -22,5 +24,7 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/follow", followRoutes);
 app.use("/api/images", imageRoutes);
+app.use("/api/favorites", favoriteRoutes);
+app.use("/api/likes", likeRoutes);
 
 export { app };
