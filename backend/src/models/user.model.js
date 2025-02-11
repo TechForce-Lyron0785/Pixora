@@ -32,28 +32,14 @@ const userSchema = new Schema(
       type: String, // URL or file path of the profile picture
       default: "default-profile.jpg", // Default profile picture
     },
+    coverPicture: {
+      type: String, // URL or file path of the profile picture
+      default: "default-cover.jpg", // Default profile picture
+    },
     bio: {
       type: String,
       maxlength: 160, // Maximum length for user bio
     },
-    followers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to the User model
-      },
-    ],
-    following: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to the User model
-      },
-    ],
-    savedSearches: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "SavedSearch", // Reference to the SavedSearch model
-      },
-    ],
     socialLinks: {
       instagram: {
         type: String,
@@ -88,15 +74,17 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    albums: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Album", // Reference to Album model
-      },
-    ],
     lastLogin: {
       type: Date,
       default: null, // Stores last login timestamp
+    },
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+    followingCount: {
+      type: Number,
+      default: 0,
     },
   },
   {

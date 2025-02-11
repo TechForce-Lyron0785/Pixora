@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
 import followRoutes from "./routes/follow.routes.js";
+import imageRoutes from "./routes/image.routes.js";
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use(cookieParser());
 // Register routes
 app.use("/api/users", userRoutes);
 app.use("/api/follow", followRoutes);
+app.use("/api/images", imageRoutes);
 
 export { app };

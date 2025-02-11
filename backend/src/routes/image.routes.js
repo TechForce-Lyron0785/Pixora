@@ -1,43 +1,32 @@
-import express from 'express';
-const router = express.Router();
-import * as imageController from '../controllers/image.controllers.js';
-import upload from '../middleware/upload.js';
-import auth from '../middleware/auth.js';
+import { Router } from "express";
+import {
+  uploadImage,
+  getImage,
+  getAllImages,
+  getUserImages,
+  getUserPublicImages,
+  updateImage,
+  deleteImage,
+  searchImages,
+  getTrendingImages,
+  getImagesByTag
+} from "../controllers/image.controllers.js";
+import { authenticateUser } from "../middlewares/auth.middleware.js";
 
-// Upload a new image
-router.post('/', auth, upload.single('image'), imageController.uploadImage);
+const router = Router();
 
-// Get all images (with pagination)
-router.get('/', imageController.getAllImages);
+// Public routes
+router.get("/public", getAllImages);
+router.get("/search", searchImages);
+router.get("/discover/trending", getTrendingImages);
+router.get("/tags/:tag", getImagesByTag);
+router.get("/user/:userId", getUserPublicImages);
+router.get("/:imageId", getImage);
 
-// Get images for logged in user
-router.get('/me', auth, imageController.getUserImages);
-
-// Get images for specific user
-router.get('/user/:userId', imageController.getUserPublicImages);
-
-// Get single image by ID
-router.get('/:imageId', imageController.getImage);
-
-// Update image details
-router.patch('/:imageId', auth, imageController.updateImage);
-
-// Delete image
-router.delete('/:imageId', auth, imageController.deleteImage);
-
-// Like an image
-router.post('/:imageId/like', auth, imageController.likeImage);
-
-// Unlike an image
-router.delete('/:imageId/like', auth, imageController.unlikeImage);
-
-// Get likes for an image
-router.get('/:imageId/likes', imageController.getImageLikes);
-
-// Get trending images
-router.get('/discover/trending', imageController.getTrendingImages);
-
-// Search images
-router.get('/search/query', imageController.searchImages);
+// Protected routes
+router.post("/", authenticateUser, uploadImage);
+router.get("/me", authenticateUser, getUserImages);
+router.patch("/:imageId", authenticateUser, updateImage);
+router.delete("/:imageId", authenticateUser, deleteImage);
 
 export default router;

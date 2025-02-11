@@ -1,4 +1,5 @@
 import { Follow } from "../models/follow.model.js";
+import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -25,6 +26,10 @@ export const followUser = asyncHandler(async (req, res) => {
 
   await Follow.followUser(followerId, userId);
 
+  // Increment follower & following count
+  await User.findByIdAndUpdate(userId, { $inc: { followersCount: 1 } });
+  await User.findByIdAndUpdate(followerId, { $inc: { followingCount: 1 } });
+
   res.status(201).json(new ApiResponse(201, "User followed successfully."));
 });
 
@@ -38,6 +43,10 @@ export const unfollowUser = asyncHandler(async (req, res) => {
   const followerId = req.user._id;
 
   await Follow.unfollowUser(followerId, userId);
+
+  // Decrement follower & following count
+  await User.findByIdAndUpdate(userId, { $inc: { followersCount: -1 } });
+  await User.findByIdAndUpdate(followerId, { $inc: { followingCount: -1 } });
 
   res.status(200).json(new ApiResponse(200, "User unfollowed successfully."));
 });
