@@ -1,24 +1,33 @@
-import express from 'express';
-const router = express.Router();
-import auth from '../middleware/auth.js';
-import * as notificationController from '../controllers/notification.controllers.js';
+import { Router } from "express";
+import {
+  createNotification,
+  getUserNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
+  getUnreadNotificationsCount,
+  deleteOldNotifications
+} from "../controllers/notification.controllers.js";
+import { authenticateUser } from "../middlewares/auth.middleware.js";
 
-// Get all notifications for logged in user
-router.get('/', auth, notificationController.getNotifications);
+const router = Router();
 
-// Mark notification as read
-router.patch('/:notificationId/read', auth, notificationController.markAsRead);
+// All notification routes require authentication
+router.use(authenticateUser);
 
-// Mark all notifications as read
-router.patch('/read-all', auth, notificationController.markAllAsRead);
+// Get notifications
+router.get("/", getUserNotifications);
+router.get("/unread/count", getUnreadNotificationsCount);
 
-// Delete a notification
-router.delete('/:notificationId', auth, notificationController.deleteNotification);
+// Create notification
+router.post("/", createNotification);
 
-// Delete all notifications
-router.delete('/', auth, notificationController.deleteAllNotifications);
+// Update notifications
+router.patch("/:notificationId/read", markNotificationAsRead);
+router.patch("/read-all", markAllNotificationsAsRead);
 
-// Get unread notification count
-router.get('/unread/count', auth, notificationController.getUnreadCount);
+// Delete notifications
+router.delete("/:notificationId", deleteNotification);
+router.delete("/cleanup", deleteOldNotifications);
 
 export default router;

@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
-import { toggleLike, getLikes, checkLike } from "../controllers/likes.controllers.js";
+import { toggleLike, getLikes, checkLike } from "../controllers/like.controllers.js";
 
 const router = express.Router();
 

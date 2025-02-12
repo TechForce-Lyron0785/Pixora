@@ -1,5 +1,6 @@
 import { Like } from "../models/like.model.js";
 import { Image } from "../models/image.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -20,6 +21,17 @@ export const toggleLike = asyncHandler(async (req, res) => {
   }
 
   const result = await Like.toggleLike(userId, imageId);
+
+  // Send notification if image was liked
+  if (result.liked) {
+    await Notification.createNotification({
+      recipient: image.user,
+      sender: userId,
+      type: 'like',
+      content: 'liked your image',
+      relatedImage: imageId
+    });
+  }
 
   res.status(200).json(
     new ApiResponse(200, `Like status updated`, result)

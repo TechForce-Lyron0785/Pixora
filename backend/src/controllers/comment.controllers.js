@@ -1,4 +1,5 @@
 import { Comment } from "../models/comment.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -18,6 +19,30 @@ export const createComment = asyncHandler(async (req, res) => {
   }
 
   const comment = await Comment.createComment(userId, imageId, text, parentCommentId);
+
+  // Send notification for new comment
+  if (parentCommentId) {
+    // If replying to a comment, notify the parent comment author
+    const parentComment = await Comment.findById(parentCommentId);
+    await Notification.createNotification({
+      recipient: parentComment.user,
+      sender: userId,
+      type: 'reply',
+      content: 'replied to your comment',
+      relatedImage: imageId,
+      relatedComment: comment._id
+    });
+  } else {
+    // If commenting on image, notify image owner
+    await Notification.createNotification({
+      recipient: comment.image.user,
+      sender: userId,
+      type: 'comment',
+      content: 'commented on your image',
+      relatedImage: imageId,
+      relatedComment: comment._id
+    });
+  }
 
   res.status(201).json(
     new ApiResponse(201, "Comment created successfully", comment)
@@ -135,6 +160,19 @@ export const toggleCommentLike = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
   const result = await Comment.toggleLike(commentId, userId);
+
+  // Send notification if comment was liked
+  if (result.liked) {
+    const comment = await Comment.findById(commentId);
+    await Notification.createNotification({
+      recipient: comment.user,
+      sender: userId,
+      type: 'like',
+      content: 'liked your comment',
+      relatedComment: commentId,
+      relatedImage: comment.image
+    });
+  }
 
   res.status(200).json(
     new ApiResponse(

@@ -1,87 +1,145 @@
-// models/notification.model.js
-
 import mongoose from 'mongoose';
-const { Schema } = mongoose;
+import { ApiError } from '../utils/ApiError.js';
 
-// Define notification types
-const notificationTypes = [
-  'like',       // When someone likes a user's image
-  'comment',    // When someone comments on a user's image
-  'follow',     // When someone follows a user
-  'repost',     // When someone reposts a user's image
-  'message',    // When a user receives a message
-  'report',     // When a user's image is reported
-  'tag',        // When a user is tagged in an image
-  'saved-search', // When a saved search returns new results
-];
+const { Schema } = mongoose;
 
 // Notification schema definition
 const notificationSchema = new Schema(
   {
-    user: {
+    recipient: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true, // The user receiving the notification
+      required: true,
     },
     sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // The user who triggered the notification
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
+      required: true,
     },
     type: {
       type: String,
-      enum: notificationTypes,
-      required: true, // The type of notification (like, comment, follow, etc.)
-    },
-    content: {
-      type: String, // The content/description of the notification
       required: true,
+      enum: ['follow', 'like', 'comment', 'reply', 'favorite', 'repost', 'mention'],
     },
     read: {
       type: Boolean,
-      default: false, // A flag indicating if the notification has been read
+      default: false,
     },
-    image: {
+    content: {
+      type: String,
+      required: true,
+    },
+    relatedImage: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Image', // Reference to the image related to the notification (if any)
+      ref: 'Image',
     },
-    createdAt: {
-      type: Date,
-      default: Date.now, // Timestamp for when the notification was created
+    relatedComment: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Comment',
     },
+    relatedAlbum: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Album', 
+    }
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
-// Method to mark notifications as read
-notificationSchema.statics.markAsRead = async function (notificationId) {
-  const notification = await this.findByIdAndUpdate(notificationId, { read: true }, { new: true });
-  if (!notification) {
-    throw new Error('Notification not found');
+// Index for faster queries
+notificationSchema.index({ recipient: 1, createdAt: -1 });
+notificationSchema.index({ recipient: 1, read: 1 });
+
+// Create notification
+notificationSchema.statics.createNotification = async function(data) {
+  try {
+    const notification = await this.create(data);
+    return notification;
+  } catch (error) {
+    throw new ApiError(500, "Error creating notification");
   }
+};
+
+// Get user's notifications with pagination
+notificationSchema.statics.getUserNotifications = async function(userId, page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+
+  const notifications = await this.find({ recipient: userId })
+    .populate('sender', 'username profilePicture')
+    .populate('relatedImage', 'title imageUrl')
+    .populate('relatedComment', 'text')
+    .populate('relatedAlbum', 'name')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await this.countDocuments({ recipient: userId });
+
+  return {
+    notifications,
+    metadata: {
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit)
+    }
+  };
+};
+
+// Mark notification as read
+notificationSchema.statics.markAsRead = async function(notificationId, userId) {
+  const notification = await this.findById(notificationId);
+  
+  if (!notification) {
+    throw new ApiError(404, "Notification not found");
+  }
+
+  if (notification.recipient.toString() !== userId.toString()) {
+    throw new ApiError(403, "Not authorized to update this notification");
+  }
+
+  notification.read = true;
+  await notification.save();
+  
   return notification;
 };
 
-// Method to fetch unread notifications for a user
-notificationSchema.statics.getUnreadNotifications = async function (userId) {
-  return this.find({ user: userId, read: false }).sort({ createdAt: -1 });
+// Mark all notifications as read
+notificationSchema.statics.markAllAsRead = async function(userId) {
+  await this.updateMany(
+    { recipient: userId, read: false },
+    { read: true }
+  );
 };
 
-// Method to create a notification
-notificationSchema.statics.createNotification = async function (userId, senderId, type, content, imageId = null) {
-  const notification = new this({
-    user: userId,
-    sender: senderId,
-    type,
-    content,
-    image: imageId,
-  });
+// Delete notification
+notificationSchema.statics.deleteNotification = async function(notificationId, userId) {
+  const notification = await this.findById(notificationId);
+  
+  if (!notification) {
+    throw new ApiError(404, "Notification not found");
+  }
 
-  return notification.save();
+  if (notification.recipient.toString() !== userId.toString()) {
+    throw new ApiError(403, "Not authorized to delete this notification");
+  }
+
+  await notification.deleteOne();
+  return { message: "Notification deleted successfully" };
 };
 
-// Create the Notification model
-const Notification = mongoose.model('Notification', notificationSchema);
+// Get unread notifications count
+notificationSchema.statics.getUnreadCount = async function(userId) {
+  return this.countDocuments({ recipient: userId, read: false });
+};
 
-export {Notification};
+// Delete old notifications (older than 30 days)
+notificationSchema.statics.deleteOldNotifications = async function() {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  await this.deleteMany({ createdAt: { $lt: thirtyDaysAgo } });
+};
+
+export const Notification = mongoose.model('Notification', notificationSchema);

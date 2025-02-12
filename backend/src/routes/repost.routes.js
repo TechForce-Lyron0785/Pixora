@@ -1,24 +1,24 @@
-import express from 'express';
-const router = express.Router();
-import auth from '../middleware/auth.js';
-import * as repostController from '../controllers/repost.controllers.js';
+import { Router } from "express";
+import {
+  createRepost,
+  getRepost,
+  getUserReposts,
+  getImageReposts,
+  updateRepost,
+  deleteRepost
+} from "../controllers/repost.controllers.js";
+import { authenticateUser } from "../middlewares/auth.middleware.js";
 
-// Create a repost
-router.post('/:type/:id', auth, repostController.createRepost);
+const router = Router();
 
-// Get all reposts for a post/image
-router.get('/:type/:id', repostController.getReposts);
+// Public routes
+router.get("/:repostId", getRepost);
+router.get("/user/:userId", getUserReposts);
+router.get("/image/:imageId", getImageReposts);
 
-// Get reposts by a specific user
-router.get('/user/:userId', repostController.getUserReposts);
-
-// Check if user reposted an item
-router.get('/:type/:id/check', auth, repostController.checkRepost);
-
-// Delete a repost
-router.delete('/:type/:id', auth, repostController.deleteRepost);
-
-// Get repost count for an item
-router.get('/:type/:id/count', repostController.getRepostCount);
+// Protected routes
+router.post("/", authenticateUser, createRepost);
+router.patch("/:repostId", authenticateUser, updateRepost);
+router.delete("/:repostId", authenticateUser, deleteRepost);
 
 export default router;

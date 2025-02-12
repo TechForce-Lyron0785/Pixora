@@ -1,5 +1,6 @@
 import { Favorite } from "../models/favorite.model.js";
 import { Image } from "../models/image.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -20,6 +21,17 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
   }
 
   const result = await Favorite.toggleFavorite(userId, imageId);
+
+  // Send notification if image was favorited
+  if (result.favorited) {
+    await Notification.createNotification({
+      recipient: image.user,
+      sender: userId,
+      type: 'favorite',
+      content: 'favorited your image',
+      relatedImage: imageId
+    });
+  }
 
   res.status(200).json(
     new ApiResponse(200, `Favorite status updated`, result)

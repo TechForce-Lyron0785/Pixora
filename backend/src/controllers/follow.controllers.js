@@ -1,5 +1,6 @@
 import { Follow } from "../models/follow.model.js";
 import { User } from "../models/user.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -29,6 +30,14 @@ export const followUser = asyncHandler(async (req, res) => {
   // Increment follower & following count
   await User.findByIdAndUpdate(userId, { $inc: { followersCount: 1 } });
   await User.findByIdAndUpdate(followerId, { $inc: { followingCount: 1 } });
+
+  // Create follow notification
+  await Notification.createNotification({
+    recipient: userId,
+    sender: followerId,
+    type: 'follow',
+    content: 'started following you'
+  });
 
   res.status(201).json(new ApiResponse(201, "User followed successfully."));
 });

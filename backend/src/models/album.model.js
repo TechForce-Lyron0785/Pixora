@@ -1,6 +1,7 @@
-// models/album.model.js
-
 import mongoose from 'mongoose';
+import { ApiError } from '../utils/ApiError.js';
+import { User } from './user.model.js'; // Assuming you want to reference the User model
+
 const { Schema } = mongoose;
 
 // Album schema definition
@@ -8,30 +9,27 @@ const albumSchema = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User who owns the album
+      ref: 'User', // Reference to the User who created the album
       required: true,
     },
-    title: {
+    name: {
       type: String,
-      required: true, // The title of the album
+      required: [true, 'Album name is required'], // Album name is mandatory
+      maxlength: [100, 'Album name cannot exceed 100 characters'], // Limiting album name length
       trim: true,
-      maxlength: 100, // Limiting title length for neatness
     },
     description: {
       type: String,
-      default: '', // Optional description for the album
-      maxlength: 500, // Limiting description length for consistency
+      maxlength: [500, 'Album description cannot exceed 500 characters'], // Limiting album description length
+      trim: true,
     },
-    images: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Image', // Reference to the images in the album
-      },
-    ],
-    visibility: {
-      type: String,
-      enum: ['public', 'private'], // Album visibility (public or private)
-      default: 'private', // Default visibility setting
+    images: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Image', // Reference to the Image model
+    }],
+    isPublic: {
+      type: Boolean,
+      default: true, // Whether the album is public or private
     },
   },
   {
@@ -39,45 +37,12 @@ const albumSchema = new Schema(
   }
 );
 
-// Method to add an image to an album
-albumSchema.statics.addImageToAlbum = async function (albumId, imageId) {
-  const album = await this.findById(albumId);
-  if (!album) {
-    throw new Error('Album not found');
-  }
-
-  album.images.push(imageId);
-  return album.save();
-};
-
-// Method to remove an image from an album
-albumSchema.statics.removeImageFromAlbum = async function (albumId, imageId) {
-  const album = await this.findById(albumId);
-  if (!album) {
-    throw new Error('Album not found');
-  }
-
-  album.images = album.images.filter((image) => !image.equals(imageId));
-  return album.save();
-};
-
-// Method to change the visibility of the album
-albumSchema.statics.changeVisibility = async function (albumId, visibility) {
-  const album = await this.findById(albumId);
-  if (!album) {
-    throw new Error('Album not found');
-  }
-
-  album.visibility = visibility;
-  return album.save();
-};
-
-// Method to get all albums for a user
-albumSchema.statics.getAlbumsByUser = async function (userId) {
-  return this.find({ user: userId }).sort({ createdAt: -1 });
+// Method to create a new album
+albumSchema.statics.createAlbum = async function (userId, albumData) {
+  const album = new this({ user: userId, ...albumData });
+  await album.save();
+  return album;
 };
 
 // Create the Album model
-const Album = mongoose.model('Album', albumSchema);
-
-export {Album};
+export const Album = mongoose.model('Album', albumSchema);

@@ -1,89 +1,106 @@
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Notification } from "../models/notification.model.js";
 
-// Get user's notifications
-const getNotifications = asyncHandler(async (req, res) => {
-  const notifications = await Notification.find({ user: req.user._id })
-    .populate('sender', 'username profilePicture')
-    .populate('image', 'imageUrl')
-    .sort({ createdAt: -1 });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Notifications fetched successfully", notifications));
+/**
+ * @desc Create a new notification
+ * @route POST /api/notifications
+ * @access Private
+ */
+export const createNotification = asyncHandler(async (req, res) => {
+  const notification = await Notification.createNotification(req.body);
+  
+  res.status(201).json(
+    new ApiResponse(201, "Notification created successfully", notification)
+  );
 });
 
-// Mark notification as read
-const markAsRead = asyncHandler(async (req, res) => {
-  const notification = await Notification.findById(req.params.notificationId);
+/**
+ * @desc Get user's notifications with pagination
+ * @route GET /api/notifications
+ * @access Private
+ */
+export const getUserNotifications = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
 
-  if (!notification) {
-    throw new ApiError(404, "Notification not found");
-  }
-
-  // Check if notification belongs to user
-  if (notification.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Not authorized to modify this notification");
-  }
-
-  notification.read = true;
-  await notification.save();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Notification marked as read", notification));
-});
-
-// Mark all notifications as read
-const markAllAsRead = asyncHandler(async (req, res) => {
-  await Notification.updateMany(
-    { user: req.user._id, read: false },
-    { read: true }
+  const { notifications, metadata } = await Notification.getUserNotifications(
+    req.user._id,
+    page,
+    limit
   );
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "All notifications marked as read"));
+  res.status(200).json(
+    new ApiResponse(200, "Notifications fetched successfully", notifications, metadata)
+  );
 });
 
-// Delete notification
-const deleteNotification = asyncHandler(async (req, res) => {
-  const notification = await Notification.findById(req.params.notificationId);
+/**
+ * @desc Mark notification as read
+ * @route PATCH /api/notifications/:notificationId/read
+ * @access Private
+ */
+export const markNotificationAsRead = asyncHandler(async (req, res) => {
+  const { notificationId } = req.params;
+  
+  const notification = await Notification.markAsRead(notificationId, req.user._id);
 
-  if (!notification) {
-    throw new ApiError(404, "Notification not found");
-  }
-
-  // Check if notification belongs to user
-  if (notification.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Not authorized to delete this notification");
-  }
-
-  await notification.deleteOne();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Notification deleted successfully"));
+  res.status(200).json(
+    new ApiResponse(200, "Notification marked as read", notification)
+  );
 });
 
-// Get unread notifications count
-const getUnreadCount = asyncHandler(async (req, res) => {
-  const count = await Notification.countDocuments({
-    user: req.user._id,
-    read: false
-  });
+/**
+ * @desc Mark all notifications as read
+ * @route PATCH /api/notifications/read-all
+ * @access Private
+ */
+export const markAllNotificationsAsRead = asyncHandler(async (req, res) => {
+  await Notification.markAllAsRead(req.user._id);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "Unread count fetched successfully", { count }));
+  res.status(200).json(
+    new ApiResponse(200, "All notifications marked as read")
+  );
 });
 
-export {
-  getNotifications,
-  markAsRead,
-  markAllAsRead,
-  deleteNotification,
-  getUnreadCount
-};
+/**
+ * @desc Delete a notification
+ * @route DELETE /api/notifications/:notificationId
+ * @access Private
+ */
+export const deleteNotification = asyncHandler(async (req, res) => {
+  const { notificationId } = req.params;
+
+  const result = await Notification.deleteNotification(notificationId, req.user._id);
+
+  res.status(200).json(
+    new ApiResponse(200, result.message)
+  );
+});
+
+/**
+ * @desc Get unread notifications count
+ * @route GET /api/notifications/unread/count
+ * @access Private
+ */
+export const getUnreadNotificationsCount = asyncHandler(async (req, res) => {
+  const count = await Notification.getUnreadCount(req.user._id);
+
+  res.status(200).json(
+    new ApiResponse(200, "Unread notifications count fetched", { count })
+  );
+});
+
+/**
+ * @desc Delete old notifications (older than 30 days)
+ * @route DELETE /api/notifications/cleanup
+ * @access Private
+ */
+export const deleteOldNotifications = asyncHandler(async (req, res) => {
+  await Notification.deleteOldNotifications();
+
+  res.status(200).json(
+    new ApiResponse(200, "Old notifications deleted successfully")
+  );
+});
