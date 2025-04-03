@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import {
   Instagram,
@@ -8,13 +7,8 @@ import {
   Facebook,
   Youtube,
   Github,
-  ArrowRight,
   ChevronRight,
   Heart,
-  Mail,
-  Sparkles,
-  Shield,
-  CheckCircle,
   Globe,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -100,6 +94,7 @@ const FooterSection = () => {
                 <div className="p-1 rounded-md shadow-lg shadow-gray-500/20 bg-white/10 backdrop-blur-sm">
                   <Image
                     src="/images/logo.png"
+                    alt="Pixora Logo"
                     className="w-10 h-10"
                     height={20}
                     width={20}

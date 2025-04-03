@@ -15,6 +15,7 @@ import rateLimit from "express-rate-limit";
 // 6. updateUserPassword
 // 7. getAllUsers
 // 8. searchUsers
+// 9. checkUserAvailability
 
 // Rate limiter (limits requests to 5 per minute per IP)
 export const loginLimiter = rateLimit({
@@ -47,22 +48,28 @@ const generateToken = (userId) => {
  * @access Public
  */
 export const registerUser = [registerLimiter, asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { fullName, username, email, password } = req.body;
 
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
     throw new ApiError(409, "Username or Email already taken.");
   }
 
-  const newUser = new User({ username, email, password });
+  const newUser = new User({ fullName, username, email, password });
   await newUser.save();
 
   const token = generateToken(newUser._id);
 
-  res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
+  // Set cookie with an expiration date of 7 days
+  res.cookie("token", token, { 
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production", 
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+  });
 
   res.status(201).json(new ApiResponse(201, "User registered successfully", {
     _id: newUser._id,
+    fullName: newUser.fullName,
     username: newUser.username,
     email: newUser.email,
     profilePicture: newUser.profilePicture,
@@ -90,16 +97,64 @@ export const loginUser = [loginLimiter, asyncHandler(async (req, res) => {
 
   const token = generateToken(user._id);
 
-  res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
+  // Set cookie with an expiration date of 7 days
+  res.cookie("token", token, { 
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production", 
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+  });
 
   res.status(200).json(new ApiResponse(200, "Login successful", {
     _id: user._id,
+    fullName: user.fullName,
     username: user.username,
     email: user.email,
     profilePicture: user.profilePicture,
     token,
   }));
 })];
+
+/** 
+ * @desc Logout user
+ * @route POST /api/users/logout
+ * @access Public
+ */
+export const logoutUser = asyncHandler(async (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json(new ApiResponse(200, "Logged out successfully"));
+});
+
+/** 
+ * @desc Check if username or email is available
+ * @route POST /api/users/check-availability
+ * @access Public
+ */
+export const checkUserAvailability = asyncHandler(async (req, res) => {
+  const { username, email } = req.body;
+  
+  // Create query condition based on what was provided
+  const query = {};
+  if (username) query.username = username;
+  if (email) query.email = email;
+  
+  // If neither username nor email was provided
+  if (Object.keys(query).length === 0) {
+    throw new ApiError(400, "Username or email is required");
+  }
+  
+  const existingUser = await User.findOne(query);
+  
+  if (existingUser) {
+    const field = existingUser.username === username ? "username" : "email";
+    throw new ApiError(409, `This ${field} is already taken.`);
+  }
+  
+  res.status(200).json(new ApiResponse(200, "Username and email are available"));
+});
 
 /** 
  * @desc Get logged-in user profile

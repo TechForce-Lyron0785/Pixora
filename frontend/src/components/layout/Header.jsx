@@ -131,6 +131,7 @@ const Header = () => {
                 <div className="p-1 rounded-md shadow-lg shadow-gray-500/20 bg-white/10 backdrop-blur-sm">
                   <Image
                     src="/images/logo.png"
+                    alt="Pixora Logo"
                     className="w-8 h-8"
                     height={20}
                     width={20}
@@ -220,13 +221,13 @@ const Header = () => {
 
               {/* Authentication */}
               <div className="hidden md:flex items-center space-x-3 ml-2">
-                <button className="px-4 py-2 text-sm font-medium text-white hover:bg-white/5 rounded-lg transition-colors">
+                <Link href={"/login"} className="px-4 py-2 text-sm font-medium text-white hover:bg-white/5 rounded-lg transition-colors">
                   Sign In
-                </button>
-                <button className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-lg transition-colors flex items-center">
+                </Link>
+                <Link href="/register" className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-lg transition-colors flex items-center">
                   <span>Get Started</span>
                   <Sparkles className="w-4 h-4 ml-1" />
-                </button>
+                </Link>
               </div>
 
               {/* Mobile Menu Toggle */}
@@ -332,15 +333,15 @@ const Header = () => {
 
                 {/* Mobile Authentication */}
                 <div className="pt-6 space-y-3 border-t border-white/10">
-                  <button className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium flex items-center justify-center">
+                  <Link href={"/login"} className="w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium flex items-center justify-center">
                     <LogIn className="w-5 h-5 mr-2" />
                     <span>Sign In</span>
-                  </button>
+                  </Link>
 
-                  <button className="w-full p-3 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-medium flex items-center justify-center">
+                  <Link href={"/register"} className="w-full p-3 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-medium flex items-center justify-center">
                     <Zap className="w-5 h-5 mr-2" />
                     <span>Get Started</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

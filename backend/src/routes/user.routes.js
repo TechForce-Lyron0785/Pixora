@@ -3,12 +3,14 @@ import { authenticateUser } from "../middlewares/auth.middleware.js";
 import {
   registerUser,
   loginUser,
+  logoutUser,
   getLoggedInUser,
   getUserProfile,
   updateUserProfile,
   updateUserPassword,
   getAllUsers,
-  searchUsers
+  searchUsers,
+  checkUserAvailability
 } from "../controllers/user.controllers.js";
 
 const router = express.Router();
@@ -16,6 +18,8 @@ const router = express.Router();
 // Authentication routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/logout", logoutUser);
+router.post("/check-availability", checkUserAvailability);
 
 // User profile routes (Protected)
 router.get("/me", authenticateUser, getLoggedInUser);
@@ -24,7 +28,7 @@ router.patch("/:userId/password", authenticateUser, updateUserPassword);
 
 // Public routes
 router.get("/", getAllUsers);
-router.get("/:identifier", getUserProfile);
 router.get("/search", searchUsers);
+router.get("/:identifier", getUserProfile);
 
 export default router;

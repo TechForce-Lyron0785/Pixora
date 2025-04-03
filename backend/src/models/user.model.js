@@ -6,6 +6,12 @@ const { Schema } = mongoose;
 // User schema definition
 const userSchema = new Schema(
   {
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 33, // Maximum length for full name
+    },
     username: {
       type: String,
       required: true,
@@ -30,11 +36,11 @@ const userSchema = new Schema(
     },
     profilePicture: {
       type: String, // URL or file path of the profile picture
-      default: "default-profile.jpg", // Default profile picture
+      default: "/images/default-profile.jpg", // Default profile picture
     },
     coverPicture: {
       type: String, // URL or file path of the profile picture
-      default: "default-cover.jpg", // Default profile picture
+      default: "/images/default-cover.jpg", // Default profile picture
     },
     bio: {
       type: String,

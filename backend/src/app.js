@@ -14,8 +14,8 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
-  credentials: true
+  origin: "http://localhost:3000", // Allow only frontend
+  credentials: true, // Allow cookies & authentication headers
 }));
 
 app.use(express.json({ limit: "16kb" }));
