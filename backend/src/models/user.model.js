@@ -31,7 +31,9 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() {
+        return this.provider !== "google"; // Password is not required for Google login
+      },
       minlength: 6,
     },
     profilePicture: {
@@ -75,6 +77,10 @@ const userSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true, // User is active by default
+    },
+    provider: { 
+      type: String, 
+      default: "credentials" 
     },
     isVerified: {
       type: Boolean,

@@ -115,6 +115,47 @@ export const loginUser = [loginLimiter, asyncHandler(async (req, res) => {
 })];
 
 /** 
+ * @desc Login user with Google
+ * @route POST /api/users/google-login
+ * @access Public
+ */
+export const googleLoginUser = asyncHandler(async (req, res) => {
+  const { email, fullName, username, profilePicture } = req.body;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = new User({
+      email,
+      username,
+      fullName,
+      profilePicture,
+      provider: "google",
+      isVerified: true,
+    });
+    await user.save();
+  }
+
+  const token = generateToken(user._id);
+
+  // Set cookie with an expiration date of 7 days
+  res.cookie("token", token, { 
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production", 
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+  });
+
+  res.status(200).json(new ApiResponse(200, "User logged in with Google", {
+    _id: user._id,
+    fullName: user.fullName,
+    username: user.username,
+    email: user.email,
+    profilePicture: user.profilePicture,
+    token,
+  }));
+});
+
+/** 
  * @desc Logout user
  * @route POST /api/users/logout
  * @access Public

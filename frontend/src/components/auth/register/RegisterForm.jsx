@@ -1,17 +1,10 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
 import {
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-  User,
-  AtSign,
-  AlertCircle,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
@@ -24,7 +17,7 @@ import StepThree from "./steps/StepThree";
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { register, checkUserExists, loading } = useAuth();
+  const { register, checkUserExists, googleLogin, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
@@ -476,6 +469,7 @@ export default function RegisterForm() {
           </button>
           <button
             type="button"
+            onClick={googleLogin}
             className="w-full py-3 px-4 rounded-xl font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 flex justify-center items-center text-sm transition-all"
           >
             <svg

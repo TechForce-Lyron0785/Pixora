@@ -10,7 +10,8 @@ import {
   updateUserPassword,
   getAllUsers,
   searchUsers,
-  checkUserAvailability
+  checkUserAvailability,
+  googleLoginUser
 } from "../controllers/user.controllers.js";
 
 const router = express.Router();
@@ -18,6 +19,7 @@ const router = express.Router();
 // Authentication routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/google-login", googleLoginUser);
 router.post("/logout", logoutUser);
 router.post("/check-availability", checkUserAvailability);
 

@@ -7,6 +7,7 @@ import { User, Mail, Calendar, LogOut } from "lucide-react";
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
+  // console.log(user);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {

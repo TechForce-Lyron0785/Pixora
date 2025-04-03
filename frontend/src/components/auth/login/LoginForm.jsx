@@ -9,7 +9,7 @@ import { toast } from "react-hot-toast";
 
 export default function LoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
 
   const [formData, setFormData] = useState({
     identifier: "",
@@ -327,6 +327,7 @@ export default function LoginForm() {
           {/* Google Button with enhanced hover effects */}
           <button
             type="button"
+            onClick={googleLogin}
             className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl shadow-sm bg-[#ffffff08] text-[#ffffffcc] border border-[#ffffff15] hover:bg-[#ffffff10] transition-all duration-200"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

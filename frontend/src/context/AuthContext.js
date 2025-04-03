@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:5000";
 
@@ -20,6 +21,7 @@ const AuthContext = createContext();
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
+  const { data: session } = useSession();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,20 +29,24 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is already logged in on mount
   useEffect(() => {
-    const verifyUser = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/api/users/me");
-        setUser(response.data.data);
-      } catch (error) {
-        console.error("Auth verification error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (session?.user) {
+      setUser(session.user);
+    } else {
+      verifyUser();
+    }
+  }, [session]);
 
-    verifyUser();
-  }, []);
+  const verifyUser = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/api/users/me");
+      setUser(response.data.data);
+    } catch (error) {
+      console.error("Auth verification error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Register a new user
   const register = async (userData) => {
@@ -89,12 +95,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+  const googleLogin = async () => {
+    try {
+      setLoading(true);
+      await signIn("google");
+    } catch (err) {
+      console.error("Google login error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Logout user
   const logout = async () => {
     try {
       setLoading(true);
       await api.post("/api/users/logout");
       setUser(null);
+      await signOut();
       router.push("/login");
       return { success: true };
     } catch (err) {
@@ -112,6 +131,7 @@ export const AuthProvider = ({ children }) => {
     error,
     register,
     login,
+    googleLogin,
     logout,
     checkUserExists,
     isAuthenticated: !!user,
