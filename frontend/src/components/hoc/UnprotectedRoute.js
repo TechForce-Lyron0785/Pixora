@@ -6,12 +6,12 @@ import { useEffect } from "react";
 import LoadingScreen from "@/components/screens/LoadingScreen";
 
 export default function UnprotectedRoute({ children }) {
-  const { loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      router.push("/profile");
+      router.push("/dashboard");
     }
   }, [loading, isAuthenticated, router]);
 

@@ -7,7 +7,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-0 m-0 overflow-hidden bg-[#030014] py-8 pt-12">
       {/* Dynamic background with animated gradient and particles */}
-      {/* <AnimatedBackground /> */}
+      <AnimatedBackground />
 
       {/* Main Container */}
       <motion.div

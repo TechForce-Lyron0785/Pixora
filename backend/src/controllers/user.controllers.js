@@ -218,7 +218,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   // Find user by email or username
   const user = await User.findOne({
     $or: [{ email: identifier }, { username: identifier }]
-  }).select("-password -email");
+  }).select("-password");
 
   if (!user) throw new ApiError(404, "User not found.");
 

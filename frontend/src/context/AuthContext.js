@@ -21,7 +21,7 @@ const AuthContext = createContext();
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,12 +29,26 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is already logged in on mount
   useEffect(() => {
-    if (session?.user) {
-      setUser(session.user);
-    } else {
-      verifyUser();
+    if (status !== "loading") {
+      if (session?.user) {
+        fetchUserData(session.user.email);
+      } else {
+        verifyUser();
+      }
     }
-  }, [session]);
+  }, [session, status]);
+
+  const fetchUserData = async (identifier) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/users/${identifier}`);
+      setUser(response.data.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const verifyUser = async () => {
     try {
@@ -95,13 +109,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
   const googleLogin = async () => {
     try {
       setLoading(true);
       await signIn("google");
     } catch (err) {
-      console.error("Google login error:", err);
+      setError(err);
     } finally {
       setLoading(false);
     }
