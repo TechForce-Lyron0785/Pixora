@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { RegisterForm, ShowcaseGallery, AnimatedBackground } from "@/components/auth/register";
-import { PageFooter } from "@/components/auth/login";
 
 export default function RegisterPage() {
   return (
@@ -53,9 +52,6 @@ export default function RegisterPage() {
         {/* Right Side - Showcase */}
         <ShowcaseGallery />
       </motion.div>
-
-      {/* Footer */}
-      <PageFooter />
     </div>
   );
 }
