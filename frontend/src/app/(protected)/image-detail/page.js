@@ -41,7 +41,7 @@ const ImageDetail = () => {
     title: "Cosmic Journey",
     description: "A surreal exploration of space and consciousness. This piece represents the human journey through the cosmos of mind and universe, where reality and dreams intertwine.",
     creator: "Sasha Nova",
-    creatorAvatar: "/api/placeholder/40/40",
+    creatorAvatar: "/images/upload/user1.png",
     uploadDate: "April 2, 2025",
     views: "14.3K",
     downloads: "2.1K",
@@ -49,16 +49,16 @@ const ImageDetail = () => {
     location: "Tokyo, Japan",
     camera: "Canon EOS R5",
     tags: ["Cosmic", "Space", "Surreal", "Abstract", "Universe"],
-    image: "/api/placeholder/1000/700",
+    image: "/images/bg-img2.jpg",
     categories: ["Abstract", "Digital Art", "Sci-Fi"],
   };
 
   // Related images
   const relatedImages = [
-    { id: 1, image: "/api/placeholder/200/250", title: "Stellar Convergence", creator: "Sasha Nova" },
-    { id: 2, image: "/api/placeholder/200/250", title: "Quantum Fields", creator: "Marcus Wave" },
-    { id: 3, image: "/api/placeholder/200/250", title: "Nebula Dreams", creator: "Elena Bright" },
-    { id: 4, image: "/api/placeholder/200/250", title: "Dark Matter", creator: "Robert Cosmos" },
+    { id: 1, image: "/images/upload/img2.jpg", title: "Stellar Convergence", creator: "Sasha Nova" },
+    { id: 2, image: "/images/upload/img3.jpg", title: "Quantum Fields", creator: "Marcus Wave" },
+    { id: 3, image: "/images/upload/img6.webp", title: "Nebula Dreams", creator: "Elena Bright" },
+    { id: 4, image: "/images/upload/img7.png", title: "Dark Matter", creator: "Robert Cosmos" },
   ];
 
   // Comments
@@ -66,7 +66,7 @@ const ImageDetail = () => {
     {
       id: 1,
       name: "Alex Morgan",
-      avatar: "/api/placeholder/40/40",
+      avatar: "/images/upload/user1.png",
       comment: "This is absolutely breathtaking! The way you've captured the essence of cosmic energy is phenomenal.",
       time: "2h ago",
       likes: 42
@@ -74,7 +74,7 @@ const ImageDetail = () => {
     {
       id: 2,
       name: "Maya Johnson",
-      avatar: "/api/placeholder/40/40",
+      avatar: "/images/upload/user2.png",
       comment: "I'm mesmerized by the color palette. Would love to know more about your creative process!",
       time: "5h ago",
       likes: 28,
@@ -82,7 +82,7 @@ const ImageDetail = () => {
         {
           id: 21,
           name: "Sasha Nova",
-          avatar: "/api/placeholder/40/40",
+          avatar: "/images/upload/user3.png",
           comment: "Thank you Maya! I started with deep blues and purples as a base and built the luminosity gradually with digital brushwork.",
           time: "3h ago",
           likes: 14
@@ -92,7 +92,7 @@ const ImageDetail = () => {
     {
       id: 3,
       name: "Julian Chen",
-      avatar: "/api/placeholder/40/40",
+      avatar: "/images/upload/user1.png",
       comment: "The depth in this piece is incredible. It feels like I could step right into another dimension.",
       time: "1d ago",
       likes: 35
@@ -305,7 +305,7 @@ const ImageDetail = () => {
             {/* Comment input */}
             <div className="flex gap-3 mb-8">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                <img src="/api/placeholder/40/40" alt="Your avatar" className="w-full h-full object-cover" />
+                <img src="/images/upload/user1.png" alt="Your avatar" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
                 <div className="relative mb-2">

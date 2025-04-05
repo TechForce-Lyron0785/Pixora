@@ -122,7 +122,7 @@ const SettingsPage = () => {
                 <div className="flex flex-col items-center">
                   <div className="relative group">
                     <div className="w-24 h-24 rounded-full overflow-hidden mb-2">
-                      <img src="/api/placeholder/96/96" alt="Profile" className="w-full h-full object-cover" />
+                      <img src="/images/upload/user3.png" alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       <button className="p-2 bg-white/20 rounded-full">

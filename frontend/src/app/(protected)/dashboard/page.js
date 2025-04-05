@@ -22,15 +22,15 @@ const DashboardPage = () => {
 
   // Sample data
   const trendingImages = [
-    { id: 1, thumbnail: "/api/placeholder/300/400", title: "Neon Dreams", creator: "Elena Bright", likes: "3.4K", comments: "245" },
-    { id: 2, thumbnail: "/api/placeholder/300/400", title: "Ocean Whispers", creator: "Marcus Wave", likes: "2.8K", comments: "178" },
-    { id: 3, thumbnail: "/api/placeholder/300/400", title: "Cosmic Journey", creator: "Sasha Nova", likes: "4.1K", comments: "342" },
+    { id: 1, thumbnail: "/images/upload/img1.webp", title: "Neon Dreams", creator: "Elena Bright", likes: "3.4K", comments: "245" },
+    { id: 2, thumbnail: "/images/upload/img2.jpg", title: "Ocean Whispers", creator: "Marcus Wave", likes: "2.8K", comments: "178" },
+    { id: 3, thumbnail: "/images/upload/img6.webp", title: "Cosmic Journey", creator: "Sasha Nova", likes: "4.1K", comments: "342" },
   ];
 
   const recommendedUsers = [
-    { id: 1, name: "Jane Cooper", avatar: "/api/placeholder/40/40", followers: "12.5K", images: 124 },
-    { id: 2, name: "Robert Fox", avatar: "/api/placeholder/40/40", followers: "8.2K", images: 86 },
-    { id: 3, name: "Leslie Alexander", avatar: "/api/placeholder/40/40", followers: "15.7K", images: 213 },
+    { id: 1, name: "Jane Cooper", avatar: "/images/upload/user1.png", followers: "12.5K", images: 124 },
+    { id: 2, name: "Robert Fox", avatar: "/images/upload/user2.png", followers: "8.2K", images: 86 },
+    { id: 3, name: "Leslie Alexander", avatar: "/images/upload/user3.png", followers: "15.7K", images: 213 },
   ];
 
   const categories = [
@@ -44,9 +44,9 @@ const DashboardPage = () => {
 
   // Activities feed
   const activities = [
-    { user: "Elena Bright", action: "liked your image", time: "2h ago", avatar: "/api/placeholder/32/32" },
-    { user: "Marcus Wave", action: "commented on your post", time: "4h ago", avatar: "/api/placeholder/32/32" },
-    { user: "Sasha Nova", action: "followed you", time: "12h ago", avatar: "/api/placeholder/32/32" }
+    { user: "Elena Bright", action: "liked your image", time: "2h ago", avatar: "/images/upload/user2.png" },
+    { user: "Marcus Wave", action: "commented on your post", time: "4h ago", avatar: "/images/upload/user3.png" },
+    { user: "Sasha Nova", action: "followed you", time: "12h ago", avatar: "/images/upload/user1.png" }
   ];
 
   // Analytics data

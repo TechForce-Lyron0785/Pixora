@@ -27,23 +27,22 @@ const SearchResults = () => {
   
   // Sample search results data
   const imageResults = [
-    { id: 1, thumbnail: "/api/placeholder/300/400", title: "Mountain Vista", creator: "Elena Bright", likes: "2.4K", comments: "132", saved: true, tags: ["nature", "mountains", "landscape"] },
-    { id: 2, thumbnail: "/api/placeholder/300/400", title: "Forest Tranquility", creator: "Marcus Wave", likes: "1.8K", comments: "94", saved: false, tags: ["nature", "forest", "tranquil"] },
-    { id: 3, thumbnail: "/api/placeholder/300/400", title: "Coastal Sunset", creator: "Sasha Nova", likes: "3.2K", comments: "215", saved: false, tags: ["nature", "ocean", "sunset"] },
-    { id: 4, thumbnail: "/api/placeholder/300/400", title: "Desert Bloom", creator: "Raj Kumar", likes: "1.5K", comments: "67", saved: false, tags: ["nature", "desert", "flowers"] },
-    { id: 5, thumbnail: "/api/placeholder/300/400", title: "Misty Morning", creator: "Corey Jensen", likes: "2.1K", comments: "108", saved: true, tags: ["nature", "fog", "morning"] },
-    { id: 6, thumbnail: "/api/placeholder/300/400", title: "Wild Cascades", creator: "Mei Lin", likes: "2.7K", comments: "183", saved: false, tags: ["nature", "waterfall", "wilderness"] },
+    { id: 1, thumbnail: "/images/upload/img3.jpg", title: "Mountain Vista", creator: "Elena Bright", likes: "2.4K", comments: "132", saved: true, tags: ["nature", "mountains", "landscape"] },
+    { id: 2, thumbnail: "/images/upload/img6.webp", title: "Forest Tranquility", creator: "Marcus Wave", likes: "1.8K", comments: "94", saved: false, tags: ["nature", "forest", "tranquil"] },
+    { id: 3, thumbnail: "/images/upload/img7.png", title: "Coastal Sunset", creator: "Sasha Nova", likes: "3.2K", comments: "215", saved: false, tags: ["nature", "ocean", "sunset"] },
+    { id: 4, thumbnail: "/images/upload/img1.webp", title: "Desert Bloom", creator: "Raj Kumar", likes: "1.5K", comments: "67", saved: false, tags: ["nature", "desert", "flowers"] },
+    { id: 5, thumbnail: "/images/upload/img2.jpg", title: "Misty Morning", creator: "Corey Jensen", likes: "2.1K", comments: "108", saved: true, tags: ["nature", "fog", "morning"] },
+    { id: 6, thumbnail: "/images/upload/img3.jpg", title: "Wild Cascades", creator: "Mei Lin", likes: "2.7K", comments: "183", saved: false, tags: ["nature", "waterfall", "wilderness"] },
   ];
-
   const userResults = [
-    { id: 1, name: "Nature Explorer", username: "@natureexplorer", avatar: "/api/placeholder/48/48", followers: "45.2K", following: false, tags: ["wildlife", "landscape", "nature"] },
-    { id: 2, name: "Earth Scenes", username: "@earthscenes", avatar: "/api/placeholder/48/48", followers: "32.5K", following: true, tags: ["earth", "nature", "photography"] },
-    { id: 3, name: "Wild Captures", username: "@wildcaptures", avatar: "/api/placeholder/48/48", followers: "28.7K", following: false, tags: ["wildlife", "nature", "animals"] },
+    { id: 1, name: "Nature Explorer", username: "@natureexplorer", avatar: "/images/upload/user1.png", followers: "45.2K", following: false, tags: ["wildlife", "landscape", "nature"] },
+    { id: 2, name: "Earth Scenes", username: "@earthscenes", avatar: "/images/upload/user2.png", followers: "32.5K", following: true, tags: ["earth", "nature", "photography"] },
+    { id: 3, name: "Wild Captures", username: "@wildcaptures", avatar: "/images/upload/user3.png", followers: "28.7K", following: false, tags: ["wildlife", "nature", "animals"] },
   ];
 
   const collectionResults = [
-    { id: 1, title: "Natural Wonders", images: 36, curator: "Elena Bright", thumbnail: "/api/placeholder/64/64", saves: "3.4K" },
-    { id: 2, title: "Landscape Masters", images: 24, curator: "Marcus Wave", thumbnail: "/api/placeholder/64/64", saves: "2.1K" },
+    { id: 1, title: "Natural Wonders", images: 36, curator: "Elena Bright", thumbnail: "/images/bg-img1.jpg", saves: "3.4K" },
+    { id: 2, title: "Landscape Masters", images: 24, curator: "Marcus Wave", thumbnail: "/images/bg-img2.jpg", saves: "2.1K" },
   ];
 
   const tagResults = [

@@ -31,8 +31,8 @@ const ProfilePage = () => {
   const profile = {
     name: "Alex Morgan",
     username: "@alexcreates",
-    avatar: "/api/placeholder/150/150",
-    coverImage: "/api/placeholder/1200/300",
+    avatar: "/images/upload/user1.png",
+    coverImage: "/images/bg-img2.jpg",
     bio: "Digital artist and photographer based in San Francisco. Creating vibrant dreamscapes and visual stories through AI-assisted artwork.",
     isVerified: true,
     isPremium: true,
@@ -56,19 +56,19 @@ const ProfilePage = () => {
   
   // Portfolio works
   const works = [
-    { id: 1, title: "Neon Dreams", thumbnail: "/api/placeholder/400/400", likes: "3.4K", saves: "842", featured: true },
-    { id: 2, title: "Cosmic Journey", thumbnail: "/api/placeholder/400/400", likes: "2.8K", saves: "562" },
-    { id: 3, title: "Digital Eden", thumbnail: "/api/placeholder/400/400", likes: "5.1K", saves: "1.2K", featured: true },
-    { id: 4, title: "Midnight City", thumbnail: "/api/placeholder/400/400", likes: "4.7K", saves: "903" },
-    { id: 5, title: "Futuristic Portal", thumbnail: "/api/placeholder/400/400", likes: "3.9K", saves: "715" },
-    { id: 6, title: "Ethereal Landscape", thumbnail: "/api/placeholder/400/400", likes: "6.2K", saves: "1.5K", featured: true },
+    { id: 1, title: "Neon Dreams", thumbnail: "/images/upload/img1.webp", likes: "3.4K", saves: "842", featured: true },
+    { id: 2, title: "Cosmic Journey", thumbnail: "/images/upload/img2.jpg", likes: "2.8K", saves: "562" },
+    { id: 3, title: "Digital Eden", thumbnail: "/images/upload/img3.jpg", likes: "5.1K", saves: "1.2K", featured: true },
+    { id: 4, title: "Midnight City", thumbnail: "/images/upload/img7.png", likes: "4.7K", saves: "903" },
+    { id: 5, title: "Futuristic Portal", thumbnail: "/images/upload/img6.webp", likes: "3.9K", saves: "715" },
+    { id: 6, title: "Ethereal Landscape", thumbnail: "/images/upload/img3.jpg", likes: "6.2K", saves: "1.5K", featured: true },
   ];
   
   // Collections
   const collections = [
-    { id: 1, name: "Abstract Dreams", count: 18, thumbnail: "/api/placeholder/400/400", color: "from-rose-500 to-orange-500" },
-    { id: 2, name: "Cyberpunk Series", count: 12, thumbnail: "/api/placeholder/400/400", color: "from-cyan-500 to-blue-500" },
-    { id: 3, name: "Nature Reimagined", count: 24, thumbnail: "/api/placeholder/400/400", color: "from-emerald-500 to-green-500" },
+    { id: 1, name: "Abstract Dreams", count: 18, thumbnail: "/images/bg-img1.jpg", color: "from-rose-500 to-orange-500" },
+    { id: 2, name: "Cyberpunk Series", count: 12, thumbnail: "/images/bg-img2.jpg", color: "from-cyan-500 to-blue-500" },
+    { id: 3, name: "Nature Reimagined", count: 24, thumbnail: "/images/bg-img3.jpg", color: "from-emerald-500 to-green-500" },
   ];
   
   // Recent activities

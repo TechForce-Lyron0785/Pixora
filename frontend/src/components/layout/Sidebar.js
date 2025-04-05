@@ -2,51 +2,62 @@
 
 import React, { useState } from "react";
 import {
+  Bolt,
   Clock,
   Compass,
+  Drama,
   Grid,
   Heart,
+  ImagePlus,
+  Search,
   Settings,
   Sparkles,
   TrendingUp,
+  User,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
-  const [activeTab, setActiveTab] = useState('discover');
+  const pathname = usePathname();
+  const {user} = useAuth();
+  const menuItems = [
+    { name: 'Dashboard', icon: <Compass />, href: '/dashboard' },
+    { name: 'Feed', icon: <Grid />, href: '/feed' },
+    { name: 'Profile', icon: <User />, href: `/profile/@${user.username}` },
+    { name: 'Search', icon: <Search />, href: '/search' },
+    { name: 'Upload Image', icon: <ImagePlus />, href: '/upload-image' },
+    { name: 'Image Detail', icon: <Drama />, href: '/image-detail' },
+  ];
 
   return (
     <div className="w-20 lg:w-64 border-r border-white/10 h-screen fixed flex flex-col bg-zinc-900/60 backdrop-blur-lg">
     {/* Logo */}
     <div className="p-5 border-b border-white/10 flex items-center justify-center lg:justify-start">
-      <div className="flex items-center gap-2">
+      <Link href={"/dashboard"} className="flex items-center gap-2">
         <div className="bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg p-2 flex items-center justify-center">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <h1 className="text-xl font-bold hidden lg:block">Pixora</h1>
-      </div>
+      </Link>
     </div>
 
     {/* Navigation */}
     <div className="py-6 flex flex-col flex-1">
       <div className="space-y-1 px-3">
-        {[
-          { id: 'discover', name: 'Discover', icon: <Compass /> },
-          { id: 'feed', name: 'Feed', icon: <Grid /> },
-          { id: 'trending', name: 'Trending', icon: <TrendingUp /> },
-          { id: 'favorites', name: 'Favorites', icon: <Heart /> },
-          { id: 'recent', name: 'Recent', icon: <Clock /> },
-        ].map(item => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm ${activeTab === item.id
+        {menuItems.map(item => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm ${pathname.includes(item.href)
                 ? 'bg-violet-600 text-white'
                 : 'text-gray-300 hover:bg-white/10'
               } transition-colors duration-200 w-full justify-center lg:justify-start`}
           >
             <span className="flex-shrink-0">{item.icon}</span>
             <span className="hidden lg:block">{item.name}</span>
-          </button>
+          </Link>
         ))}
       </div>
 
@@ -67,10 +78,10 @@ const Sidebar = () => {
       </div>
 
       <div className="mt-auto px-3">
-        <button className="flex items-center space-x-3 px-3 py-3 rounded-lg text-sm text-gray-300 hover:bg-white/10 transition-colors duration-200 w-full justify-center lg:justify-start">
+        <Link href={"/settings"} className="flex items-center space-x-3 px-3 py-3 rounded-lg text-sm text-gray-300 hover:bg-white/10 transition-colors duration-200 w-full justify-center lg:justify-start">
           <Settings className="w-5 h-5" />
           <span className="hidden lg:block">Settings</span>
-        </button>
+        </Link>
       </div>
     </div>
   </div>
