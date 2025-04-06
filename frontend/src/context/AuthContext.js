@@ -2,19 +2,8 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { useApi } from "@/hooks/useApi";
 import { useSession, signIn, signOut } from "next-auth/react";
-
-const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:5000";
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: BACKEND_API,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Create auth context
 const AuthContext = createContext();
@@ -27,40 +16,26 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  // Check if user is already logged in on mount
+  // Use the custom hook to get the API client
+  const api = useApi();
+
   useEffect(() => {
-    if (status !== "loading") {
-      if (session?.user) {
-        fetchUserData(session.user.email);
-      } else {
-        verifyUser();
+    async function verifyUser() {
+      try {
+        setLoading(true);
+        const response = await api.get("/api/users/me");
+        setUser(response.data.data);
+      } catch (error) {
+        console.error("Auth verification error:", error);
+      } finally {
+        setLoading(false);
       }
     }
-  }, [session, status]);
 
-  const fetchUserData = async (identifier) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/api/users/${identifier}`);
-      setUser(response.data.data);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    } finally {
-      setLoading(false);
+    if (status !== "loading") {
+      verifyUser();
     }
-  };
-
-  const verifyUser = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/api/users/me");
-      setUser(response.data.data);
-    } catch (error) {
-      console.error("Auth verification error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [session, status, api]);
 
   // Register a new user
   const register = async (userData) => {

@@ -15,12 +15,7 @@ export default function StepTwo({ formData, errors, handleChange }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-white">Secure your account</h2>
-        <p className="text-gray-400">Create a strong password for protection</p>
-      </div>
-
+    <div className="space-y-4">
       {/* Password Field */}
       <div className="space-y-2">
         <label htmlFor="password" className="block text-sm font-medium text-gray-300">

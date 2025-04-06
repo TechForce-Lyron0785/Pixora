@@ -15,7 +15,7 @@ export const authOptions = {
         try {
           // Send user details to backend for saving in MongoDB
           const username = user.email.split('@')[0];
-          await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/users/google-login`, {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/users/google-login`, {
             email: user.email,
             fullName: user.name,
             profilePicture: user.image,
@@ -23,6 +23,8 @@ export const authOptions = {
           }, { 
             withCredentials: true 
           });
+
+          user.backendData = response.data.data;
         } catch (error) {
           console.error("Error saving Google user:", error);
           return false;
@@ -33,11 +35,13 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.backendToken = user.backendData?.token;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
+      session.backendToken = token.backendToken;
       return session;
     },
   },

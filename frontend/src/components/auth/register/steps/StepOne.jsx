@@ -3,12 +3,7 @@ import { User, Mail, AtSign, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function StepOne({ formData, errors, validationPassed, handleChange }) {
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-white">Let{"'"}s get started</h2>
-        <p className="text-gray-400">Tell us a bit about yourself</p>
-      </div>
-
+    <div className="space-y-4">
       {/* Full Name Field */}
       <div className="space-y-2">
         <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">

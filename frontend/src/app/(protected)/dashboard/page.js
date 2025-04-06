@@ -15,10 +15,20 @@ import {
   ChevronDown,
   Award,
   Zap,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const DashboardPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const { user, logout } = useAuth()
+  const router = useRouter();
+
+  const handleLogout = async () =>{
+    await logout();
+    router.replace("/login");
+  }
 
   // Sample data
   const trendingImages = [
@@ -59,6 +69,10 @@ const DashboardPage = () => {
 
   return (
     <div className="p-6">
+      <div>
+        <h1>{user.fullName}</h1>
+        <h1>{user.email}</h1>
+      </div>
       {/* Top bar */}
       <div className="flex items-center justify-between mb-8">
         <div className="relative w-full max-w-xl">
@@ -79,6 +93,12 @@ const DashboardPage = () => {
           <button className="hidden md:flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 py-2 px-4 transition-all duration-300">
             <PlusCircle className="w-4 h-4" />
             <span>Create</span>
+          </button>
+          <button className="hidden md:flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 py-2 px-4 transition-all duration-300"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4" />
+            <span>logout</span>
           </button>
 
           <button className="md:hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 p-2 rounded-lg">

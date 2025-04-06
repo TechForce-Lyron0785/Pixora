@@ -34,9 +34,9 @@ const LoginPage = () => {
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
     }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   }, []);
@@ -79,18 +79,29 @@ const LoginPage = () => {
     }
   }, [googleLogin]);
 
+
+  // Sample data
+  const trendingImages = [
+    { thumbnail: "/images/upload/img1.webp" },
+    { thumbnail: "/images/upload/img2.jpg" },
+    { thumbnail: "/images/upload/img3.jpg" },
+    { thumbnail: "/images/upload/img5.png" },
+    { thumbnail: "/images/upload/img7.png" },
+    { thumbnail: "/images/upload/img6.webp" },
+  ];
+
+  const recommendedUsers = [
+    { avatar: "/images/upload/user1.png" },
+    { avatar: "/images/upload/user2.png" },
+    { avatar: "/images/upload/user3.png" },
+    { avatar: "/images/upload/user1.png" },
+    { avatar: "/images/upload/user2.png" },
+  ];
+
   return (
     <div className="flex min-h-screen bg-zinc-950 text-white">
       {/* Left side - Login form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 relative">
-        {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg p-2 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-xl font-bold">Pixora</h1>
-        </div>
-
         {/* Login form */}
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -217,31 +228,13 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-zinc-950 text-gray-400">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <button 
-                onClick={handleGoogleLogin}
-                className="flex justify-center items-center py-2 px-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
-              >
-                <FaGoogle className="size-4" />
-              </button>
-              <button className="flex justify-center items-center py-2 px-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </button>
-              <button className="flex justify-center items-center py-2 px-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
-                <Github className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={handleGoogleLogin}
+            className="flex justify-center items-center py-2.5 px-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors w-full text-white gap-2 cursor-pointer mt-6"
+          >
+            <FaGoogle className="size-4" />
+            <span>Continue with Google</span>
+          </button>
 
           <p className="mt-8 text-center text-sm text-gray-400">
             Don&apos;t have an account?{' '}
@@ -266,25 +259,25 @@ const LoginPage = () => {
           <div className="max-w-md text-center">
             <h2 className="text-3xl font-bold mb-4">Create, Share, and Discover Amazing Images</h2>
             <p className="text-lg text-white/80 mb-8">Join our creative community of artists and photographers from around the world.</p>
-            
+
             {/* Image gallery preview */}
             <div className="grid grid-cols-3 gap-2 mb-8">
-              {[...Array(6)].map((_, i) => (
+              {trendingImages.map((img, i) => (
                 <div key={i} className="aspect-square rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm">
-                  <img 
-                    src={`/api/placeholder/${(i+1)*100}/${(i+1)*100}`} 
-                    alt="Gallery preview" 
+                  <img
+                    src={img.thumbnail}
+                    alt="Gallery preview"
                     className="w-full h-full object-cover"
                   />
                 </div>
               ))}
             </div>
-            
+
             <div className="flex items-center justify-center gap-4">
               <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
+                {recommendedUsers.map((user, i) => (
                   <div key={i} className="w-8 h-8 rounded-full border-2 border-zinc-800 overflow-hidden">
-                    <img src={`/api/placeholder/${(i+1)*20}/${(i+1)*20}`} alt="User" className="w-full h-full object-cover" />
+                    <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>

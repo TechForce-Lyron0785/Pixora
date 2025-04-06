@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
 import { CheckCircle, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
-import Image from "next/image";
 import StepOne from "./steps/StepOne";
 import StepTwo from "./steps/StepTwo";
+import { FaGoogle } from "react-icons/fa";
 
 export default function RegisterForm() {
   const router = useRouter();
   const { register, checkUserExists, googleLogin, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
+
+  const handleGoogleLogin = useCallback(async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      toast.error("Google login failed. Please try again.");
+    }
+  }, [googleLogin]);
 
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
@@ -24,11 +32,6 @@ export default function RegisterForm() {
     // Step 2: Security
     password: "",
     confirmPassword: "",
-
-    // Step 3: Preferences
-    interests: [],
-    subscribeNewsletter: false,
-    agreeToTerms: false,
   });
 
   const [errors, setErrors] = useState({});
@@ -37,19 +40,6 @@ export default function RegisterForm() {
     username: false,
     email: false,
   });
-
-  // Available interests for selection
-  const availableInterests = [
-    "Photography",
-    "Digital Art",
-    "AI Generation",
-    "Landscapes",
-    "Portraits",
-    "Abstract",
-    "Fantasy",
-    "Sci-Fi",
-    "Nature",
-  ];
 
   const validateStep = (step) => {
     let tempErrors = {};
@@ -85,13 +75,6 @@ export default function RegisterForm() {
         tempErrors.confirmPassword = "Passwords do not match";
       }
     }
-
-    if (step === 3) {
-      if (!formData.agreeToTerms) {
-        tempErrors.agreeToTerms = "You must agree to the terms and conditions";
-      }
-    }
-
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -109,17 +92,6 @@ export default function RegisterForm() {
       setFormData({ ...formData, [name]: value });
     }
     setErrors({ ...errors, [name]: "" });
-  };
-
-  const handleInterestToggle = (interest) => {
-    const updatedInterests = [...formData.interests];
-    if (updatedInterests.includes(interest)) {
-      const index = updatedInterests.indexOf(interest);
-      updatedInterests.splice(index, 1);
-    } else {
-      updatedInterests.push(interest);
-    }
-    setFormData({ ...formData, interests: updatedInterests });
   };
 
   const nextStep = async () => {
@@ -260,31 +232,13 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="relative z-10">
-      {/* Logo and Brand */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="mb-8 flex items-center"
-      >
-        <div className="p-1 rounded-md shadow-lg shadow-gray-500/20 bg-white/10 backdrop-blur-sm">
-          <Image
-            src="/images/logo.png"
-            className="w-8 h-8"
-            alt="Pixora logo"
-            height={20}
-            width={20}
-          />
-        </div>
-        <span className="text-white font-bold text-2xl ml-3">Pixora</span>
-      </motion.div>
-
+    <div className="w-full max-w-md mx-auto py-6">
       {/* Header */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
+        className="text-center"
       >
         <h1 className="text-3xl lg:text-4xl font-bold mb-3 text-white tracking-tight">
           Create your{" "}
@@ -319,7 +273,7 @@ export default function RegisterForm() {
           {renderStepContent()}
 
           {/* Navigation Buttons */}
-          <div className="mt-10 flex justify-between">
+          <div className="mt-6 flex justify-between">
             {currentStep > 1 ? (
               <motion.button
                 whileHover={{ scale: 1.03 }}
@@ -342,8 +296,8 @@ export default function RegisterForm() {
                 type="button"
                 onClick={nextStep}
                 disabled={isSubmitting}
-                className="flex items-center px-6 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg shadow-purple-500/20"
-              >
+                className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-medium transition-all duration-300 flex items-center justify-center"
+                >
                 {isSubmitting ? (
                   <>
                     <svg
@@ -371,7 +325,7 @@ export default function RegisterForm() {
                 ) : (
                   <>
                     Next
-                    <ChevronRight className="h-5 w-5 ml-1" />
+                    <ChevronRight className="h-4 w-4 ml-1" />
                   </>
                 )}
               </motion.button>
@@ -419,44 +373,13 @@ export default function RegisterForm() {
         </form>
       </motion.div>
 
-      {/* Social Registration */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="mt-8"
+      <button
+        onClick={handleGoogleLogin}
+        className="flex justify-center items-center py-2.5 px-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors w-full text-white gap-2 cursor-pointer mt-5"
       >
-        <button
-          type="button"
-          onClick={googleLogin}
-          className="w-full py-3 px-4 rounded-xl font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 flex justify-center items-center text-sm transition-all gap-2 cursor-pointer"
-        >
-          <svg
-            className="h-5 w-5"
-            aria-hidden="true"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              fill="#EA4335"
-            />
-          </svg>
-          <span className="text-base">Continue with Google</span>
-        </button>
-      </motion.div>
+        <FaGoogle className="size-4" />
+        <span>Continue with Google</span>
+      </button>
 
       {/* Login Link */}
       <motion.div

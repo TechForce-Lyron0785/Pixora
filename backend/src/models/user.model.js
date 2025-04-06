@@ -46,7 +46,8 @@ const userSchema = new Schema(
     },
     bio: {
       type: String,
-      maxlength: 160, // Maximum length for user bio
+      maxlength: 260, // Maximum length for user bio
+      default: "Sharing moments, memories, and creativity through images. Explore my gallery and dive into a world of colors, landscapes, portraits, and more! Let’s connect and inspire each other through art. 📸✨",
     },
     socialLinks: {
       instagram: {
