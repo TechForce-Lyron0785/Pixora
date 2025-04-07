@@ -21,11 +21,11 @@ import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const {user} = useAuth();
+  const { user } = useAuth();
   const menuItems = [
     { name: 'Dashboard', icon: <Compass />, href: '/dashboard' },
     { name: 'Feed', icon: <Grid />, href: '/feed' },
-    { name: 'Profile', icon: <User />, href: `/profile/@${user.username}` },
+    { name: 'Profile', icon: <User />, href: `/profile/@${user?.username || 'username'}` },
     { name: 'Search', icon: <Search />, href: '/search' },
     { name: 'Upload Image', icon: <ImagePlus />, href: '/upload-image' },
     { name: 'Image Detail', icon: <Drama />, href: '/image-detail' },
@@ -50,7 +50,7 @@ const Sidebar = () => {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm ${pathname.includes(item.href)
+            className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm ${pathname === item.href || (item.href.startsWith('/profile/') && pathname.startsWith('/profile/'))
                 ? 'bg-violet-600 text-white'
                 : 'text-gray-300 hover:bg-white/10'
               } transition-colors duration-200 w-full justify-center lg:justify-start`}

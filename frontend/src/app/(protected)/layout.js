@@ -1,18 +1,31 @@
 "use client";
-import { Sidebar } from "@/components";
+import { Sidebar, FooterCompact } from "@/components";
 import { ProtectedRoute, WithLoading } from "@/components/hoc";
+import { memo } from "react";
 
-export default function AuthLayout({ children }) {
+// Memoize the content to prevent unnecessary re-renders
+const LayoutContent = memo(({ children }) => (
+  <div className="flex min-h-screen bg-zinc-950 text-white">
+    <Sidebar />
+    <div className="ml-20 lg:ml-64 flex-1">
+      {children}
+    </div>
+  </div>
+));
+
+LayoutContent.displayName = 'LayoutContent';
+
+function AuthLayout({ children }) {
   return (
     <ProtectedRoute>
       <WithLoading>
-        <div className="flex min-h-screen bg-zinc-950 text-white">
-          <Sidebar />
-          <div className="ml-20 lg:ml-64 flex-1">
-            {children}
-          </div>
-        </div>
+        <LayoutContent>
+          {children}
+          <FooterCompact />
+        </LayoutContent>
       </WithLoading>
     </ProtectedRoute>
   );
 }
+
+export default memo(AuthLayout);

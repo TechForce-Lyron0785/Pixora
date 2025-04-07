@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Activity,
   Heart,
@@ -19,11 +19,19 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { ProfilePicVerify } from '@/components';
 
 const DashboardPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { user, logout } = useAuth()
   const router = useRouter();
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    if(user?.isDpConfirm !== true){
+      setProfileOpen(true)
+    } 
+  }, [user])
 
   const handleLogout = async () =>{
     await logout();
@@ -69,10 +77,7 @@ const DashboardPage = () => {
 
   return (
     <div className="p-6">
-      <div>
-        <h1>{user.fullName}</h1>
-        <h1>{user.email}</h1>
-      </div>
+      <ProfilePicVerify isOpen={profileOpen} onClose={()=> setProfileOpen(false)} />
       {/* Top bar */}
       <div className="flex items-center justify-between mb-8">
         <div className="relative w-full max-w-xl">
@@ -121,7 +126,7 @@ const DashboardPage = () => {
           <div className="rounded-xl bg-gradient-to-br from-violet-900/50 via-fuchsia-900/30 to-zinc-900/50 border border-white/10 p-6 overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-full bg-zinc-900/10 backdrop-blur-sm"></div>
             <div className="relative z-10">
-              <h2 className="text-2xl font-bold mb-2">Welcome back, Alex!</h2>
+              <h2 className="text-2xl font-bold mb-2">Welcome back, {user?.fullName || "Bruh"}!</h2>
               <p className="text-gray-300 mb-6">Your images received <span className="text-violet-400 font-medium">1.4K new views</span> since yesterday.</p>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

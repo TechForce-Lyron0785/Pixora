@@ -79,11 +79,19 @@ const userSchema = new Schema(
       type: Boolean,
       default: true, // User is active by default
     },
+    isDpConfirm: {
+      type: Boolean,
+      default: false,
+    },
     provider: { 
       type: String, 
       default: "credentials" 
     },
     isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isPremium: {
       type: Boolean,
       default: false,
     },
@@ -99,6 +107,28 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    posts: {
+      type: Number,
+      default: 0,
+    },
+    badges: [{
+      name: {
+        type: String,
+        required: true
+      },
+      iconName: {  // Store the icon component name (e.g., "Award", "TrendingUp")
+        type: String,
+        required: true
+      },
+      color: {    // Store the Tailwind color class (e.g., "amber-400")
+        type: String,
+        required: true
+      }
+    }],
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

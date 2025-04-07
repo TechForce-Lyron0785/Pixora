@@ -71,7 +71,7 @@ followSchema.statics.unfollowUser = async function (followerId, followingId) {
 // Get all followers of a user
 followSchema.statics.getFollowers = async function (userId) {
   const followers = await this.find({ following: userId })
-    .populate('follower', 'username profilePicture') // Populating follower details
+    .populate('follower', 'fullName username profilePicture') // Populating follower details
     .select('follower createdAt'); // You can also select specific fields you need
 
   return followers;
@@ -80,7 +80,7 @@ followSchema.statics.getFollowers = async function (userId) {
 // Get all users the current user is following
 followSchema.statics.getFollowing = async function (userId) {
   const following = await this.find({ follower: userId })
-    .populate('following', 'username profilePicture') // Populating following details
+    .populate('following', 'fullName username profilePicture') // Populating following details
     .select('following createdAt'); // You can also select specific fields you need
 
   return following;
