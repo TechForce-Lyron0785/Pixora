@@ -49,6 +49,11 @@ const userSchema = new Schema(
       maxlength: 260, // Maximum length for user bio
       default: "Sharing moments, memories, and creativity through images. Explore my gallery and dive into a world of colors, landscapes, portraits, and more! Let’s connect and inspire each other through art. 📸✨",
     },
+    badge: {
+      type: String,
+      enum: ["rising", "pro", "featured", "artist", "verified"], // Possible badge values
+      default: "rising",
+    },
     socialLinks: {
       instagram: {
         type: String,

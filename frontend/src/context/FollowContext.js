@@ -131,7 +131,9 @@ export const FollowProvider = ({ children }) => {
     getFollowing,
     followUser,
     unfollowUser,
-    checkFollowStatus
+    checkFollowStatus,
+    setFollowers,
+    setFollowing
   };
 
   return <FollowContext.Provider value={value}>{children}</FollowContext.Provider>;

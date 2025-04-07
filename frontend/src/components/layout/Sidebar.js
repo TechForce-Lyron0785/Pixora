@@ -14,6 +14,7 @@ import {
   Sparkles,
   TrendingUp,
   User,
+  Users,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +28,7 @@ const Sidebar = () => {
     { name: 'Feed', icon: <Grid />, href: '/feed' },
     { name: 'Profile', icon: <User />, href: `/profile/@${user?.username || 'username'}` },
     { name: 'Search', icon: <Search />, href: '/search' },
+    { name: 'Users', icon: <Users />, href: '/users' },
     { name: 'Upload Image', icon: <ImagePlus />, href: '/upload-image' },
     { name: 'Image Detail', icon: <Drama />, href: '/image-detail' },
   ];

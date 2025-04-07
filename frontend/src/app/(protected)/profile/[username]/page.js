@@ -55,6 +55,7 @@ const ProfilePage = () => {
     bio: "",
     profilePicture: "/images/default-profile.jpg",
     coverPicture: "/images/default-cover.jpg",
+    badge: "rising",
     badges: [],
     socialLinks: {},
     followersCount: 0,
@@ -71,6 +72,13 @@ const ProfilePage = () => {
 
   const api = useApi();
 
+  // Fetch following list for the logged-in user when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      getFollowing(user._id);
+    }
+  }, [isAuthenticated, user, getFollowing]);
+
   useEffect(() => {
     setIsLoading(true);
     if (userName === user?.username) {
@@ -86,8 +94,9 @@ const ProfilePage = () => {
           
           // Check if the current user is following this profile
           if (isAuthenticated) {
-            const followingStatus = await checkFollowStatus(response.data.data._id);
-            setIsFollowing(followingStatus);
+            // Check if user exists in the following list
+            const isUserFollowed = following.some(f => f.following._id === response.data.data._id);
+            setIsFollowing(isUserFollowed);
           }
         } catch (err) {
           const errorMessage = err.response?.data?.message || "Error fetching user";
@@ -98,7 +107,7 @@ const ProfilePage = () => {
       };
       fetchUser();
     }
-  }, [user, userName, api, isAuthenticated, checkFollowStatus]);
+  }, [user, userName, api, isAuthenticated, following]);
 
   const [activeTab, setActiveTab] = useState('works');
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -121,19 +130,29 @@ const ProfilePage = () => {
 
     try {
       if (isFollowing) {
-        await unfollowUser(profile._id);
-        setIsFollowing(false);
-        setProfile(prev => ({
-          ...prev,
-          followersCount: prev.followersCount - 1
-        }));
+        const result = await unfollowUser(profile._id);
+        if (result.success) {
+          setIsFollowing(false);
+          // Update profile followers count
+          setProfile(prev => ({
+            ...prev,
+            followersCount: prev.followersCount - 1
+          }));
+          // Update following list
+          await getFollowing(user._id);
+        }
       } else {
-        await followUser(profile._id);
-        setIsFollowing(true);
-        setProfile(prev => ({
-          ...prev,
-          followersCount: prev.followersCount + 1
-        }));
+        const result = await followUser(profile._id);
+        if (result.success) {
+          setIsFollowing(true);
+          // Update profile followers count
+          setProfile(prev => ({
+            ...prev,
+            followersCount: prev.followersCount + 1
+          }));
+          // Update following list
+          await getFollowing(user._id);
+        }
       }
     } catch (error) {
       console.error("Error toggling follow status:", error);
@@ -199,6 +218,30 @@ const ProfilePage = () => {
       'website': <Globe className="w-4 h-4" />,
     };
     return icons[platform] || <Globe className="w-4 h-4" />;
+  };
+
+  // Get badge color based on badge type
+  const getBadgeColor = (badgeType) => {
+    const colors = {
+      'rising': 'violet',
+      'pro': 'amber',
+      'featured': 'blue',
+      'artist': 'rose',
+      'verified': 'green',
+    };
+    return colors[badgeType] || 'violet';
+  };
+
+  // Get badge icon name based on badge type
+  const getBadgeIconName = (badgeType) => {
+    const icons = {
+      'rising': 'TrendingUp',
+      'pro': 'Zap',
+      'featured': 'Award',
+      'artist': 'Camera',
+      'verified': 'CheckCircle',
+    };
+    return icons[badgeType] || 'TrendingUp';
   };
 
   // Function to extract domain from full URL
@@ -318,6 +361,15 @@ const ProfilePage = () => {
             </div>
             <p className="text-sm text-gray-400 mb-3">@{profile.username}</p>
             <div className="flex flex-wrap gap-2 mb-3">
+              {/* Display the main badge */}
+              <span 
+                className={`bg-${getBadgeColor(profile.badge)}/20 text-${getBadgeColor(profile.badge)} px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1`}
+              >
+                {getBadgeIcon(getBadgeIconName(profile.badge))}
+                {profile.badge || "rising"}
+              </span>
+              
+              {/* Display additional badges */}
               {profile.badges && profile.badges.length > 0 ? (
                 profile.badges.map((badge, idx) => (
                   <span 
@@ -585,8 +637,8 @@ const ProfilePage = () => {
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800">
                         <img 
-                          src={follower.profilePicture || "/images/default-profile.jpg"} 
-                          alt={follower.fullName} 
+                          src={follower.follower.profilePicture || "/images/default-profile.jpg"} 
+                          alt={follower.follower.fullName} 
                           className="w-full h-full object-cover"
                         />
                       </div>

@@ -2,6 +2,7 @@ import { SessionWrapper } from "@/components/hoc";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { FollowProvider } from "@/context/FollowContext";
+import { UsersProvider } from '@/context/UsersContext';
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
@@ -16,8 +17,10 @@ export default function RootLayout({ children }) {
         <SessionWrapper>
           <AuthProvider>
             <FollowProvider>
-              <Toaster position="top-center" />
-              {children}
+              <UsersProvider>
+                <Toaster position="top-center" />
+                {children}
+              </UsersProvider>
             </FollowProvider>
           </AuthProvider>
         </SessionWrapper>
