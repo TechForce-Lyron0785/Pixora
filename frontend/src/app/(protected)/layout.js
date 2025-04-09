@@ -1,5 +1,5 @@
 "use client";
-import { Sidebar, FooterCompact } from "@/components";
+import { Sidebar, FooterCompact, LoggedInHeader } from "@/components";
 import { ProtectedRoute, WithLoading } from "@/components/hoc";
 import { memo } from "react";
 
@@ -7,8 +7,8 @@ import { memo } from "react";
 const LayoutContent = memo(({ children }) => (
   <div className="flex min-h-screen bg-zinc-950 text-white">
     <Sidebar />
-    <div className="ml-20 lg:ml-64 flex-1">
-      {/* TODO: LOGGED-IN HEADER */}
+    <div className="ml-20 lg:ml-64 flex-1 pt-16">
+      <LoggedInHeader />
       {children}
       <FooterCompact />
     </div>

@@ -100,41 +100,7 @@ const ImageDetail = () => {
   ];
 
   return (
-    <div className="p-6">
-      {/* Top bar */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="relative w-full max-w-xl">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search for images, creators, or collections..."
-            className="bg-zinc-800/50 border border-white/10 rounded-lg py-2 pl-10 pr-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-white placeholder-gray-400"
-          />
-        </div>
-
-        <div className="flex items-center space-x-4 ml-4">
-          <button className="bg-white/5 hover:bg-white/10 p-2 rounded-lg relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full transform translate-x-1 -translate-y-1"></span>
-          </button>
-
-          <button className="hidden md:flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 py-2 px-4 transition-all duration-300">
-            <PlusCircle className="w-4 h-4" />
-            <span>Create</span>
-          </button>
-
-          <button className="md:hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 p-2 rounded-lg">
-            <PlusCircle className="w-5 h-5" />
-          </button>
-
-          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 p-0.5">
-            <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
-              <UserIcon className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="px-6">
       {/* Back navigation */}
       <div className="mb-6">
         <button className="flex items-center text-gray-400 hover:text-white transition-colors gap-1">
