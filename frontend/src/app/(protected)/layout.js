@@ -8,7 +8,9 @@ const LayoutContent = memo(({ children }) => (
   <div className="flex min-h-screen bg-zinc-950 text-white">
     <Sidebar />
     <div className="ml-20 lg:ml-64 flex-1">
+      {/* TODO: LOGGED-IN HEADER */}
       {children}
+      <FooterCompact />
     </div>
   </div>
 ));
@@ -21,7 +23,6 @@ function AuthLayout({ children }) {
       <WithLoading>
         <LayoutContent>
           {children}
-          <FooterCompact />
         </LayoutContent>
       </WithLoading>
     </ProtectedRoute>

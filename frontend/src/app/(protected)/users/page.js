@@ -27,7 +27,6 @@ const UsersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   
-  // Get contexts
   const { user, isAuthenticated } = useAuth();
   const { 
     followers, 
@@ -36,21 +35,29 @@ const UsersPage = () => {
     getFollowers, 
     getFollowing, 
     followUser, 
-    unfollowUser, 
-    checkFollowStatus,
-    setFollowing
+    unfollowUser,
+    checkFollowStatus
   } = useFollow();
+  
   const { 
     allUsers, 
     loading: usersLoading, 
-    error: usersError, 
-    featuredUsers,
-    randomUsers,
-    fetchAllUsers,
-    searchUsers
+    getOtherUsers, 
+    getRandomUsers, 
+    getFeaturedCreators,
+    updateFollowerCount
   } = useUsers();
   
-  // Fetch followers and following for the current user
+  // Get other users (excluding current user)
+  const otherUsers = getOtherUsers();
+  
+  // Get featured creators
+  const featuredCreators = getFeaturedCreators();
+  
+  // Get random users for suggestions
+  const suggestedUsers = getRandomUsers(5);
+  
+  // Load followers and following when component mounts
   useEffect(() => {
     if (isAuthenticated && user) {
       getFollowers(user._id);
@@ -63,165 +70,75 @@ const UsersPage = () => {
     let users = [];
     
     if (activeTab === 'all') {
-      // Add isFollowing field to allUsers by checking if the user exists in following
-      users = allUsers
-        .filter(u => u._id !== (user?._id || '')) // Filter out the logged-in user
-        .map(user => ({
-          ...user,
-          isFollowing: following.some(f => f.following._id === user._id)
-        }));
+      users = otherUsers;
     } else if (activeTab === 'followers') {
-      // Map followers to match the format of allUsers
-      users = followers
-        .filter(f => f.follower._id !== (user?._id || '')) // Filter out the logged-in user
-        .map(f => ({
-          _id: f.follower._id,
-          fullName: f.follower.fullName,
-          username: f.follower.username,
-          profilePicture: f.follower.profilePicture || "/images/default-profile.jpg",
-          followersCount: f.follower.followersCount || 0,
-          followingCount: f.follower.followingCount || 0,
-          postsCount: f.follower.postsCount || 0,
-          isFollowing: following.some(follow => follow.following._id === f.follower._id),
-          isVerified: f.follower.isVerified || false,
-          badge: f.follower.badge || null
-        }));
+      // Filter followers to only include users that exist in allUsers
+      users = followers.filter(follower => 
+        otherUsers.some(user => user._id === follower.follower._id)
+      ).map(follower => {
+        // Find the full user object from allUsers
+        const fullUser = allUsers.find(u => u._id === follower.follower._id);
+        return fullUser || follower.follower;
+      });
     } else if (activeTab === 'following') {
-      // Map following to match the format of allUsers
-      users = following
-        .filter(f => f.following._id !== (user?._id || '')) // Filter out the logged-in user
-        .map(f => ({
-          _id: f.following._id,
-          fullName: f.following.fullName,
-          username: f.following.username,
-          profilePicture: f.following.profilePicture || "/images/default-profile.jpg",
-          followersCount: f.following.followersCount || 0,
-          followingCount: f.following.followingCount || 0,
-          postsCount: f.following.postsCount || 0,
-          isFollowing: true,
-          isVerified: f.following.isVerified || false,
-          badge: f.following.badge || null
-        }));
+      // Filter following to only include users that exist in allUsers
+      users = following.filter(followed => 
+        otherUsers.some(user => user._id === followed.following._id)
+      ).map(followed => {
+        // Find the full user object from allUsers
+        const fullUser = allUsers.find(u => u._id === followed.following._id);
+        return fullUser || followed.following;
+      });
     }
     
     if (searchQuery) {
       return users.filter(user => 
-        user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        user.username.toLowerCase().includes(searchQuery.toLowerCase())
+        user.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        user.username?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     
     return users;
   };
   
-  // Toggle follow status
-  const handleToggleFollow = async (userId) => {
+  // Check if current user is following a user using the following array
+  const isFollowing = (userId) => {
+    return following.some(followed => followed.following._id === userId);
+  };
+  
+  // Handle follow/unfollow with optimistic UI updates
+  const handleFollowToggle = async (userId) => {
     if (!isAuthenticated) {
       // Redirect to login or show login modal
       return;
     }
     
     try {
-      // Check if the user is already being followed
-      const isFollowing = await checkFollowStatus(userId);
-      
-      if (isFollowing) {
-        const result = await unfollowUser(userId);
-        if (result.success) {
-          // Immediately update UI for unfollowed user
-          // Update in allUsers
-          const updatedAllUsers = allUsers.map(u => {
-            if (u._id === userId) {
-              return {
-                ...u,
-                isFollowing: false,
-                followersCount: Math.max(0, (u.followersCount || 1) - 1)
-              };
-            }
-            return u;
-          });
-          
-          // Update in randomUsers
-          const updatedRandomUsers = randomUsers.map(u => {
-            if (u._id === userId) {
-              return {
-                ...u,
-                followersCount: Math.max(0, (u.followersCount || 1) - 1)
-              };
-            }
-            return u;
-          });
-          
-          // Update the context by calling the hook setters
-          // This approach ensures the UI is immediately updated without waiting for a full refetch
-          fetchAllUsers({ manualData: updatedAllUsers, randomData: updatedRandomUsers, skipApiCall: true });
-          
-          // Also update the following list to remove this user
-          if (typeof setFollowing === 'function') {
-            const updatedFollowing = following.filter(f => f.following._id !== userId);
-            setFollowing(updatedFollowing);
-          }
-        }
+      if (isFollowing(userId)) {
+        // Optimistically update UI
+        updateFollowerCount(userId, -1);
+        
+        // Call API
+        await unfollowUser(userId);
       } else {
-        const result = await followUser(userId);
-        if (result.success) {
-          // Immediately update UI for followed user
-          // Update in allUsers
-          const updatedAllUsers = allUsers.map(u => {
-            if (u._id === userId) {
-              return {
-                ...u, 
-                isFollowing: true,
-                followersCount: (u.followersCount || 0) + 1
-              };
-            }
-            return u;
-          });
-          
-          // Update in randomUsers
-          const updatedRandomUsers = randomUsers.map(u => {
-            if (u._id === userId) {
-              return {
-                ...u,
-                followersCount: (u.followersCount || 0) + 1
-              };
-            }
-            return u;
-          });
-          
-          // Update the context
-          fetchAllUsers({ manualData: updatedAllUsers, randomData: updatedRandomUsers, skipApiCall: true });
-          
-          // Add this user to the following list
-          if (typeof setFollowing === 'function') {
-            const userToFollow = allUsers.find(u => u._id === userId) || 
-                               randomUsers.find(u => u._id === userId);
-            
-            if (userToFollow) {
-              const newFollowingEntry = {
-                _id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-                following: {
-                  _id: userToFollow._id,
-                  fullName: userToFollow.fullName,
-                  username: userToFollow.username,
-                  profilePicture: userToFollow.profilePicture,
-                  followersCount: userToFollow.followersCount,
-                  followingCount: userToFollow.followingCount,
-                  isVerified: userToFollow.isVerified,
-                  badge: userToFollow.badge
-                }
-              };
-              
-              setFollowing([...following, newFollowingEntry]);
-            }
-          }
-        }
+        // Optimistically update UI
+        updateFollowerCount(userId, 1);
+        
+        // Call API
+        await followUser(userId);
       }
     } catch (error) {
       console.error("Error toggling follow status:", error);
+      
+      // Revert the optimistic update if there was an error
+      if (isFollowing(userId)) {
+        updateFollowerCount(userId, 1);
+      } else {
+        updateFollowerCount(userId, -1);
+      }
     }
   };
-
+  
   return (
     <div className="w-full flex-1 min-h-screen bg-zinc-950 text-white">
       {/* Top section */}
@@ -311,32 +228,26 @@ const UsersPage = () => {
       <div className="p-6 grid grid-cols-12 gap-6">
         {/* Main content - Users list */}
         <div className="col-span-12 lg:col-span-8">
-          {/* Loading state */}
-          {usersLoading && (
-            <div className="flex justify-center py-12">
-              <div className="w-10 h-10 border-4 border-t-violet-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-          
-          {/* Error state */}
-          {usersError && !usersLoading && (
-            <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-8 text-center">
-              <UserX className="w-12 h-12 text-red-500 mx-auto mb-3" />
-              <h3 className="text-lg font-medium mb-2">Error loading users</h3>
-              <p className="text-gray-400 text-sm mb-4">{usersError}</p>
-              <button 
-                onClick={() => fetchAllUsers()}
-                className="text-violet-400 hover:text-violet-300 text-sm font-medium"
-              >
-                Try again
-              </button>
-            </div>
-          )}
-          
           {/* Users grid */}
-          {!usersLoading && !usersError && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredUsers().map(user => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {usersLoading ? (
+              // Loading state
+              Array(4).fill(0).map((_, idx) => (
+                <div key={idx} className="bg-zinc-900/60 border border-white/10 rounded-xl p-4 animate-pulse">
+                  <div className="flex items-start justify-between">
+                    <div className="flex gap-3">
+                      <div className="w-12 h-12 rounded-full bg-zinc-800"></div>
+                      <div>
+                        <div className="h-5 w-32 bg-zinc-800 rounded mb-2"></div>
+                        <div className="h-4 w-24 bg-zinc-800 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="h-8 w-20 bg-zinc-800 rounded"></div>
+                  </div>
+                </div>
+              ))
+            ) : filteredUsers().length > 0 ? (
+              filteredUsers().map(user => (
                 <div key={user._id} className="bg-zinc-900/60 border border-white/10 rounded-xl p-4 hover:border-violet-500/30 transition-colors group">
                   <div className="flex items-start justify-between">
                     <div className="flex gap-3">
@@ -371,14 +282,15 @@ const UsersPage = () => {
                     </div>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => handleToggleFollow(user._id)}
+                        onClick={() => handleFollowToggle(user._id)}
+                        disabled={followLoading}
                         className={`text-xs font-medium py-1.5 px-3 rounded-lg transition-colors ${
-                          user.isFollowing
+                          isFollowing(user._id)
                             ? 'bg-violet-500 hover:bg-violet-600 text-white'
                             : 'bg-white/5 hover:bg-white/10 text-white'
                         }`}
                       >
-                        {user.isFollowing ? 'Following' : 'Follow'}
+                        {isFollowing(user._id) ? 'Following' : 'Follow'}
                       </button>
                       <Link href={`/profile/${user.username}`} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                         <MessageCircle className="w-4 h-4" />
@@ -396,8 +308,8 @@ const UsersPage = () => {
                       <p className="text-sm font-medium">{user.followingCount || 0}</p>
                     </div>
                     <div className="bg-white/5 rounded-lg p-2">
-                      <p className="text-xs text-gray-400">Posts</p>
-                      <p className="text-sm font-medium">{user.postsCount || 0}</p>
+                      <p className="text-xs text-gray-400">Images</p>
+                      <p className="text-sm font-medium">{user.posts || 0}</p>
                     </div>
                   </div>
                   
@@ -405,48 +317,43 @@ const UsersPage = () => {
                     <Link href={`/profile/${user.username}`} className="text-xs text-violet-400 hover:text-violet-300">View Profile</Link>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-          
-          {/* If no results */}
-          {!usersLoading && !usersError && filteredUsers().length === 0 && (
-            <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-8 text-center">
-              <Users className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-              <h3 className="text-lg font-medium mb-2">No users found</h3>
-              <p className="text-gray-400 text-sm mb-4">Try adjusting your search or filters</p>
-              <button 
-                onClick={() => {setSearchQuery(''); setActiveTab('all');}}
-                className="text-violet-400 hover:text-violet-300 text-sm font-medium"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-          
-          {/* Pagination */}
-          {!usersLoading && !usersError && filteredUsers().length > 0 && (
-            <div className="flex justify-between items-center mt-6">
-              <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Previous</button>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3].map(page => (
-                  <button 
-                    key={page} 
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
-                      page === 1 ? 'bg-violet-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                <span className="text-gray-500">...</span>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 text-gray-300">
-                  12
+              ))
+            ) : (
+              <div className="col-span-2 bg-zinc-900/60 border border-white/10 rounded-xl p-8 text-center">
+                <Users className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+                <h3 className="text-lg font-medium mb-2">No users found</h3>
+                <p className="text-gray-400 text-sm mb-4">Try adjusting your search or filters</p>
+                <button 
+                  onClick={() => {setSearchQuery(''); setActiveTab('all');}}
+                  className="text-violet-400 hover:text-violet-300 text-sm font-medium"
+                >
+                  Clear all filters
                 </button>
               </div>
-              <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Next</button>
+            )}
+          </div>
+          
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-6">
+            <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Previous</button>
+            <div className="flex items-center gap-2">
+              {[1, 2, 3].map(page => (
+                <button 
+                  key={page} 
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+                    page === 1 ? 'bg-violet-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <span className="text-gray-500">...</span>
+              <button className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 text-gray-300">
+                12
+              </button>
             </div>
-          )}
+            <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Next</button>
+          </div>
         </div>
         
         {/* Right sidebar */}
@@ -487,49 +394,54 @@ const UsersPage = () => {
               <Award className="w-5 h-5 text-amber-400" />
             </div>
             <div className="space-y-3">
-              {randomUsers
-                .filter(creator => creator._id !== (user?._id || ''))
-                .map(creator => (
-                <div key={creator._id} className="flex items-center justify-between hover:bg-white/5 p-2 rounded-lg transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
-                        <img src={creator.profilePicture || "/images/default-profile.jpg"} alt={creator.fullName} className="w-full h-full object-cover" />
-                      </div>
-                      {creator.isVerified && (
-                        <div className="absolute -bottom-0.5 -right-0.5 bg-violet-500 rounded-full p-0.5">
-                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path>
-                          </svg>
+              {featuredCreators.length > 0 ? (
+                featuredCreators.map(creator => (
+                  <div key={creator._id} className="flex items-center justify-between hover:bg-white/5 p-2 rounded-lg transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full overflow-hidden">
+                          <img src={creator.profilePicture || "/images/default-profile.jpg"} alt={creator.fullName} className="w-full h-full object-cover" />
                         </div>
-                      )}
+                        {creator.isVerified && (
+                          <div className="absolute -bottom-0.5 -right-0.5 bg-violet-500 rounded-full p-0.5">
+                            <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{creator.fullName}</p>
+                        <p className="text-xs text-gray-400">{creator.followersCount || 0} followers</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">{creator.fullName}</p>
-                      <p className="text-xs text-gray-400">{creator.followersCount || 0} followers</p>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/profile/${creator.username}`} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                      </Link>
+                      <button 
+                        onClick={() => handleFollowToggle(creator._id)}
+                        disabled={followLoading}
+                        className={`text-xs font-medium py-1 px-2 rounded-lg transition-colors ${
+                          isFollowing(creator._id)
+                            ? 'bg-violet-500 hover:bg-violet-600'
+                            : 'bg-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        {isFollowing(creator._id) ? 'Following' : 'Follow'}
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/profile/${creator.username}`} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                      <ImageIcon className="w-3.5 h-3.5" />
-                    </Link>
-                    <button 
-                      onClick={() => handleToggleFollow(creator._id)}
-                      className={`text-xs font-medium py-1 px-2 rounded-lg transition-colors ${
-                        following.some(f => f.following._id === creator._id) 
-                          ? 'bg-violet-500 hover:bg-violet-600'
-                          : 'bg-white/5 hover:bg-white/10'
-                      }`}
-                    >
-                      {following.some(f => f.following._id === creator._id) ? 'Following' : 'Follow'}
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm">No featured creators available</p>
                 </div>
-              ))}
+              )}
             </div>
-            <button className="w-full mt-4 text-center text-sm text-violet-400 hover:text-violet-300">
+            <Link href="/users" className="w-full mt-4 text-center text-sm text-violet-400 hover:text-violet-300">
               Browse all featured creators
-            </button>
+            </Link>
           </div>
           
           {/* Community insights */}
@@ -542,15 +454,12 @@ const UsersPage = () => {
                   <MoreHorizontal className="w-4 h-4 text-gray-500" />
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {allUsers
-                    .filter(u => u._id !== (user?._id || ''))
-                    .slice(0, 7)
-                    .map((user, i) => (
+                  {suggestedUsers.slice(0, 7).map(user => (
                     <div key={user._id} className="w-8 h-8 rounded-full overflow-hidden">
-                      <img src={user.profilePicture || `/api/placeholder/${20 + i*2}/${20 + i*2}`} alt={user.fullName} className="w-full h-full object-cover" />
+                      <img src={user.profilePicture || "/images/default-profile.jpg"} alt={user.fullName} className="w-full h-full object-cover" />
                     </div>
                   ))}
-                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs">+{Math.max(0, allUsers.filter(u => u._id !== (user?._id || '')).length - 7)}</div>
+                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs">+{Math.floor(Math.random() * 20)}</div>
                 </div>
               </div>
               
@@ -587,20 +496,23 @@ const UsersPage = () => {
           <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
             <h3 className="text-lg font-bold mb-3">You might like</h3>
             <div className="flex overflow-x-auto gap-3 py-2 no-scrollbar">
-              {randomUsers
-                .filter(u => !following.some(f => f.following._id === u._id) && u._id !== (user?._id || ''))
-                .map((suggestedUser, idx) => (
-                <div key={suggestedUser._id} className="flex-shrink-0 w-36 bg-white/5 rounded-lg p-3 text-center">
+              {suggestedUsers.map(user => (
+                <div key={user._id} className="flex-shrink-0 w-36 bg-white/5 rounded-lg p-3 text-center">
                   <div className="w-16 h-16 mx-auto rounded-full overflow-hidden mb-2">
-                    <img src={suggestedUser.profilePicture || `/api/placeholder/${70 + idx}/${70 + idx}`} alt={suggestedUser.fullName} className="w-full h-full object-cover" />
+                    <img src={user.profilePicture || "/images/default-profile.jpg"} alt={user.fullName} className="w-full h-full object-cover" />
                   </div>
-                  <p className="text-sm font-medium truncate">{suggestedUser.fullName}</p>
-                  <p className="text-xs text-gray-400 mb-2">@{suggestedUser.username}</p>
+                  <p className="text-sm font-medium truncate">{user.fullName}</p>
+                  <p className="text-xs text-gray-400 mb-2">@{user.username}</p>
                   <button 
-                    onClick={() => handleToggleFollow(suggestedUser._id)}
-                    className="w-full py-1.5 bg-white/10 hover:bg-violet-600 rounded text-xs font-medium transition-colors"
+                    onClick={() => handleFollowToggle(user._id)}
+                    disabled={followLoading}
+                    className={`w-full py-1.5 ${
+                      isFollowing(user._id)
+                        ? 'bg-violet-500 hover:bg-violet-600'
+                        : 'bg-white/10 hover:bg-violet-600'
+                    } rounded text-xs font-medium transition-colors`}
                   >
-                    {following.some(f => f.following._id === suggestedUser._id) ? 'Following' : 'Follow'}
+                    {isFollowing(user._id) ? 'Following' : 'Follow'}
                   </button>
                 </div>
               ))}

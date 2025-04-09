@@ -1,8 +1,8 @@
-import { SessionWrapper } from "@/components/hoc";
 import "./globals.css";
+import { SessionWrapper } from "@/components/hoc";
 import { AuthProvider } from "@/context/AuthContext";
 import { FollowProvider } from "@/context/FollowContext";
-import { UsersProvider } from '@/context/UsersContext';
+import { UsersProvider } from "@/context/UsersContext";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
