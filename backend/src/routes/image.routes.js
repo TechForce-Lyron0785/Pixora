@@ -9,9 +9,11 @@ import {
   deleteImage,
   searchImages,
   getTrendingImages,
-  getImagesByTag
+  getImagesByTag,
+  uploadImageFile
 } from "../controllers/image.controllers.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
+import upload from "../config/multer.js";
 
 const router = Router();
 
@@ -25,6 +27,7 @@ router.get("/:imageId", getImage);
 
 // Protected routes
 router.post("/", authenticateUser, uploadImage);
+router.post("/upload", authenticateUser, upload.single("image"), uploadImageFile);
 router.get("/me", authenticateUser, getUserImages);
 router.patch("/:imageId", authenticateUser, updateImage);
 router.delete("/:imageId", authenticateUser, deleteImage);

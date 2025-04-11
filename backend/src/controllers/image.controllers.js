@@ -2,6 +2,7 @@ import { Image } from "../models/image.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import cloudinary from "../config/cloudinary.js";
 
 /**
  * @desc Upload a new image
@@ -318,5 +319,57 @@ export const getImagesByTag = asyncHandler(async (req, res) => {
 
   res.status(200).json(
     new ApiResponse(200, "Images by tag fetched successfully", images, metadata)
+  );
+});
+
+/**
+ * @desc Upload an image file to Cloudinary and save details to database
+ * @route POST /api/images/upload
+ * @access Private
+ */
+export const uploadImageFile = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "No image file provided");
+  }
+
+  const { title, description, tags, category, visibility, license } = req.body;
+
+  if (!title || !description) {
+    throw new ApiError(400, "Title and description are required");
+  }
+
+  // The file is already uploaded to cloudinary by multer-storage-cloudinary
+  const imageUrl = req.file.path;
+  const publicId = req.file.filename;
+
+  // Parse tags if they're sent as a string
+  let parsedTags = [];
+  if (tags) {
+    try {
+      parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+    } catch (error) {
+      parsedTags = tags.split(',').map(tag => tag.trim());
+    }
+  }
+
+  // Determine if the image is public based on visibility
+  const isPublic = visibility !== 'private';
+
+  const image = await Image.create({
+    user: req.user._id,
+    title,
+    description,
+    imageUrl,
+    publicId,
+    category: category || 'other',
+    license: license || 'standard',
+    tags: parsedTags,
+    isPublic
+  });
+
+  await image.populate("user", "username profilePicture");
+
+  res.status(201).json(
+    new ApiResponse(201, "Image uploaded successfully", image)
   );
 });

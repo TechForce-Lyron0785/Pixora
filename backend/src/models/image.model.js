@@ -23,6 +23,20 @@ const imageSchema = new Schema(
       type: String,
       required: true, // The URL to the image file (uploaded to cloud storage, etc.)
     },
+    publicId: {
+      type: String,
+      required: true, // Cloudinary public ID for the image
+    },
+    category: {
+      type: String,
+      enum: ['abstract', 'portrait', 'landscape', 'cyberpunk', 'minimal', 'other'],
+      default: 'other',
+    },
+    license: {
+      type: String,
+      enum: ['standard', 'extended', 'custom'],
+      default: 'standard',
+    },
     tags: [
       {
         type: String,

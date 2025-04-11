@@ -6,15 +6,9 @@ import {
   ImageIcon,
   X,
   CheckCircle,
-  Settings,
-  Heart,
   Grid,
-  TrendingUp,
   MessageSquare,
-  BookmarkIcon,
-  Clock,
   PlusCircle,
-  Search,
   Bell,
   UserIcon,
   Tag,
@@ -25,18 +19,26 @@ import {
   Users,
   HelpCircle,
   Info,
-  Compass,
-  ArrowLeft
+  ArrowLeft,
+  AlertCircle
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useApi } from '@/hooks/useApi';
+import Link from 'next/link';
 
 const ImageUpload = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const api = useApi();
   const [files, setFiles] = useState([]);
-  const [activeTab, setActiveTab] = useState('discover');
   const [dragActive, setDragActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedVisibility, setSelectedVisibility] = useState('public');
   const [selectedTags, setSelectedTags] = useState([]);
   const [inputTag, setInputTag] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
 
   const [imageDetails, setImageDetails] = useState({
@@ -62,11 +64,12 @@ const ImageUpload = () => {
 
   const suggestedTags = ['photography', 'digital art', 'graphic design', 'illustration', 'abstract', 'minimalism', '3d render'];
 
-  const popularCollections = [
-    { name: 'Abstract Art', count: '12.3K', color: 'bg-rose-500' },
-    { name: 'Landscapes', count: '8.5K', color: 'bg-emerald-500' },
-    { name: 'Portraits', count: '15.2K', color: 'bg-amber-500' },
-  ];
+  // Check for authentication
+  React.useEffect(() => {
+    if (!session && typeof window !== 'undefined') {
+      router.push('/login');
+    }
+  }, [session, router]);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -135,31 +138,90 @@ const ImageUpload = () => {
     setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
-  const simulateUpload = () => {
-    setFiles(files.map(file => ({ ...file, uploading: true })));
+  const uploadToServer = async () => {
+    try {
+      setIsUploading(true);
+      setUploadError(null);
 
-    // Simulate progress
-    const interval = setInterval(() => {
-      setFiles(currentFiles => {
-        const updatedFiles = currentFiles.map(file => {
-          if (file.uploading && file.progress < 100) {
-            return { ...file, progress: Math.min(file.progress + 20, 100) };
-          }
-          if (file.progress === 100) {
-            return { ...file, uploading: false, uploaded: true };
-          }
-          return file;
+      if (files.length === 0) {
+        throw new Error("Please select at least one image");
+      }
+
+      if (!imageDetails.title || !imageDetails.description) {
+        throw new Error("Title and description are required");
+      }
+
+      // Start updating the UI to show progress
+      setFiles(files.map(file => ({ ...file, uploading: true, progress: 0 })));
+
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append('image', files[0].file);
+      formData.append('title', imageDetails.title);
+      formData.append('description', imageDetails.description);
+      formData.append('category', imageDetails.category);
+      formData.append('license', imageDetails.license);
+      formData.append('visibility', selectedVisibility);
+
+      // Add tags if available
+      if (selectedTags.length > 0) {
+        formData.append('tags', JSON.stringify(selectedTags));
+      }
+
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setFiles(currentFiles => {
+          return currentFiles.map(file => ({
+            ...file,
+            progress: Math.min((file.progress || 0) + 10, 90) // Cap at 90% until actual completion
+          }));
+        });
+      }, 300);
+
+      try {
+        // Using the fetch API directly for file uploads since axios has issues with FormData
+        const response = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include', // Include credentials for authentication
         });
 
-        // Check if all files are uploaded
-        if (updatedFiles.every(file => file.uploaded)) {
-          clearInterval(interval);
-          setCurrentStep(4); // Move to success step
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to upload image');
         }
 
-        return updatedFiles;
-      });
-    }, 500);
+        // Clear the interval
+        clearInterval(progressInterval);
+
+        // Update files with completed state
+        setFiles(files.map(file => ({
+          ...file,
+          progress: 100,
+          uploading: false,
+          uploaded: true
+        })));
+
+        setCurrentStep(4); // Move to success step
+      } catch (error) {
+        clearInterval(progressInterval);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+
+      setUploadError(error.message || 'Failed to upload image');
+
+      // Update UI to show error state
+      setFiles(files.map(file => ({
+        ...file,
+        uploading: false,
+        error: 'Upload failed'
+      })));
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleNextStep = () => {
@@ -167,7 +229,7 @@ const ImageUpload = () => {
       setCurrentStep(currentStep + 1);
 
       if (currentStep === 3) {
-        simulateUpload();
+        uploadToServer();
       }
     }
   };
@@ -220,8 +282,8 @@ const ImageUpload = () => {
             <div key={step} className="relative z-10 flex flex-col items-center">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step
-                    ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600'
-                    : 'bg-white/10'
+                  ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600'
+                  : 'bg-white/10'
                   }`}
               >
                 {currentStep > step ? (
@@ -435,14 +497,6 @@ const ImageUpload = () => {
                           </div>
                         </div>
                       ))}
-
-                      <div
-                        onClick={() => fileInputRef.current.click()}
-                        className="aspect-square rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-violet-500/50 transition-colors"
-                      >
-                        <PlusCircle className="w-8 h-8 text-gray-400 mb-2" />
-                        <span className="text-xs text-gray-400">Add More</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -469,8 +523,8 @@ const ImageUpload = () => {
                           key={option.id}
                           onClick={() => setSelectedVisibility(option.id)}
                           className={`p-4 rounded-lg cursor-pointer flex items-start gap-3 border ${selectedVisibility === option.id
-                              ? 'border-violet-500 bg-violet-900/20'
-                              : 'border-white/10 hover:bg-white/5'
+                            ? 'border-violet-500 bg-violet-900/20'
+                            : 'border-white/10 hover:bg-white/5'
                             } transition-colors`}
                         >
                           <div className={`p-2 rounded-lg ${selectedVisibility === option.id ? 'bg-violet-500' : 'bg-white/10'}`}>
@@ -557,43 +611,8 @@ const ImageUpload = () => {
           )}
 
           {/* Step 4: Complete */}
-          {currentStep === 4 && (
-            <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-10 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-8 h-8" />
-              </div>
-
-              <h2 className="text-2xl font-bold mb-3">Upload Complete!</h2>
-              <p className="text-gray-300 mb-8 max-w-md mx-auto">
-                Your images have been successfully uploaded and are now being processed.They&apos;ll be available on your profile shortly. Thank you for contributing to our community!
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="py-2.5 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2">
-                  <Grid className="w-4 h-4" />
-                  Go to My Gallery
-                </button>
-                <button
-                  onClick={() => {
-                    setFiles([]);
-                    setCurrentStep(1);
-                    setSelectedTags([]);
-                    setImageDetails({
-                      title: '',
-                      description: '',
-                      category: 'portrait',
-                      license: 'standard'
-                    });
-                  }}
-                  className="py-2.5 px-6 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  Upload More Images
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
 
         <div className="col-span-12 lg:col-span-4">
           {/* Right sidebar */}
@@ -649,10 +668,10 @@ const ImageUpload = () => {
                     <div className="w-full bg-zinc-800 rounded-full h-1.5">
                       <div
                         className={`h-1.5 rounded-full ${file.error
-                            ? 'bg-red-500'
-                            : file.uploaded
-                              ? 'bg-green-500'
-                              : 'bg-violet-500'
+                          ? 'bg-red-500'
+                          : file.uploaded
+                            ? 'bg-green-500'
+                            : 'bg-violet-500'
                           }`}
                         style={{ width: `${file.progress}%` }}
                       ></div>
@@ -682,14 +701,58 @@ const ImageUpload = () => {
           )}
         </div>
       </div>
+      {currentStep === 4 && (
+        <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-10 text-center mx-auto max-w-4xl">
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-8 h-8" />
+          </div>
+
+          <h2 className="text-2xl font-bold mb-3">Upload Complete!</h2>
+          <p className="text-gray-300 mb-8 max-w-md mx-auto">
+            Your images have been successfully uploaded and are now being processed.They&apos;ll be available on your profile shortly. Thank you for contributing to our community!
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href={"/feed"} className="py-2.5 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2">
+              <Grid className="w-4 h-4" />
+              Go to My Gallery
+            </Link>
+            <button
+              onClick={() => {
+                setFiles([]);
+                setCurrentStep(1);
+                setSelectedTags([]);
+                setImageDetails({
+                  title: '',
+                  description: '',
+                  category: 'portrait',
+                  license: 'standard'
+                });
+              }}
+              className="py-2.5 px-6 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Upload More Images
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add error display */}
+      {uploadError && (
+        <div className="mt-4 p-4 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-red-500" />
+          <p className="text-red-100">{uploadError}</p>
+        </div>
+      )}
 
       {/* Navigation Buttons */}
       {currentStep < 4 && (
         <div className="mt-8 flex justify-between">
           <button
             onClick={handlePrevStep}
-            disabled={currentStep === 1}
-            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${currentStep === 1
+            disabled={currentStep === 1 || isUploading}
+            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${currentStep === 1 || isUploading
                 ? 'bg-zinc-800/50 text-gray-500 cursor-not-allowed'
                 : 'bg-white/10 hover:bg-white/20 text-white'
               }`}
@@ -699,13 +762,13 @@ const ImageUpload = () => {
 
           <button
             onClick={handleNextStep}
-            disabled={files.length === 0}
-            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${files.length === 0
+            disabled={files.length === 0 || isUploading}
+            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${files.length === 0 || isUploading
                 ? 'bg-zinc-800/50 text-gray-500 cursor-not-allowed'
                 : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white'
               }`}
           >
-            {currentStep === 3 ? 'Upload Now' : 'Continue'}
+            {isUploading ? 'Uploading...' : currentStep === 3 ? 'Upload Now' : 'Continue'}
           </button>
         </div>
       )}
