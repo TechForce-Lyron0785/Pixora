@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getLocationFromIp } from "../utils/ipGeolocation.js";
 import rateLimit from "express-rate-limit";
 
 // list of controllers
@@ -16,6 +17,7 @@ import rateLimit from "express-rate-limit";
 // 7. getAllUsers
 // 8. searchUsers
 // 9. checkUserAvailability
+// 10. getLoginHistory
 
 // Rate limiter (limits requests to 5 per minute per IP)
 export const loginLimiter = rateLimit({
@@ -55,7 +57,24 @@ export const registerUser = [registerLimiter, asyncHandler(async (req, res) => {
     throw new ApiError(409, "Username or Email already taken.");
   }
 
-  const newUser = new User({ fullName, username, email, password });
+  // Get IP address and user agent
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const device = req.headers['user-agent'] || 'unknown';
+  const location = await getLocationFromIp(ip);
+
+  const newUser = new User({ 
+    fullName, 
+    username, 
+    email, 
+    password, 
+    lastLogin: Date.now(),
+    loginHistory: [{
+      ip,
+      device,
+      location,
+      timestamp: Date.now()
+    }]
+  });
   await newUser.save();
 
   const token = generateToken(newUser._id);
@@ -95,6 +114,21 @@ export const loginUser = [loginLimiter, asyncHandler(async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(401, "Invalid credentials.");
 
+  // Get IP address and user agent
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const device = req.headers['user-agent'] || 'unknown';
+  const location = await getLocationFromIp(ip);
+
+  // Update lastLogin time and add login history entry
+  user.lastLogin = Date.now();
+  user.loginHistory.push({
+    ip,
+    device,
+    location,
+    timestamp: Date.now()
+  });
+  await user.save();
+
   const token = generateToken(user._id);
 
   // Set cookie with an expiration date of 7 days
@@ -122,6 +156,11 @@ export const loginUser = [loginLimiter, asyncHandler(async (req, res) => {
 export const googleLoginUser = asyncHandler(async (req, res) => {
   const { email, fullName, username, profilePicture } = req.body;
 
+  // Get IP address and user agent
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const device = req.headers['user-agent'] || 'unknown';
+  const location = await getLocationFromIp(ip);
+
   let user = await User.findOne({ email });
 
   if (!user) {
@@ -132,6 +171,23 @@ export const googleLoginUser = asyncHandler(async (req, res) => {
       profilePicture,
       provider: "google",
       isVerified: true,
+      lastLogin: Date.now(),
+      loginHistory: [{
+        ip,
+        device,
+        location,
+        timestamp: Date.now()
+      }]
+    });
+    await user.save();
+  } else {
+    // Update lastLogin time and add login history entry
+    user.lastLogin = Date.now();
+    user.loginHistory.push({
+      ip,
+      device,
+      location,
+      timestamp: Date.now()
     });
     await user.save();
   }
@@ -218,7 +274,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   // Find user by email or username
   const user = await User.findOne({
     $or: [{ email: identifier }, { username: identifier }]
-  }).select("-password");
+  }).select("-password -email -provider -loginHistory -lastLogin");
 
   if (!user) throw new ApiError(404, "User not found.");
 
@@ -238,7 +294,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Unauthorized to update this profile.");
   }
 
-  const user = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true }).select("-password");
+  const user = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true }).select("-password -provider -loginHistory -lastLogin");
   if (!user) throw new ApiError(404, "User not found.");
 
   res.status(200).json(new ApiResponse(200, "User profile updated", user));
@@ -275,7 +331,7 @@ export const updateUserPassword = asyncHandler(async (req, res) => {
  * @access Public
  */
 export const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find().select("-password -email");
+  const users = await User.find().select("-password -email -provider -loginHistory -lastLogin");
   res.status(200).json(new ApiResponse(200, "All Users fetched", users));
 });
 
@@ -290,7 +346,26 @@ export const searchUsers = asyncHandler(async (req, res) => {
   if (!query) throw new ApiError(400, "Search query is required.");
 
   const users = await User.find({ username: { $regex: query, $options: "i" } })
-    .select("_id username profilePicture");
+    .select("_id username profilePicture fullName");
 
   res.status(200).json(new ApiResponse(200, "Users fetched", users));
+});
+
+/** 
+ * @desc Get user login history
+ * @route GET /api/users/login-history
+ * @access Private
+ */
+export const getLoginHistory = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  
+  const user = await User.findById(userId).select("loginHistory");
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  
+  // Sort login history by timestamp in descending order (newest first)
+  const sortedHistory = user.loginHistory.sort((a, b) => b.timestamp - a.timestamp);
+  
+  res.status(200).json(new ApiResponse(200, "Login history retrieved successfully", sortedHistory));
 });

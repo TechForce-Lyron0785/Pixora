@@ -4,6 +4,7 @@ import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateInteractionPoints, updateUserBadge } from "../utils/userUpdates.js";
 
 /**
  * @desc Toggle image like status
@@ -22,8 +23,14 @@ export const toggleLike = asyncHandler(async (req, res) => {
 
   const result = await Like.toggleLike(userId, imageId);
 
-  // Send notification if image was liked
   if (result.liked) {
+    // Update interaction points for the user who liked
+    await updateInteractionPoints(userId, 'like');
+    
+    // Update badge for the image owner based on likes
+    await updateUserBadge(image.user);
+    
+    // Send notification if image was liked
     await Notification.createNotification({
       recipient: image.user,
       sender: userId,

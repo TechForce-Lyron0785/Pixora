@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import cloudinary from "../config/cloudinary.js";
+import { User } from "../models/user.model.js";
+import { updateUserBadge } from "../utils/userUpdates.js";
 
 /**
  * @desc Upload a new image
@@ -25,6 +27,11 @@ export const uploadImage = asyncHandler(async (req, res) => {
     isPublic: isPublic ?? true,
     album: albumId
   });
+
+  await User.findByIdAndUpdate(req.user._id, { $inc: { postsCount: 1 } });
+  
+  // Update user badge based on post count
+  await updateUserBadge(req.user._id);
 
   res.status(201).json(
     new ApiResponse(201, "Image uploaded successfully", image)
@@ -200,6 +207,11 @@ export const deleteImage = asyncHandler(async (req, res) => {
   }
 
   await image.deleteOne();
+
+  await User.findByIdAndUpdate(req.user._id, { $inc: { postsCount: -1 } });
+  
+  // Update user badge after post count change
+  await updateUserBadge(req.user._id);
 
   res.status(200).json(
     new ApiResponse(200, "Image deleted successfully")

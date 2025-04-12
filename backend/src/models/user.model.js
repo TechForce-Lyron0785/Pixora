@@ -1,3 +1,45 @@
+/*
+Username
+Email
+Password
+Full Name
+Profile Picture
+Cover Picture
+Bio
+Profile Visibility ["public", "private"]
+Account Status ["active", "suspended", "deleted"]
+Social Links
+Is Verified
+Is Premium
+Is DP Confirm
+User status ["online", "away", "busy", "offline"]
+
+Followers Count
+Following Count
+Likes Count
+Posts Count
+
+Badge ["newbie", "rising", "pro", "trendsetter"]
+- Badges:
+  1. Newbie: default
+  2. Rising: posts > 4
+  3. Pro: followers > 49
+  4. Trendsetter: likes > 100
+
+Interactions Count
+- Points on interactions:-
+  1Point - Like
+  2Point - Comment
+  3Point - Repost
+  2Point - Save/Bookmark
+  2Point - Follow
+
+
+Login History
+Provider ["credentials", "google"]
+Last Login
+*/
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -6,12 +48,6 @@ const { Schema } = mongoose;
 // User schema definition
 const userSchema = new Schema(
   {
-    fullName: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 33, // Maximum length for full name
-    },
     username: {
       type: String,
       required: true,
@@ -31,10 +67,16 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: function() {
+      required: function () {
         return this.provider !== "google"; // Password is not required for Google login
       },
       minlength: 6,
+    },
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 33, // Maximum length for full name
     },
     profilePicture: {
       type: String, // URL or file path of the profile picture
@@ -51,8 +93,23 @@ const userSchema = new Schema(
     },
     badge: {
       type: String,
-      enum: ["rising", "pro", "featured", "artist", "verified"], // Possible badge values
-      default: "rising",
+      enum: ["newbie", "rising", "pro", "trendsetter"],
+      default: "newbie",
+    },
+    profileVisibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
+    accountStatus: {
+      type: String,
+      enum: ["active", "suspended", "deleted"],
+      default: "active",
+    },
+    userStatus: {
+      type: String,
+      enum: ["online", "away", "busy", "offline"],
+      default: "online",
     },
     socialLinks: {
       instagram: {
@@ -67,42 +124,38 @@ const userSchema = new Schema(
         type: String,
         match: /^https?:\/\/(www\.)?facebook\.com\/[\w\-\.]+\/?$/,
       },
-      linkedin: {
-        type: String,
-        match: /^https?:\/\/(www\.)?linkedin\.com\/in\/[\w\-\.]+\/?$/,
-      },
-      tiktok: {
-        type: String,
-        match: /^https?:\/\/(www\.)?tiktok\.com\/@[\w\-\.]+\/?$/,
-      },
-      youtube: {
-        type: String,
-        match: /^https?:\/\/(www\.)?youtube\.com\/channel\/[\w\-\.]+\/?$/,
-      },
-    },
-    isActive: {
-      type: Boolean,
-      default: true, // User is active by default
     },
     isDpConfirm: {
       type: Boolean,
       default: false,
     },
-    provider: { 
-      type: String, 
-      default: "credentials" 
+    provider: {
+      type: String,
+      enum: ["credentials", "google"],
+      default: "credentials"
     },
     isVerified: {
       type: Boolean,
-      default: false,
+      default: function () {
+        return this.provider === "google";
+      },
     },
     isPremium: {
       type: Boolean,
       default: false,
     },
+    loginHistory: [{
+      ip: String,
+      device: String,
+      location: String,
+      timestamp: {
+        type: Date,
+        default: Date.now
+      }
+    }],
     lastLogin: {
       type: Date,
-      default: null, // Stores last login timestamp
+      default: null,
     },
     followersCount: {
       type: Number,
@@ -112,31 +165,21 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
-    likes: {
+    postsCount: {
       type: Number,
       default: 0,
     },
-    posts: {
+    likesCount: {
       type: Number,
       default: 0,
     },
-    badges: [{
-      name: {
-        type: String,
-        required: true
-      },
-      iconName: {  // Store the icon component name (e.g., "Award", "TrendingUp")
-        type: String,
-        required: true
-      },
-      color: {    // Store the Tailwind color class (e.g., "amber-400")
-        type: String,
-        required: true
-      }
-    }],
+    interactionsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 

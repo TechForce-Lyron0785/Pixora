@@ -4,6 +4,7 @@ import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateInteractionPoints } from "../utils/userUpdates.js";
 
 /**
  * @desc Create a repost
@@ -37,6 +38,9 @@ export const createRepost = asyncHandler(async (req, res) => {
 
   await repost.populate("user", "username profilePicture");
   await repost.populate("image");
+  
+  // Update interaction points for reposting
+  await updateInteractionPoints(req.user._id, 'repost');
 
   // Send notification to image owner
   await Notification.createNotification({

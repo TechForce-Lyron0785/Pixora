@@ -4,6 +4,7 @@ import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateInteractionPoints } from "../utils/userUpdates.js";
 
 /**
  * @desc Toggle image favorite status
@@ -22,8 +23,11 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
 
   const result = await Favorite.toggleFavorite(userId, imageId);
 
-  // Send notification if image was favorited
+  // Update interaction points and send notification if image was favorited
   if (result.favorited) {
+    // Update interaction points for bookmarking/favoriting
+    await updateInteractionPoints(userId, 'favorite');
+    
     await Notification.createNotification({
       recipient: image.user,
       sender: userId,

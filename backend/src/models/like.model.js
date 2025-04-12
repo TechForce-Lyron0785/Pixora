@@ -34,6 +34,11 @@ likeSchema.index({ user: 1, image: 1 }, { unique: true });
  */
 likeSchema.statics.toggleLike = async function (userId, imageId) {
   const existingLike = await this.findOne({ user: userId, image: imageId });
+  const image = await mongoose.model("Image").findById(imageId);
+
+  if (!image) {
+    throw new ApiError(404, "Image not found");
+  }
 
   if (existingLike) {
     await existingLike.deleteOne();
@@ -41,11 +46,19 @@ likeSchema.statics.toggleLike = async function (userId, imageId) {
       { _id: imageId },
       { $inc: { likesCount: -1 } }
     );
+    await mongoose.model("User").updateOne(
+      { _id: image.user },
+      { $inc: { likesCount: -1 } }
+    );
     return { liked: false };
   } else {
     await this.create({ user: userId, image: imageId });
     await mongoose.model("Image").updateOne(
       { _id: imageId },
+      { $inc: { likesCount: 1 } }
+    );
+    await mongoose.model("User").updateOne(
+      { _id: image.user },
       { $inc: { likesCount: 1 } }
     );
     return { liked: true };

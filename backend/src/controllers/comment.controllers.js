@@ -3,6 +3,7 @@ import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateInteractionPoints } from "../utils/userUpdates.js";
 
 /**
  * @desc Create a new comment
@@ -19,6 +20,9 @@ export const createComment = asyncHandler(async (req, res) => {
   }
 
   const comment = await Comment.createComment(userId, imageId, text, parentCommentId);
+  
+  // Update interaction points for commenting
+  await updateInteractionPoints(userId, 'comment');
 
   // Send notification for new comment
   if (parentCommentId) {
@@ -161,8 +165,10 @@ export const toggleCommentLike = asyncHandler(async (req, res) => {
 
   const result = await Comment.toggleLike(commentId, userId);
 
-  // Send notification if comment was liked
+  // Update interaction points if liked
   if (result.liked) {
+    await updateInteractionPoints(userId, 'like');
+    
     const comment = await Comment.findById(commentId);
     await Notification.createNotification({
       recipient: comment.user,

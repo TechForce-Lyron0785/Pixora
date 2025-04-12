@@ -4,6 +4,7 @@ import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { updateUserBadge, updateInteractionPoints } from "../utils/userUpdates.js";
 
 // list of controllers
 // 1. followUser
@@ -30,6 +31,12 @@ export const followUser = asyncHandler(async (req, res) => {
   // Increment follower & following count
   await User.findByIdAndUpdate(userId, { $inc: { followersCount: 1 } });
   await User.findByIdAndUpdate(followerId, { $inc: { followingCount: 1 } });
+  
+  // Update interaction points for following
+  await updateInteractionPoints(followerId, 'follow');
+  
+  // Update badge for followed user based on followers count
+  await updateUserBadge(userId);
 
   // Create follow notification
   await Notification.createNotification({
