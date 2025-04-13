@@ -1,37 +1,26 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import {
-  Camera,
-  Edit2,
-  Grid,
-  Heart,
-  BookmarkIcon,
-  Share2,
-  Settings,
-  Users,
-  MessageSquare,
-  Award,
-  TrendingUp,
-  Link as LinkIcon,
-  Instagram,
-  Twitter,
-  Facebook,
-  Linkedin,
-  Globe,
-  ChevronDown,
-  Filter,
-  MoreHorizontal,
-  Zap,
-  CheckCircle,
-  UserPlus,
-  UserMinus
-} from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useFollow } from '@/context/FollowContext';
 import { useApi } from '@/hooks/useApi';
-import Link from 'next/link';
 import { ProfilePicVerify } from '@/components';
+
+// Import profile components
+import {
+  ProfileHeader,
+  ProfileBio,
+  ProfileTabs,
+  WorksTab,
+  CollectionsTab,
+  FollowTab,
+  ActivityTab,
+  AboutTab
+} from './components';
+import LoadingScreen from '@/components/screens/LoadingScreen';
+import { AlertTriangle, Lock, Trash2, UserPlus } from 'lucide-react';
+import ProfileSuspended from './components/ProfileSuspended';
+import ProfileDeleted from './components/ProfileDeleted';
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -39,32 +28,40 @@ const ProfilePage = () => {
   const { user, loading: authLoading, isAuthenticated, updateProfile } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const { 
-    followers, 
-    following, 
-    loading: followLoading, 
-    getFollowers, 
-    getFollowing, 
-    followUser, 
-    unfollowUser, 
-    checkFollowStatus 
+  const {
+    followers,
+    following,
+    loading: followLoading,
+    getFollowers,
+    getFollowing,
+    followUser,
+    unfollowUser,
   } = useFollow();
+
   const [profile, setProfile] = useState({
     fullName: "",
     username: "",
     bio: "",
     profilePicture: "/images/default-profile.jpg",
     coverPicture: "/images/default-cover.jpg",
-    badge: "rising",
-    badges: [],
+    badge: "newbie",
+    profileVisibility: "public",
+    accountStatus: "active",
+    userStatus: "online",
     socialLinks: {},
+    isDpConfirm: false,
+    provider: "credentials",
+    isVerified: false,
+    isPremium: false,
+    lastLogin: null,
     followersCount: 0,
     followingCount: 0,
-    likes: 0,
-    posts: 0,
-    isVerified: false,
-    isPremium: false
+    postsCount: 0,
+    likesCount: 0,
+    interactionsCount: 0,
+    createdAt: new Date()
   });
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -72,12 +69,16 @@ const ProfilePage = () => {
 
   const api = useApi();
 
-  // Fetch following list for the logged-in user when authenticated
   useEffect(() => {
-    if (isAuthenticated && user) {
-      getFollowing(user._id);
+    const checkFollowStatus = async () => {
+      if (!profile._id) return;
+      const response = await api.get(`/api/follow/status/${profile._id}`);
+      setIsFollowing(response.data.data.isFollowing);
     }
-  }, [isAuthenticated, user, getFollowing]);
+    if (user && user._id !== profile?._id) {
+      checkFollowStatus();
+    }
+  }, [api, user, profile._id]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -91,13 +92,6 @@ const ProfilePage = () => {
           setError(null);
           const response = await api.get(`/api/users/${userName}`);
           setProfile(response.data.data);
-          
-          // Check if the current user is following this profile
-          if (isAuthenticated) {
-            // Check if user exists in the following list
-            const isUserFollowed = following.some(f => f.following._id === response.data.data._id);
-            setIsFollowing(isUserFollowed);
-          }
         } catch (err) {
           const errorMessage = err.response?.data?.message || "Error fetching user";
           setError(errorMessage);
@@ -110,7 +104,6 @@ const ProfilePage = () => {
   }, [user, userName, api, isAuthenticated, following]);
 
   const [activeTab, setActiveTab] = useState('works');
-  const [selectedFilter, setSelectedFilter] = useState('all');
 
   // Load followers and following when those tabs are selected
   useEffect(() => {
@@ -159,128 +152,10 @@ const ProfilePage = () => {
     }
   };
 
-  // Portfolio works
-  const works = [
-    { id: 1, title: "Neon Dreams", thumbnail: "/images/upload/img1.webp", likes: "3.4K", saves: "842", featured: true },
-    { id: 2, title: "Cosmic Journey", thumbnail: "/images/upload/img2.jpg", likes: "2.8K", saves: "562" },
-    { id: 3, title: "Digital Eden", thumbnail: "/images/upload/img3.jpg", likes: "5.1K", saves: "1.2K", featured: true },
-    { id: 4, title: "Midnight City", thumbnail: "/images/upload/img7.png", likes: "4.7K", saves: "903" },
-    { id: 5, title: "Futuristic Portal", thumbnail: "/images/upload/img6.webp", likes: "3.9K", saves: "715" },
-    { id: 6, title: "Ethereal Landscape", thumbnail: "/images/upload/img3.jpg", likes: "6.2K", saves: "1.5K", featured: true },
-  ];
-
-  // Collections
-  const collections = [
-    { id: 1, name: "Abstract Dreams", count: 18, thumbnail: "/images/bg-img1.jpg", color: "from-rose-500 to-orange-500" },
-    { id: 2, name: "Cyberpunk Series", count: 12, thumbnail: "/images/bg-img2.jpg", color: "from-cyan-500 to-blue-500" },
-    { id: 3, name: "Nature Reimagined", count: 24, thumbnail: "/images/bg-img3.jpg", color: "from-emerald-500 to-green-500" },
-  ];
-
-  // Recent activities
-  const activities = [
-    { type: "upload", title: "Uploaded 'Digital Eden'", time: "2 days ago" },
-    { type: "award", title: "Received the 'Trendsetter' badge", time: "1 week ago" },
-    { type: "like", title: "Liked 15 artworks from Elena Bright", time: "1 week ago" },
-    { type: "feature", title: "'Cosmic Journey' was featured in Explore", time: "2 weeks ago" },
-  ];
-
-  // Filters
-  const filters = [
-    { id: 'all', name: 'All Works' },
-    { id: 'featured', name: 'Featured' },
-    { id: 'recent', name: 'Recent' },
-    { id: 'popular', name: 'Popular' },
-  ];
-
-  // Map badge icon names to actual components
-  const getBadgeIcon = (iconName) => {
-    const icons = {
-      'Award': <Award className="w-3.5 h-3.5 mr-1" />,
-      'TrendingUp': <TrendingUp className="w-3.5 h-3.5 mr-1" />,
-      'Zap': <Zap className="w-3.5 h-3.5 mr-1" />,
-      'CheckCircle': <CheckCircle className="w-3.5 h-3.5 mr-1" />,
-      'Heart': <Heart className="w-3.5 h-3.5 mr-1" />,
-      'Camera': <Camera className="w-3.5 h-3.5 mr-1" />,
-      'Users': <Users className="w-3.5 h-3.5 mr-1" />,
-      'MessageSquare': <MessageSquare className="w-3.5 h-3.5 mr-1" />,
-      'Grid': <Grid className="w-3.5 h-3.5 mr-1" />
-    };
-    return icons[iconName] || <Award className="w-3.5 h-3.5 mr-1" />;
-  };
-  
-  // Get social media icons
-  const getSocialIcon = (platform) => {
-    const icons = {
-      'instagram': <Instagram className="w-4 h-4" />,
-      'twitter': <Twitter className="w-4 h-4" />,
-      'facebook': <Facebook className="w-4 h-4" />,
-      'linkedin': <Linkedin className="w-4 h-4" />,
-      'website': <Globe className="w-4 h-4" />,
-    };
-    return icons[platform] || <Globe className="w-4 h-4" />;
-  };
-
-  // Get badge color based on badge type
-  const getBadgeColor = (badgeType) => {
-    const colors = {
-      'rising': 'violet',
-      'pro': 'amber',
-      'featured': 'blue',
-      'artist': 'rose',
-      'verified': 'green',
-    };
-    return colors[badgeType] || 'violet';
-  };
-
-  // Get badge icon name based on badge type
-  const getBadgeIconName = (badgeType) => {
-    const icons = {
-      'rising': 'TrendingUp',
-      'pro': 'Zap',
-      'featured': 'Award',
-      'artist': 'Camera',
-      'verified': 'CheckCircle',
-    };
-    return icons[badgeType] || 'TrendingUp';
-  };
-
-  // Function to extract domain from full URL
-  const extractDomain = (url) => {
-    if (!url) return '';
-    try {
-      return new URL(url).hostname;
-    } catch (e) {
-      return url;
-    }
-  };
-
-  // Get social links as array with proper error handling
-  const getSocialLinks = () => {
-    if (!profile.socialLinks) return [];
-    
-    try {
-      return Object.entries(profile.socialLinks)
-        .filter(([_, value]) => value)
-        .map(([platform, url]) => ({
-          platform,
-          url: extractDomain(url),
-          icon: getSocialIcon(platform)
-        }));
-    } catch (error) {
-      console.error("Error processing social links:", error);
-      return [];
-    }
-  };
-
   // Display loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-violet-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading profile...</p>
-        </div>
-      </div>
+      <LoadingScreen />
     );
   }
 
@@ -292,8 +167,8 @@ const ProfilePage = () => {
           <div className="text-red-500 text-5xl mb-4">!</div>
           <h2 className="text-xl font-bold mb-2">Profile Not Found</h2>
           <p className="text-gray-400 mb-6">{error}</p>
-          <button 
-            onClick={() => window.history.back()} 
+          <button
+            onClick={() => window.history.back()}
             className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors font-medium text-sm"
           >
             Go Back
@@ -303,559 +178,86 @@ const ProfilePage = () => {
     );
   }
 
+  if (profile.accountStatus === "suspended") {
+    return <ProfileSuspended />
+  }
+
+  if (profile.accountStatus === "deleted") {
+    return <ProfileDeleted />
+  }
+
   return (
     <div className="min-h-screen">
-      <ProfilePicVerify isOpen={profileOpen} onClose={()=> setProfileOpen(false)} />
-      {/* Cover Image */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-r from-violet-900 to-fuchsia-900 overflow-hidden">
-        <img
-          src={profile.coverPicture}
-          alt="Cover"
-          className="w-full h-full object-cover opacity-50"
+      <ProfilePicVerify isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
+
+      {/* Profile Header with cover photo, avatar, name and stats */}
+      <ProfileHeader
+        profile={profile}
+        isOwnProfile={isOwnProfile}
+        isFollowing={isFollowing}
+        followLoading={followLoading}
+        handleFollowToggle={handleFollowToggle}
+        setProfileOpen={setProfileOpen}
+      />
+
+      {/* Bio and stats section */}
+      <div className="px-6 md:px-10">
+        <ProfileBio profile={profile} isOwnProfile={isOwnProfile} />
+
+        {/* Tabs Navigation */}
+        <ProfileTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          profile={profile}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+      </div>
 
-        {/* Cover edit button */}
-        {isOwnProfile && (
-          <button className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur-md rounded-lg hover:bg-black/50 transition-colors">
-            <Camera className="w-5 h-5" />
+      {/* Conditional Profile Status Banners */}
+      {(profile.profileVisibility === "private" && !isOwnProfile && !isFollowing) ? (
+        <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/10 rounded-lg p-6 my-6 text-center mx-6 md:mx-10">
+          <div className="bg-violet-500/20 p-3 rounded-full w-fit mx-auto mb-3">
+            <Lock className="h-6 w-6 text-violet-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-1">This Profile is Private</h3>
+          <p className="text-gray-400 mb-4">Follow this user to view their photos and content</p>
+          <button
+            onClick={handleFollowToggle}
+            disabled={followLoading}
+            className="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2 mx-auto"
+          >
+            <UserPlus className="h-4 w-4" />
+            Follow
           </button>
-        )}
-      </div>
-
-      {/* Profile Header */}
-      <div className="px-6 md:px-10 -mt-16 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end mb-8">
-          {/* Avatar */}
-          <div className="relative">
-            <div className="w-32 h-32 rounded-xl border-4 border-zinc-950 overflow-hidden bg-zinc-900">
-              <img
-                src={profile.profilePicture}
-                alt={profile.fullName}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            {isOwnProfile && (
-              <button onClick={()=> setProfileOpen(true)} className="absolute bottom-2 right-2 p-1.5 bg-violet-600 rounded-lg text-white hover:bg-violet-500 transition-colors">
-                <Edit2 className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* User info */}
-          <div className="mt-4 md:mt-0 md:ml-6 md:flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-bold">{profile.fullName}</h1>
-              {profile.isVerified && (
-                <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Verified
-                </span>
-              )}
-              {profile.isPremium && (
-                <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Premium
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-400 mb-3">@{profile.username}</p>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {/* Display the main badge */}
-              <span 
-                className={`bg-${getBadgeColor(profile.badge)}/20 text-${getBadgeColor(profile.badge)} px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1`}
-              >
-                {getBadgeIcon(getBadgeIconName(profile.badge))}
-                {profile.badge || "rising"}
-              </span>
-              
-              {/* Display additional badges */}
-              {profile.badges && profile.badges.length > 0 ? (
-                profile.badges.map((badge, idx) => (
-                  <span 
-                    key={idx} 
-                    className={`bg-${badge.color || 'white'}/20 text-${badge.color || 'white'} px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1`}
-                  >
-                    {getBadgeIcon(badge.iconName)}
-                    {badge.name}
-                  </span>
-                ))
-              ) : (
-                <span className="text-xs text-gray-400">No badges yet</span>
-              )}
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-2 mt-4 md:mt-0">
-            {isOwnProfile ? (
-              <button className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors font-medium text-sm">
-                Your Profile
-              </button>
-            ) : (
-              <button 
-                onClick={handleFollowToggle}
-                disabled={followLoading}
-                className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-2 ${
-                  isFollowing 
-                    ? 'bg-white/10 hover:bg-white/20 text-white' 
-                    : 'bg-violet-600 hover:bg-violet-500 text-white'
-                }`}
-              >
-                {isFollowing ? (
-                  <>
-                    <UserMinus className="w-4 h-4" />
-                    Unfollow
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-4 h-4" />
-                    Follow
-                  </>
-                )}
-              </button>
-            )}
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-              <MessageSquare className="w-5 h-5" />
-            </button>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-              <Share2 className="w-5 h-5" />
-            </button>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
         </div>
+      ) : (
+        // Tab Content
+        <div className="px-6 md:px-10 py-8">
+          {activeTab === 'works' && <WorksTab />}
 
-        {/* Bio and stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <p className="text-gray-300 mb-4">{profile.bio}</p>
-            <div className="flex flex-wrap gap-3">
-              {getSocialLinks().map((link, idx) => (
-                <a
-                  key={idx}
-                  href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-violet-400 transition-colors"
-                >
-                  {link.icon}
-                  {link.url}
-                </a>
-              ))}
-            </div>
-          </div>
+          {activeTab === 'collections' && <CollectionsTab />}
 
-          <div className="flex flex-wrap justify-between gap-4 lg:justify-end">
-            {[
-              { label: "Followers", value: profile.followersCount || 0, icon: <Users className="w-4 h-4 text-gray-400" /> },
-              { label: "Following", value: profile.followingCount || 0, icon: <Users className="w-4 h-4 text-gray-400" /> },
-              { label: "Likes", value: profile.likes || 0, icon: <Heart className="w-4 h-4 text-gray-400" /> },
-              { label: "Posts", value: profile.posts || 0, icon: <Grid className="w-4 h-4 text-gray-400" /> },
-            ].map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  {stat.icon}
-                  <span className="font-bold text-lg">{stat.value}</span>
-                </div>
-                <p className="text-xs text-gray-500">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          {activeTab === 'followers' && (
+            <FollowTab
+              type="followers"
+              users={followers}
+              loading={followLoading}
+            />
+          )}
 
-        {/* Tabs */}
-        <div className="border-b border-white/10">
-          <div className="flex space-x-1 overflow-x-auto no-scrollbar">
-            {[
-              { id: 'works', name: 'Works', icon: <Grid className="w-4 h-4" /> },
-              { id: 'collections', name: 'Collections', icon: <BookmarkIcon className="w-4 h-4" /> },
-              { id: 'followers', name: 'Followers', icon: <Users className="w-4 h-4" /> },
-              { id: 'following', name: 'Following', icon: <Users className="w-4 h-4" /> },
-              { id: 'activity', name: 'Activity', icon: <TrendingUp className="w-4 h-4" /> },
-              { id: 'about', name: 'About', icon: <Users className="w-4 h-4" /> },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
-                    ? 'border-violet-600 text-violet-400'
-                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-white/20'
-                  }`}
-              >
-                {tab.icon}
-                {tab.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+          {activeTab === 'following' && (
+            <FollowTab
+              type="following"
+              users={following}
+              loading={followLoading}
+            />
+          )}
 
-      {/* Tab Content */}
-      <div className="px-6 md:px-10 py-8">
-        {/* Works tab */}
-        {activeTab === 'works' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-3 overflow-x-auto py-2 no-scrollbar">
-                {filters.map(filter => (
-                  <button
-                    key={filter.id}
-                    onClick={() => setSelectedFilter(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${selectedFilter === filter.id
-                        ? 'bg-violet-600 text-white'
-                        : 'bg-white/5 hover:bg-white/10 text-gray-300'
-                      } transition-colors duration-200`}
-                  >
-                    {filter.name}
-                  </button>
-                ))}
-              </div>
+          {activeTab === 'activity' && <ActivityTab />}
 
-              <div className="flex items-center gap-2">
-                <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                  <Filter className="w-4 h-4" />
-                </button>
-                <button className="flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm">
-                  <span>Latest</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {works.map(work => (
-                <div key={work.id} className="group relative rounded-xl overflow-hidden aspect-square bg-zinc-800/50 border border-white/10">
-                  <img
-                    src={work.thumbnail}
-                    alt={work.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                  {/* Featured badge */}
-                  {work.featured && (
-                    <div className="absolute top-3 left-3 bg-violet-600/90 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-md flex items-center">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Featured
-                    </div>
-                  )}
-
-                  {/* Image actions */}
-                  <div className="absolute top-3 right-3 flex gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                    <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                      <Heart className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                      <BookmarkIcon className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <h4 className="text-lg font-medium">{work.title}</h4>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="flex items-center text-sm text-rose-300">
-                        <Heart className="w-3.5 h-3.5 mr-1 fill-rose-300" />
-                        {work.likes}
-                      </span>
-                      <span className="flex items-center text-sm text-amber-300">
-                        <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
-                        {work.saves}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center mt-8">
-              <button className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium">
-                Load More
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Collections tab */}
-        {activeTab === 'collections' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map(collection => (
-              <div key={collection.id} className="group relative rounded-xl overflow-hidden border border-white/10 aspect-[4/3]">
-                <div className="absolute inset-0">
-                  <img
-                    src={collection.thumbnail}
-                    alt={collection.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${collection.color} opacity-60 mix-blend-overlay`}></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
-                </div>
-
-                <div className="absolute inset-0 flex flex-col justify-end p-5">
-                  <h3 className="text-xl font-bold mb-1">{collection.name}</h3>
-                  <p className="text-sm text-gray-300">{collection.count} images</p>
-
-                  <div className="mt-4 transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                    <button className="w-full py-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-lg transition-colors text-sm font-medium">
-                      View Collection
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Add new collection */}
-            <div className="relative rounded-xl overflow-hidden border border-white/10 border-dashed aspect-[4/3] bg-white/5 hover:bg-white/10 transition-colors flex flex-col items-center justify-center cursor-pointer text-center">
-              <div className="p-4 bg-white/5 rounded-full mb-3">
-                <PlusCircle className="w-6 h-6 text-violet-400" />
-              </div>
-              <h3 className="text-lg font-medium mb-1">Create Collection</h3>
-              <p className="text-sm text-gray-400">Organize your works</p>
-            </div>
-          </div>
-        )}
-
-        {/* Followers tab */}
-        {activeTab === 'followers' && (
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-xl font-bold mb-6">Followers</h2>
-            {followLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="w-8 h-8 border-4 border-t-violet-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : followers.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {followers.map((follower) => (
-                  <div key={follower._id} className="flex items-center justify-between p-4 bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800">
-                        <img 
-                          src={follower.follower.profilePicture || "/images/default-profile.jpg"} 
-                          alt={follower.follower.fullName} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{follower.follower.fullName}</h3>
-                        <p className="text-sm text-gray-400">@{follower.follower.username}</p>
-                      </div>
-                    </div>
-                    <Link 
-                      href={`/profile/${follower.follower.username}`}
-                      className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10">
-                <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium mb-2">No followers yet</h3>
-                <p className="text-gray-400">When someone follows this profile, they&apos;ll appear here.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Following tab */}
-        {activeTab === 'following' && (
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-xl font-bold mb-6">Following</h2>
-            {followLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="w-8 h-8 border-4 border-t-violet-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : following.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {following.map((followedUser) => (
-                  <div key={followedUser._id} className="flex items-center justify-between p-4 bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800">
-                        <img 
-                          src={followedUser.following.profilePicture || "/images/default-profile.jpg"} 
-                          alt={followedUser.following.fullName} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{followedUser.following.fullName}</h3>
-                        <p className="text-sm text-gray-400">@{followedUser.following.username}</p>
-                      </div>
-                    </div>
-                    <Link 
-                      href={`/profile/${followedUser.following.username}`}
-                      className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10">
-                <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium mb-2">Not following anyone yet</h3>
-                <p className="text-gray-400">When this profile follows someone, they&apos;ll appear here.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Activity tab */}
-        {activeTab === 'activity' && (
-          <div className="max-w-3xl mx-auto">
-            <div className="relative pl-6 pb-12 border-l border-dashed border-white/10">
-              {activities.map((activity, index) => {
-                let icon;
-                switch (activity.type) {
-                  case 'upload':
-                    icon = <Camera className="w-4 h-4" />;
-                    break;
-                  case 'award':
-                    icon = <Award className="w-4 h-4" />;
-                    break;
-                  case 'like':
-                    icon = <Heart className="w-4 h-4" />;
-                    break;
-                  case 'feature':
-                    icon = <Zap className="w-4 h-4" />;
-                    break;
-                  default:
-                    icon = <TrendingUp className="w-4 h-4" />;
-                }
-
-                return (
-                  <div key={index} className="mb-8 relative">
-                    <div className="absolute -left-10 p-2 rounded-full bg-zinc-800 border border-white/10">
-                      {icon}
-                    </div>
-                    <div className="bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10 p-4">
-                      <h4 className="text-sm font-medium mb-1">{activity.title}</h4>
-                      <p className="text-xs text-gray-500">{activity.time}</p>
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div className="absolute bottom-0 left-0 transform -translate-x-1/2 p-2 rounded-full bg-zinc-800 border border-white/10">
-                <MoreHorizontal className="w-4 h-4" />
-              </div>
-            </div>
-
-            <button className="w-full py-2.5 mt-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium">
-              View Full Activity
-            </button>
-          </div>
-        )}
-
-        {/* About tab */}
-        {activeTab === 'about' && (
-          <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Bio section */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10 p-6">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-violet-400" />
-                  About Me
-                </h3>
-                <p className="text-gray-300 mb-4">
-                  {profile.bio}
-                </p>
-              </div>
-
-              {/* Stats section */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10 p-6">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-violet-400" />
-                  Creator Stats
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { label: "Member Since", value: profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "N/A" },
-                    { label: "Total Posts", value: profile.posts || "0" },
-                    { label: "Followers", value: profile.followersCount || "0" },
-                    { label: "Following", value: profile.followingCount || "0" },
-                    { label: "Likes", value: profile.likes || "0" },
-                  ].map((stat, idx) => (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className="text-gray-400">{stat.label}</span>
-                      <span className="font-medium">{stat.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Contact & Links */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10 p-6">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <LinkIcon className="w-5 h-5 text-violet-400" />
-                  Contact & Links
-                </h3>
-                <div className="space-y-3">
-                  {getSocialLinks().map((link, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors">
-                      <div className="p-2 bg-white/5 rounded-lg">
-                        {link.icon}
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">{link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}</p>
-                        <p className="text-sm font-medium">{link.url}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {getSocialLinks().length === 0 && (
-                    <p className="text-gray-400 text-sm">No social links available</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Account Info */}
-              <div className="bg-zinc-900/60 backdrop-blur-sm rounded-xl border border-white/10 p-6">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-violet-400" />
-                  Account Info
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { label: "Username", value: `@${profile.username}` },
-                    { label: "Email", value: profile.email || "N/A" },
-                    { label: "Account Type", value: profile.isPremium ? "Premium" : "Standard" },
-                    { label: "Verified", value: profile.isVerified ? "Yes" : "No" },
-                    { label: "Last Login", value: profile.lastLogin ? new Date(profile.lastLogin).toLocaleDateString() : "N/A" },
-                  ].map((info, idx) => (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className="text-gray-400">{info.label}</span>
-                      <span className="font-medium">{info.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+          {activeTab === 'about' && <AboutTab profile={profile} />}
+        </div>)}
     </div>
   );
 };
 
 export default ProfilePage;
-
-// Helper Components
-const PlusCircle = ({ className }) => {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="8" x2="12" y2="16"></line>
-      <line x1="8" y1="12" x2="16" y2="12"></line>
-    </svg>
-  );
-};
