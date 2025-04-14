@@ -1,3 +1,22 @@
+/*
+user
+title
+descri
+image
+category
+license
+tags
+isPublic
+comments allowed
+size
+
+likecount
+repostcount
+favoritescount
+
+album
+*/
+
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
@@ -42,12 +61,6 @@ const imageSchema = new Schema(
         type: String,
         lowercase: true,
         trim: true,
-        validate: {
-          validator: function (value) {
-            return value && value.length > 0;
-          },
-          message: 'Tags cannot be empty',
-        },
       },
     ], // Tags associated with the image, for search and categorization
     likesCount: {
@@ -62,11 +75,20 @@ const imageSchema = new Schema(
       type: Number,
       default: 0, // Initial repost count for the image
     },
+    imageSize: {
+      type: Number,
+      default: 0, // Size of the image in kb
+    },
     favoritesCount: {
       type: Number,
       default: 0, // Initial favorites by count for the image
     },
-    isPublic: {
+    visibility: {
+      type: String,
+      enum: ["public", "private", "followers"],
+      default: "public",
+    },
+    commentsAllowed: {
       type: Boolean,
       default: true, // Whether the image is public or private
     },

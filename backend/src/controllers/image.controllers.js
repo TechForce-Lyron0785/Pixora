@@ -7,38 +7,6 @@ import { User } from "../models/user.model.js";
 import { updateUserBadge } from "../utils/userUpdates.js";
 
 /**
- * @desc Upload a new image
- * @route POST /api/images
- * @access Private
- */
-export const uploadImage = asyncHandler(async (req, res) => {
-  const { title, description, imageUrl, tags, isPublic, albumId } = req.body;
-
-  if (!title || !description || !imageUrl) {
-    throw new ApiError(400, "Title, description and image URL are required");
-  }
-
-  const image = await Image.create({
-    user: req.user._id,
-    title,
-    description,
-    imageUrl,
-    tags: tags || [],
-    isPublic: isPublic ?? true,
-    album: albumId
-  });
-
-  await User.findByIdAndUpdate(req.user._id, { $inc: { postsCount: 1 } });
-  
-  // Update user badge based on post count
-  await updateUserBadge(req.user._id);
-
-  res.status(201).json(
-    new ApiResponse(201, "Image uploaded successfully", image)
-  );
-});
-
-/**
  * @desc Get image by ID
  * @route GET /api/images/:imageId
  * @access Public
@@ -344,7 +312,17 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     throw new ApiError(400, "No image file provided");
   }
 
-  const { title, description, tags, category, visibility, license } = req.body;
+  const { 
+    title, 
+    description, 
+    tags, 
+    visibility, 
+    albumId, 
+    category,
+    license,
+    imageSize,
+    commentsAllowed,
+  } = req.body;
 
   if (!title || !description) {
     throw new ApiError(400, "Title and description are required");
@@ -364,9 +342,6 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     }
   }
 
-  // Determine if the image is public based on visibility
-  const isPublic = visibility !== 'private';
-
   const image = await Image.create({
     user: req.user._id,
     title,
@@ -376,7 +351,17 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     category: category || 'other',
     license: license || 'standard',
     tags: parsedTags,
-    isPublic
+    album: albumId,
+    imageSize,
+    commentsAllowed: commentsAllowed ?? true,
+    visibility,
+  });
+
+  await User.findByIdAndUpdate(req.user._id, { 
+    $inc: { 
+      postsCount: 1, 
+      storageUsed: imageSize // Increment storage used by the image size
+    } 
   });
 
   await image.populate("user", "username profilePicture");

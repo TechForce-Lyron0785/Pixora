@@ -144,6 +144,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    storageUsed: {
+      type: Number,
+      default: 0, // Storage used in KB
+    },
     loginHistory: [{
       ip: String,
       device: String,

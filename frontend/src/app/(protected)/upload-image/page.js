@@ -47,6 +47,7 @@ const ImageUpload = () => {
     category: 'portrait',
     license: 'standard'
   });
+  const [commentsAllowed, setCommentsAllowed] = useState(true);
 
   const categories = [
     { id: 'abstract', name: 'Abstract' },
@@ -162,6 +163,14 @@ const ImageUpload = () => {
       formData.append('category', imageDetails.category);
       formData.append('license', imageDetails.license);
       formData.append('visibility', selectedVisibility);
+      
+      // Add image size in KB
+      const fileSizeInKB = Math.round(files[0].file.size / 1024);
+      formData.append('imageSize', fileSizeInKB);
+      
+      // Add comments allowed setting
+      formData.append('commentsAllowed', commentsAllowed);
+
 
       // Add tags if available
       if (selectedTags.length > 0) {
@@ -226,6 +235,13 @@ const ImageUpload = () => {
 
   const handleNextStep = () => {
     if (currentStep < 4) {
+      // Add validation for step 2
+      if (currentStep === 2 && (!imageDetails.title.trim() || !imageDetails.description.trim())) {
+        // Show error or validation message
+        setUploadError("Please provide both title and description before continuing");
+        return;
+      }
+      
       setCurrentStep(currentStep + 1);
 
       if (currentStep === 3) {
@@ -243,6 +259,11 @@ const ImageUpload = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setImageDetails({ ...imageDetails, [name]: value });
+    
+    // Clear error when user types in title or description
+    if ((name === 'title' || name === 'description') && uploadError) {
+      setUploadError(null);
+    }
   };
 
   return (
@@ -390,6 +411,7 @@ const ImageUpload = () => {
                       name="title"
                       value={imageDetails.title}
                       onChange={handleChange}
+                      maxLength={100}
                       placeholder="Give your image a catchy title"
                       className="w-full bg-zinc-800/50 border border-white/10 rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition"
                     />
@@ -401,6 +423,7 @@ const ImageUpload = () => {
                       name="description"
                       value={imageDetails.description}
                       onChange={handleChange}
+                      maxLength={500}
                       placeholder="Describe your image in detail..."
                       className="w-full bg-zinc-800/50 border border-white/10 rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition h-24 resize-none"
                     />
@@ -501,6 +524,14 @@ const ImageUpload = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Add error display for step 2 */}
+              {uploadError && (
+                <div className="mt-4 p-4 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <p className="text-red-100">{uploadError}</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -599,7 +630,12 @@ const ImageUpload = () => {
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" defaultChecked />
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={commentsAllowed}
+                            onChange={(e) => setCommentsAllowed(e.target.checked)}
+                          />
                           <div className="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-violet-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
                         </label>
                       </div>
@@ -738,8 +774,8 @@ const ImageUpload = () => {
         </div>
       )}
 
-      {/* Add error display */}
-      {uploadError && (
+      {/* Add error display for step 3 and general errors */}
+      {uploadError && currentStep !== 2 && (
         <div className="mt-4 p-4 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-red-500" />
           <p className="text-red-100">{uploadError}</p>

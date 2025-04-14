@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  uploadImage,
   getImage,
   getAllImages,
   getUserImages,
@@ -26,7 +25,6 @@ router.get("/user/:userId", getUserPublicImages);
 router.get("/:imageId", getImage);
 
 // Protected routes
-router.post("/", authenticateUser, uploadImage);
 router.post("/upload", authenticateUser, upload.single("image"), uploadImageFile);
 router.get("/me", authenticateUser, getUserImages);
 router.patch("/:imageId", authenticateUser, updateImage);
