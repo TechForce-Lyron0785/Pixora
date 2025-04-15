@@ -1,9 +1,12 @@
+import SessionWrapper from "@/components/hoc/SessionWrapper";
 import "./globals.css";
-import { SessionWrapper } from "@/components/hoc";
 import { AuthProvider } from "@/context/AuthContext";
 import { FollowProvider } from "@/context/FollowContext";
 import { UsersProvider } from "@/context/UsersContext";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
+import LoadingScreen from "@/components/screens/LoadingScreen";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata = {
   title: "Pixora — Upload, share, and shine—your images, your way.",
@@ -14,16 +17,22 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <SessionWrapper>
-          <AuthProvider>
-            <FollowProvider>
-              <UsersProvider>
-                <Toaster position="top-center" />
-                {children}
-              </UsersProvider>
-            </FollowProvider>
-          </AuthProvider>
-        </SessionWrapper>
+        <Suspense fallback={<LoadingScreen />}>
+          <SessionWrapper>
+            <AuthProvider>
+              <FollowProvider>
+                <UsersProvider>
+                  <NextTopLoader
+                    color="#8b5cf6"
+                    showSpinner={false}
+                  />
+                  <Toaster position="top-center" />
+                  {children}
+                </UsersProvider>
+              </FollowProvider>
+            </AuthProvider>
+          </SessionWrapper>
+        </Suspense>
       </body>
     </html>
   );
