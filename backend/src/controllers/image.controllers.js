@@ -42,13 +42,15 @@ export const getAllImages = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const images = await Image.find({ isPublic: true })
+  // const images = await Image.find({ visibility: "public" })
+  const images = await Image.find()
     .populate("user", "username profilePicture")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  const total = await Image.countDocuments({ isPublic: true });
+  // const total = await Image.countDocuments({ visibility: "public" });
+  const total = await Image.countDocuments();
 
   const metadata = {
     total,

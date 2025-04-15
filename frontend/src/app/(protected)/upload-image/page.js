@@ -22,14 +22,10 @@ import {
   ArrowLeft,
   AlertCircle
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { useApi } from '@/hooks/useApi';
 import Link from 'next/link';
 
 const ImageUpload = () => {
-  const router = useRouter();
-  const { data: session } = useSession();
   const api = useApi();
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -64,13 +60,6 @@ const ImageUpload = () => {
   ];
 
   const suggestedTags = ['photography', 'digital art', 'graphic design', 'illustration', 'abstract', 'minimalism', '3d render'];
-
-  // Check for authentication
-  React.useEffect(() => {
-    if (!session && typeof window !== 'undefined') {
-      router.push('/login');
-    }
-  }, [session, router]);
 
   const handleDrag = (e) => {
     e.preventDefault();

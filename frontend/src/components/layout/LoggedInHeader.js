@@ -765,12 +765,10 @@ const LoggedInHeader = () => {
                 className="flex items-center"
               >
                 <div className="relative flex-shrink-0">
-                  <Image
+                  <img
                     src={user?.profilePicture || "/images/upload/default_avatar.png"}
                     alt="User"
-                    width={36}
-                    height={36}
-                    className="rounded-full border-2 border-white/10"
+                    className="rounded-full h-9 w-9 border-2 border-white/10"
                   />
                   <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-zinc-900 ${userStatus === 'online' ? 'bg-emerald-500' :
                       userStatus === 'away' ? 'bg-amber-500' :
