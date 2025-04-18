@@ -1,8 +1,70 @@
 "use client"
 import React from 'react';
-import { Award, Zap } from 'lucide-react';
+import { Award, Zap, Star, Trophy, Trending } from 'lucide-react';
 
-const AchievementCard = () => {
+const AchievementCard = ({user}) => {
+  // Default values if user is not loaded yet
+  const badge = user?.badge || "newbie";
+  const postsCount = user?.postsCount || 0;
+  const followersCount = user?.followersCount || 0;
+  const likesCount = user?.likesCount || 0;
+  
+  // Achievement data based on user's current badge
+  const achievementData = {
+    newbie: {
+      title: "Rising Star",
+      icon: <Zap className="w-5 h-5 text-amber-400" />,
+      nextBadge: "rising",
+      nextBadgeTitle: "Rising",
+      requirement: "posts",
+      current: postsCount,
+      target: 5,
+      message: "more uploads to unlock"
+    },
+    rising: {
+      title: "Pro Creator",
+      icon: <Star className="w-5 h-5 text-amber-400" />,
+      nextBadge: "pro",
+      nextBadgeTitle: "Pro",
+      requirement: "followers",
+      current: followersCount,
+      target: 50,
+      message: "more followers to unlock"
+    },
+    pro: {
+      title: "Trendsetter",
+      icon: <Trophy className="w-5 h-5 text-amber-400" />,
+      nextBadge: "trendsetter",
+      nextBadgeTitle: "Trendsetter",
+      requirement: "likes",
+      current: likesCount,
+      target: 100,
+      message: "more likes to unlock"
+    },
+    trendsetter: {
+      title: "Trendsetter",
+      icon: <Trending className="w-5 h-5 text-amber-400" />,
+      nextBadge: null,
+      nextBadgeTitle: null,
+      requirement: null,
+      current: 100,
+      target: 100,
+      message: "You've reached the highest badge!"
+    }
+  };
+  
+  const currentAchievement = achievementData[badge];
+  
+  // Calculate progress percentage
+  const progress = currentAchievement.nextBadge 
+    ? Math.min(100, Math.round((currentAchievement.current / currentAchievement.target) * 100))
+    : 100;
+  
+  // Calculate remaining to next level
+  const remaining = currentAchievement.nextBadge 
+    ? Math.max(0, currentAchievement.target - currentAchievement.current)
+    : 0;
+
   return (
     <div className="rounded-xl bg-gradient-to-br from-amber-900/50 to-zinc-900/60 border border-white/10 p-6">
       <div className="flex items-center justify-between mb-4">
@@ -12,19 +74,26 @@ const AchievementCard = () => {
       <div className="bg-white/5 rounded-lg p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-amber-900/50 rounded-lg">
-            <Zap className="w-5 h-5 text-amber-400" />
+            {currentAchievement.icon}
           </div>
           <div>
-            <p className="font-medium text-sm">Rising Star</p>
-            <p className="text-xs text-gray-400">3 more uploads to unlock</p>
+            <p className="font-medium text-sm">{currentAchievement.title}</p>
+            {currentAchievement.nextBadge ? (
+              <p className="text-xs text-gray-400">{remaining} {currentAchievement.message}</p>
+            ) : (
+              <p className="text-xs text-gray-400">{currentAchievement.message}</p>
+            )}
           </div>
         </div>
         <div className="w-full bg-white/10 rounded-full h-1.5 mb-1">
-          <div className="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full" style={{ width: '70%' }}></div>
+          <div 
+            className="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full" 
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
         <div className="flex justify-between text-xs text-gray-400">
-          <span>7/10</span>
-          <span>70%</span>
+          <span>{currentAchievement.current}/{currentAchievement.target}</span>
+          <span>{progress}%</span>
         </div>
       </div>
     </div>

@@ -25,20 +25,6 @@ const Feed = () => {
     }));
   };
 
-  // Format API response to match our frontend structure
-  const formatImageData = (apiImages) => {
-    return apiImages.map(img => ({
-      id: img._id,
-      thumbnail: img.imageUrl,
-      title: img.title,
-      creator: img.user.username,
-      likes: `${Math.floor(img.likesCount / 1000) || 0}K`,
-      comments: img.commentsCount.toString(),
-      description: img.description,
-      tags: img.tags
-    }));
-  };
-
   // Fetch images from API
   const fetchImages = async (pageNum = 1, isLoadMore = false) => {
     if (isLoadMore) {

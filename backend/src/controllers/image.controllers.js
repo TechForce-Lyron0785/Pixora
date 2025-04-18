@@ -242,7 +242,7 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const images = await Image.find({ isPublic: true })
+  const images = await Image.find()
     .populate("user", "username profilePicture")
     .sort({ 
       likesCount: -1,
@@ -253,7 +253,7 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-  const total = await Image.countDocuments({ isPublic: true });
+  const total = await Image.countDocuments();
 
   const metadata = {
     total,

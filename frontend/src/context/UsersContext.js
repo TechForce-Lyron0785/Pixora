@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "./AuthContext";
+import { useFollow } from "./FollowContext";
 
 // Create users context
 const UsersContext = createContext();
@@ -13,6 +14,8 @@ export const UsersProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useAuth();
+  const { following } = useFollow();
+  // console.log(following, "following");
   const api = useApi();
 
   // Get all users
@@ -48,11 +51,19 @@ export const UsersProvider = ({ children }) => {
     return shuffled.slice(0, count);
   }, [getOtherUsers]);
 
-  // Get featured creators (users with badges)
+  // Get featured creators that the user is not following
   const getFeaturedCreators = useCallback(() => {
-    const otherUsers = getOtherUsers();
-    return otherUsers.filter(u => u.badge === "featured" || u.badge === "pro");
-  }, [getOtherUsers]);
+    const featuredUsers = getOtherUsers();
+    
+    // Filter out users that the current user is following
+    if (following && following.length > 0) {
+      return featuredUsers.filter(user => 
+        !following.some(followed => followed.following._id === user._id)
+      );
+    }
+    
+    return featuredUsers;
+  }, [getOtherUsers, following]);
   
   // Update follower count for a user - for UI updates
   const updateFollowerCount = useCallback((userId, increment) => {

@@ -1,31 +1,49 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart, BookmarkIcon, MoreHorizontal, MessageSquare, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
+import { useApi } from "@/hooks/useApi";
 
 const TrendingImages = () => {
-  // Sample data
-  const trendingImages = [
-    { id: 1, thumbnail: "/images/upload/img1.webp", title: "Neon Dreams", creator: "Elena Bright", likes: "3.4K", comments: "245" },
-    { id: 2, thumbnail: "/images/upload/img2.jpg", title: "Ocean Whispers", creator: "Marcus Wave", likes: "2.8K", comments: "178" },
-    { id: 3, thumbnail: "/images/upload/img6.webp", title: "Cosmic Journey", creator: "Sasha Nova", likes: "4.1K", comments: "342" },
-  ];
+  const [trendingImages, setTrendingImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const api = useApi();
+
+  // Fetch images from API
+  const fetchImages = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/api/images/discover/trending`);
+      setTrendingImages(response.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching images:', error);
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-bold">Trending Images</h3>
-        <button className="text-sm text-violet-400 hover:text-violet-300 flex items-center">
+        <Link href={"/feed"} className="text-sm text-violet-400 hover:text-violet-300 flex items-center">
           See all
           <ChevronDown className="w-4 h-4 ml-1" />
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trendingImages.map(image => (
-          <div key={image.id} className="group relative rounded-xl overflow-hidden aspect-[3/4] bg-zinc-800 border border-white/10">
+        {trendingImages.slice(0,3).map(image => (
+          <div key={image._id} className="group relative rounded-xl overflow-hidden aspect-[3/4] bg-zinc-800 border border-white/10">
             <div className="absolute inset-0 overflow-hidden">
               <img
-                src={image.thumbnail}
+                src={image.imageUrl}
                 alt={image.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
@@ -46,16 +64,16 @@ const TrendingImages = () => {
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <p className="text-xs text-gray-300 mb-1">{image.creator}</p>
+              <p className="text-xs text-gray-300 mb-1">{image.user.username}</p>
               <h4 className="text-lg font-medium">{image.title}</h4>
               <div className="flex justify-between items-center mt-2">
                 <span className="flex items-center text-sm text-rose-300">
                   <Heart className="w-3.5 h-3.5 mr-1 fill-rose-300" />
-                  {image.likes}
+                  {image.likesCount}
                 </span>
                 <span className="flex items-center text-sm text-blue-300">
                   <MessageSquare className="w-3.5 h-3.5 mr-1" />
-                  {image.comments}
+                  {image.commentsCount}
                 </span>
               </div>
             </div>

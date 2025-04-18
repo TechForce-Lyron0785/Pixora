@@ -53,13 +53,13 @@ const DashboardPage = () => {
           <QuickUpload />
 
           {/* Recommended creators */}
-          <RecommendedCreators />
+          <RecommendedCreators user={user} />
 
           {/* Achievement card */}
-          <AchievementCard />
+          <AchievementCard user={user} />
 
           {/* Usage stats */}
-          <StorageUsage />
+          <StorageUsage user={user} />
         </div>
       </div>
     </div>

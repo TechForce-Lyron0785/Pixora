@@ -766,7 +766,7 @@ const LoggedInHeader = () => {
               >
                 <div className="relative flex-shrink-0">
                   <img
-                    src={user?.profilePicture || "/images/upload/default_avatar.png"}
+                    src={user?.profilePicture || "/images/default-profile.jpg"}
                     alt="User"
                     className="rounded-full h-9 w-9 border-2 border-white/10"
                   />
@@ -794,7 +794,7 @@ const LoggedInHeader = () => {
                     <div className="p-4 border-b border-white/10">
                       <div className="flex items-center">
                         <Image
-                          src={user?.profilePicture || "/images/upload/default_avatar.png"}
+                          src={user?.profilePicture || "/images/default-profile.jpg"}
                           alt="User"
                           width={48}
                           height={48}
