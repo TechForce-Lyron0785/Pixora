@@ -7,6 +7,17 @@ import { User } from "../models/user.model.js";
 import { updateUserBadge } from "../utils/userUpdates.js";
 import { Follow } from "../models/follow.model.js";
 
+
+// Get image by ID
+// Get all public images with pagination
+// Get logged in user's images
+// Get user's public images
+// Update image
+// Delete image
+// Search images
+// Get trending images
+// Get images by tag
+
 /**
  * @desc Get image by ID
  * @route GET /api/images/:imageId
@@ -336,9 +347,14 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-
+  const { category } = req.query;
   // Base query for public images
   let query = { visibility: "public" };
+  
+  // Add category filter if provided and not 'all'
+  if (category && category !== 'all') {
+    query.category = category;
+  }
   
   // If logged in, include followers-only images from people they follow
   // and all images owned by the requesting user
@@ -346,16 +362,31 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
     const followingList = await Follow.find({ follower: req.user._id }).select("following");
     const followingIds = followingList.map(follow => follow.following);
     
-    query = {
-      $or: [
-        { visibility: "public" },
-        { 
-          visibility: "followers", 
-          user: { $in: followingIds } 
-        },
-        { user: req.user._id } // Include all of the user's own images
-      ]
-    };
+    // Build the query with category filter if it exists
+    if (category && category !== 'all') {
+      query = {
+        category,
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images
+        ]
+      };
+    } else {
+      query = {
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images
+        ]
+      };
+    }
   }
 
   const images = await Image.find(query)

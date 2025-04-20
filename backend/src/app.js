@@ -7,7 +7,6 @@ import imageRoutes from "./routes/image.routes.js";
 import favoriteRoutes from "./routes/favorite.routes.js";
 import likeRoutes from "./routes/like.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
-import repostRoutes from "./routes/repost.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
@@ -27,10 +26,10 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/follow", followRoutes);
 app.use("/api/images", imageRoutes);
+
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
-app.use("/api/reposts", repostRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 export { app };

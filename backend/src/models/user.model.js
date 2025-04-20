@@ -30,7 +30,6 @@ Interactions Count
 - Points on interactions:-
   1Point - Like
   2Point - Comment
-  3Point - Repost
   2Point - Save/Bookmark
   2Point - Follow
 

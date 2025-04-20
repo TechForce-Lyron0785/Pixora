@@ -48,7 +48,7 @@ const DashboardPage = () => {
           <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
 
           {/* Trending images grid */}
-          <TrendingImages />
+          <TrendingImages category={selectedCategory} />
 
           {/* Recent activity */}
           <RecentActivity />

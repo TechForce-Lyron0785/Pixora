@@ -11,7 +11,6 @@ comments allowed
 size
 
 likecount
-repostcount
 favoritescount
 
 album
@@ -63,18 +62,6 @@ const imageSchema = new Schema(
         trim: true,
       },
     ], // Tags associated with the image, for search and categorization
-    likesCount: {
-      type: Number,
-      default: 0, // Initial like count for the image
-    },
-    commentsCount: {
-      type: Number,
-      default: 0, // Initial comment count for the image
-    },
-    repostCount: {
-      type: Number,
-      default: 0, // Initial repost count for the image
-    },
     imageSize: {
       type: Number,
       default: 0, // Size of the image in kb
@@ -82,6 +69,14 @@ const imageSchema = new Schema(
     favoritesCount: {
       type: Number,
       default: 0, // Initial favorites by count for the image
+    },
+    likesCount: {
+      type: Number,
+      default: 0, // Initial like count for the image
+    },
+    commentsCount: {
+      type: Number,
+      default: 0, // Initial comment count for the image
     },
     visibility: {
       type: String,

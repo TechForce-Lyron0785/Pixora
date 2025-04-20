@@ -27,7 +27,7 @@ export const updateUserBadge = async (userId) => {
 /**
  * Updates interaction points for a user
  * @param {string} userId - The user's ID
- * @param {string} interactionType - The type of interaction (like, comment, repost, favorite, follow)
+ * @param {string} interactionType - The type of interaction (like, comment, favorite, follow)
  */
 export const updateInteractionPoints = async (userId, interactionType) => {
   let points = 0;
@@ -38,9 +38,6 @@ export const updateInteractionPoints = async (userId, interactionType) => {
       break;
     case 'comment':
       points = 2;
-      break;
-    case 'repost':
-      points = 3;
       break;
     case 'favorite':
     case 'bookmark':

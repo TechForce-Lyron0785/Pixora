@@ -1,12 +1,15 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Heart, BookmarkIcon, MoreHorizontal, MessageSquare, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useApi } from "@/hooks/useApi";
+import ImageCard from '@/components/cards/ImageCard';
+import ImageSkeleton from '@/components/skeletons/ImageSkeleton';
 
-const TrendingImages = () => {
+const TrendingImages = ({ category }) => {
   const [trendingImages, setTrendingImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState([]);
 
   const api = useApi();
 
@@ -14,8 +17,19 @@ const TrendingImages = () => {
   const fetchImages = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/api/images/discover/trending`);
+      // Add category to the API request if it's not 'all'
+      const endpoint = category && category !== 'all'
+        ? `/api/images/discover/trending?category=${category}`
+        : `/api/images/discover/trending`;
+        
+      const response = await api.get(endpoint);
       setTrendingImages(response.data.data);
+      
+      // Set a small delay before marking images as loaded (for animation)
+      setTimeout(() => {
+        setLoadedImages(response.data.data.map(img => img._id));
+      }, 300);
+      
       setLoading(false);
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -23,10 +37,10 @@ const TrendingImages = () => {
     }
   };
 
-  // Initial fetch
+  // Re-fetch when category changes
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [category]);
 
   return (
     <div>
@@ -38,48 +52,30 @@ const TrendingImages = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trendingImages.slice(0,6).map(image => (
-          <div key={image._id} className="group relative rounded-xl overflow-hidden aspect-[3/4] bg-zinc-800 border border-white/10">
-            <div className="absolute inset-0 overflow-hidden">
-              <img
-                src={image.imageUrl}
-                alt={image.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-
-            {/* Image actions overlay */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20">
-                <Heart className="w-5 h-5" />
-              </button>
-              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20">
-                <BookmarkIcon className="w-5 h-5" />
-              </button>
-              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <p className="text-xs text-gray-300 mb-1">{image.user.username}</p>
-              <h4 className="text-lg font-medium">{image.title}</h4>
-              <div className="flex justify-between items-center mt-2">
-                <span className="flex items-center text-sm text-rose-300">
-                  <Heart className="w-3.5 h-3.5 mr-1 fill-rose-300" />
-                  {image.likesCount}
-                </span>
-                <span className="flex items-center text-sm text-blue-300">
-                  <MessageSquare className="w-3.5 h-3.5 mr-1" />
-                  {image.commentsCount}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ImageSkeleton key={`skeleton-${index}`} heightClass="aspect-[3/4]" />
+          ))}
+        </div>
+      ) : trendingImages.length < 1 ? (
+        <div className="flex justify-center items-center h-64 bg-zinc-900/60 border border-white/10 rounded-xl">
+          <p className="text-gray-400">No images available for this category</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {trendingImages.slice(0,6).map((image, index) => (
+            <ImageCard
+              key={image._id}
+              image={image}
+              heightClass="aspect-[3/4]"
+              isLoaded={loadedImages.includes(image._id)}
+              index={index % 3}
+              columnIndex={Math.floor(index / 3)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
