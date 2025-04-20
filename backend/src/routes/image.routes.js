@@ -9,23 +9,29 @@ import {
   searchImages,
   getTrendingImages,
   getImagesByTag,
-  uploadImageFile
+  uploadImageFile,
+  uploadTempImage,
+  deleteCloudinaryImage,
+  saveImageDetails
 } from "../controllers/image.controllers.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import upload from "../config/multer.js";
 
 const router = Router();
 
-// Public routes
-router.get("/public", getAllImages);
-router.get("/search", searchImages);
-router.get("/discover/trending", getTrendingImages);
-router.get("/tags/:tag", getImagesByTag);
-router.get("/user/:userId", getUserPublicImages);
-router.get("/:imageId", getImage);
+// All routes now require authentication
+router.get("/public", authenticateUser, getAllImages);
+router.get("/search", authenticateUser, searchImages);
+router.get("/discover/trending", authenticateUser, getTrendingImages);
+router.get("/tags/:tag", authenticateUser, getImagesByTag);
+router.get("/user/:userId", authenticateUser, getUserPublicImages);
+router.get("/:imageId", authenticateUser, getImage);
 
 // Protected routes
 router.post("/upload", authenticateUser, upload.single("image"), uploadImageFile);
+router.post("/upload-temp", authenticateUser, upload.single("image"), uploadTempImage);
+router.post("/save-details", authenticateUser, saveImageDetails);
+router.delete("/cloudinary/:publicId", authenticateUser, deleteCloudinaryImage);
 router.get("/me", authenticateUser, getUserImages);
 router.patch("/:imageId", authenticateUser, updateImage);
 router.delete("/:imageId", authenticateUser, deleteImage);

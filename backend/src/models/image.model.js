@@ -53,7 +53,7 @@ const imageSchema = new Schema(
     },
     license: {
       type: String,
-      enum: ['standard', 'extended', 'custom'],
+      enum: ['standard', 'extended'],
       default: 'standard',
     },
     tags: [

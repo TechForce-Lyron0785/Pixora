@@ -55,7 +55,7 @@ export default function StepTwo({ formData, errors, handleChange }) {
           )}
         </AnimatePresence>
         <p className="text-xs text-gray-400 mt-1">
-          Password must be at least 8 characters long
+          Password must be at least 6 characters long
         </p>
       </div>
 

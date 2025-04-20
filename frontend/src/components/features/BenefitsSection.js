@@ -254,7 +254,7 @@ const BenefitsSection = () => {
                   ))}
                 </div>
                 
-                <p className="text-gray-300 italic mb-6">"{testimonial.quote}"</p>
+                <p className="text-gray-300 italic mb-6">&quot;{testimonial.quote}&quot;</p>
                 
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full overflow-hidden mr-3">

@@ -24,9 +24,11 @@ import {
 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 const ImageUpload = () => {
   const api = useApi();
+  const { data: session } = useSession();
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -36,6 +38,7 @@ const ImageUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
+  const [isStorageFull, setIsStorageFull] = useState(false);
 
   const [imageDetails, setImageDetails] = useState({
     title: '',
@@ -56,7 +59,6 @@ const ImageUpload = () => {
   const licenses = [
     { id: 'standard', name: 'Standard License', description: 'For personal and commercial use' },
     { id: 'extended', name: 'Extended License', description: 'For extensive commercial projects' },
-    { id: 'custom', name: 'Custom License', description: 'Define your own terms' }
   ];
 
   const suggestedTags = ['photography', 'digital art', 'graphic design', 'illustration', 'abstract', 'minimalism', '3d render'];
@@ -87,26 +89,135 @@ const ImageUpload = () => {
     }
   };
 
-  const handleFiles = (fileList) => {
-    const newFiles = Array.from(fileList).map(file => ({
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-      size: (file.size / 1024 / 1024).toFixed(2), // in MB
-      progress: 0,
-      uploading: false,
-      error: null,
-      uploaded: false
-    }));
+  const handleFiles = async (fileList) => {
+    try {
+      setUploadError(null);
+      
+      const filesArray = Array.from(fileList).map(file => ({
+        file,
+        preview: URL.createObjectURL(file),
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(2), // in MB
+        progress: 0,
+        uploading: true,
+        error: null,
+        uploaded: false,
+        publicId: null,
+        cloudinaryUrl: null
+      }));
+      
+      setFiles(prev => [...prev, ...filesArray]);
 
-    setFiles(prev => [...prev, ...newFiles]);
+      // Start uploading each file to Cloudinary immediately
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        
+        try {
+          // Create FormData for the file
+          const formData = new FormData();
+          formData.append('image', file.file);
 
-    if (currentStep === 1) {
-      setCurrentStep(2);
+          // Simulate progress
+          const updateProgress = () => {
+            setFiles(prev => 
+              prev.map((f, idx) => {
+                if (idx === prev.length - filesArray.length + i && f.progress < 90) {
+                  return { ...f, progress: f.progress + 10 };
+                }
+                return f;
+              })
+            );
+          };
+          
+          // Update progress every 300ms
+          const progressInterval = setInterval(updateProgress, 300);
+          
+          try {
+            // Use fetch instead of axios for file upload
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000'}/api/images/upload-temp`, {
+              method: 'POST',
+              headers: {
+                // Don't set Content-Type with FormData - fetch sets it automatically with boundary
+                Authorization: session?.backendToken ? `Bearer ${session.backendToken}` : '',
+              },
+              credentials: 'include',
+              body: formData
+            });
+            
+            clearInterval(progressInterval);
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to upload image');
+            }
+            
+            const data = await response.json();
+            
+            // Update file with Cloudinary info
+            setFiles(prev => prev.map((f, index) => {
+              if (index === prev.length - filesArray.length + i) {
+                return {
+                  ...f,
+                  progress: 100,
+                  uploading: false,
+                  uploaded: true,
+                  publicId: data.data.publicId,
+                  cloudinaryUrl: data.data.imageUrl,
+                  imageSize: data.data.imageSize
+                };
+              }
+              return f;
+            }));
+          } catch (error) {
+            clearInterval(progressInterval);
+            throw error;
+          }
+        } catch (error) {
+          console.error('Pre-upload error:', error);
+          
+          if (error.message.includes('Storage limit reached')) {
+            setIsStorageFull(true);
+            setUploadError(error.message);
+          }
+          
+          // Update file with error
+          setFiles(prev => prev.map((f, index) => {
+            if (index === prev.length - filesArray.length + i) {
+              return {
+                ...f,
+                progress: 0,
+                uploading: false,
+                error: error.message || 'Upload failed'
+              };
+            }
+            return f;
+          }));
+        }
+      }
+
+      if (currentStep === 1) {
+        setCurrentStep(2);
+      }
+    } catch (error) {
+      console.error('Handle files error:', error);
+      setUploadError(error.message || 'An error occurred while processing files');
     }
   };
 
-  const removeFile = (index) => {
+  const removeFile = async (index) => {
+    const file = files[index];
+    
+    // Delete from Cloudinary if it was uploaded successfully
+    if (file.publicId) {
+      try {
+        await api.delete(`/api/images/cloudinary/${file.publicId}`);
+        
+      } catch (error) {
+        console.error('Error deleting from Cloudinary:', error);
+      }
+    }
+    
+    // Remove from state
     const newFiles = [...files];
     URL.revokeObjectURL(newFiles[index].preview); // Clean up object URL
     newFiles.splice(index, 1);
@@ -140,83 +251,54 @@ const ImageUpload = () => {
       if (!imageDetails.title || !imageDetails.description) {
         throw new Error("Title and description are required");
       }
-
-      // Start updating the UI to show progress
-      setFiles(files.map(file => ({ ...file, uploading: true, progress: 0 })));
-
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append('image', files[0].file);
-      formData.append('title', imageDetails.title);
-      formData.append('description', imageDetails.description);
-      formData.append('category', imageDetails.category);
-      formData.append('license', imageDetails.license);
-      formData.append('visibility', selectedVisibility);
       
-      // Add image size in KB
-      const fileSizeInKB = Math.round(files[0].file.size / 1024);
-      formData.append('imageSize', fileSizeInKB);
-      
-      // Add comments allowed setting
-      formData.append('commentsAllowed', commentsAllowed);
-
-
-      // Add tags if available
-      if (selectedTags.length > 0) {
-        formData.append('tags', JSON.stringify(selectedTags));
+      // Check if file was successfully pre-uploaded
+      if (!files[0].publicId || !files[0].cloudinaryUrl) {
+        throw new Error("Image was not properly uploaded. Please try again.");
       }
 
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setFiles(currentFiles => {
-          return currentFiles.map(file => ({
-            ...file,
-            progress: Math.min((file.progress || 0) + 10, 90) // Cap at 90% until actual completion
-          }));
-        });
-      }, 300);
+      // Create a request body with the image details
+      const imageData = {
+        publicId: files[0].publicId,
+        imageUrl: files[0].cloudinaryUrl,
+        title: imageDetails.title,
+        description: imageDetails.description,
+        category: imageDetails.category,
+        license: imageDetails.license,
+        visibility: selectedVisibility,
+        imageSize: files[0].imageSize,
+        commentsAllowed: commentsAllowed
+      };
+      
+      // Add tags if available
+      if (selectedTags.length > 0) {
+        imageData.tags = selectedTags;
+      }
 
       try {
-        // Using the fetch API directly for file uploads since axios has issues with FormData
-        const response = await fetch('/api/images/upload', {
+        // Use fetch for saving details too
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000'}/api/images/save-details`, {
           method: 'POST',
-          body: formData,
-          credentials: 'include', // Include credentials for authentication
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: session?.backendToken ? `Bearer ${session.backendToken}` : '',
+          },
+          credentials: 'include',
+          body: JSON.stringify(imageData)
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to upload image');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to save image details');
         }
-
-        // Clear the interval
-        clearInterval(progressInterval);
-
-        // Update files with completed state
-        setFiles(files.map(file => ({
-          ...file,
-          progress: 100,
-          uploading: false,
-          uploaded: true
-        })));
 
         setCurrentStep(4); // Move to success step
       } catch (error) {
-        clearInterval(progressInterval);
         throw error;
       }
     } catch (error) {
       console.error('Upload error:', error);
-
-      setUploadError(error.message || 'Failed to upload image');
-
-      // Update UI to show error state
-      setFiles(files.map(file => ({
-        ...file,
-        uploading: false,
-        error: 'Upload failed'
-      })));
+      setUploadError(error.message || 'Failed to save image details');
     } finally {
       setIsUploading(false);
     }
@@ -268,19 +350,6 @@ const ImageUpload = () => {
           </button>
           <h1 className="text-2xl font-bold">Upload New Images</h1>
         </div>
-
-        <div className="flex items-center space-x-4">
-          <button className="bg-white/5 hover:bg-white/10 p-2 rounded-lg relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full transform translate-x-1 -translate-y-1"></span>
-          </button>
-
-          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 p-0.5">
-            <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
-              <UserIcon className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Progress Steps */}
@@ -311,6 +380,27 @@ const ImageUpload = () => {
           ))}
         </div>
       </div>
+
+      {/* Storage Limit Warning */}
+      {isStorageFull && (
+        <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-600 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-lg text-yellow-200">Storage Limit Reached</h3>
+              <p className="text-yellow-100 mt-1">
+                You&apos;ve reached your 10MB storage limit. Upgrade to premium to unlock unlimited storage and continue uploading your images.
+              </p>
+              <Link
+                href="/settings"
+                className="mt-3 inline-block py-2 px-4 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-lg text-sm font-medium"
+              >
+                Upgrade to Premium
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="grid grid-cols-12 gap-6">
@@ -495,6 +585,19 @@ const ImageUpload = () => {
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
+                            
+                            {/* Show upload status indicator */}
+                            {file.uploading && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <div className="w-8 h-8 border-2 border-t-transparent border-violet-500 rounded-full animate-spin"></div>
+                              </div>
+                            )}
+                            
+                            {file.error && (
+                              <div className="absolute inset-0 bg-red-900/70 flex items-center justify-center">
+                                <AlertCircle className="w-8 h-8 text-red-300" />
+                              </div>
+                            )}
                           </div>
 
                           <button
@@ -506,6 +609,7 @@ const ImageUpload = () => {
 
                           <div className="text-xs text-gray-400 mt-1 truncate">
                             {file.name} ({file.size} MB)
+                            {file.error && <span className="text-red-400 ml-1">- {file.error}</span>}
                           </div>
                         </div>
                       ))}
@@ -787,13 +891,15 @@ const ImageUpload = () => {
 
           <button
             onClick={handleNextStep}
-            disabled={files.length === 0 || isUploading}
-            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${files.length === 0 || isUploading
+            disabled={files.length === 0 || isUploading || isStorageFull || (files.length > 0 && files.some(f => f.error)) || (currentStep === 2 && (!imageDetails.title || !imageDetails.description))}
+            className={`py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+              files.length === 0 || isUploading || isStorageFull || (files.length > 0 && files.some(f => f.error)) || (currentStep === 2 && (!imageDetails.title || !imageDetails.description))
                 ? 'bg-zinc-800/50 text-gray-500 cursor-not-allowed'
                 : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white'
-              }`}
+            }`}
           >
             {isUploading ? 'Uploading...' : currentStep === 3 ? 'Upload Now' : 'Continue'}
+            {isStorageFull && ' (Upgrade Required)'}
           </button>
         </div>
       )}

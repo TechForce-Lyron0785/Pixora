@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { Award, Zap, Star, Trophy, Trending } from 'lucide-react';
+import { Award, Zap, Star, Trophy, TrendingUp } from 'lucide-react';
 
 const AchievementCard = ({user}) => {
   // Default values if user is not loaded yet
@@ -43,7 +43,7 @@ const AchievementCard = ({user}) => {
     },
     trendsetter: {
       title: "Trendsetter",
-      icon: <Trending className="w-5 h-5 text-amber-400" />,
+      icon: <TrendingUp className="w-5 h-5 text-amber-400" />,
       nextBadge: null,
       nextBadgeTitle: null,
       requirement: null,

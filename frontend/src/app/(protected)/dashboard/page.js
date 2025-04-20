@@ -1,8 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { ProfilePicVerify } from '@/components';
 import {
   WelcomeCard,
@@ -10,26 +8,35 @@ import {
   TrendingImages,
   RecentActivity,
   QuickUpload,
-  RecommendedCreators,
   AchievementCard,
   StorageUsage
 } from './components';
+import { FeaturedCreators } from '../users/components';
 
 const DashboardPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { user } = useAuth();
-  const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
-    if(user?.isDpConfirm !== true){
-      setProfileOpen(true)
-    } 
+    if(user && !user.isDpConfirm){
+      setTimeout(() => setProfileOpen(true), 2000);
+    } else {
+      setProfileOpen(false)
+    }
   }, [user]);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
-      {/* <ProfilePicVerify isOpen={profileOpen} onClose={()=> setProfileOpen(false)} /> */}
+      <ProfilePicVerify isOpen={profileOpen} onClose={()=> setProfileOpen(false)} />
       {/* Dashboard grid */}
       <div className="grid grid-cols-12 gap-6">
         {/* Left column - Main content */}
@@ -53,7 +60,7 @@ const DashboardPage = () => {
           <QuickUpload />
 
           {/* Recommended creators */}
-          <RecommendedCreators user={user} />
+          <FeaturedCreators />
 
           {/* Achievement card */}
           <AchievementCard user={user} />

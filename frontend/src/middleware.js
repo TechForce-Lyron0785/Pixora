@@ -57,12 +57,20 @@ export default async function middleware(request) {
   return NextResponse.next();
 }
 
-// Generate matcher configuration from route lists
+// Define matcher configuration directly
 export const config = {
   matcher: [
-    // Add path wildcards to all protected routes
-    ...ROUTES.protected.map(route => `${route}/:path*`),
-    // Add auth redirect routes without wildcards
-    ...ROUTES.authRedirect
-  ],
+    '/collections/:path*',
+    '/collection/:path*',
+    '/dashboard/:path*',
+    '/feed/:path*',
+    '/image-detail/:path*',
+    '/profile/:path*',
+    '/search/:path*',
+    '/settings/:path*',
+    '/upload-image/:path*',
+    '/users/:path*',
+    '/login',
+    '/register'
+  ]
 };

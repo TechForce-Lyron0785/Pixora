@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import CuratedSection from './CuratedSection';
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from '@/context/AuthContext';
 
 const Feed = () => {
   const [images, setImages] = useState([]);
@@ -12,6 +13,7 @@ const Feed = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const { user } = useAuth();
   const [loadedImages, setLoadedImages] = useState([]);
 
   const api = useApi();
@@ -35,25 +37,25 @@ const Feed = () => {
 
     try {
       const response = await api.get(`/api/images/public?page=${pageNum}&limit=12`);
-      
+
       const imagesWithHeight = assignRandomHeight(response.data.data);
-      
+
       if (isLoadMore) {
         setImages(prevImages => [...prevImages, ...imagesWithHeight]);
       } else {
         setImages(imagesWithHeight);
       }
-      
+
       // Check if more images are available
       setHasMore(response.data.metadata.page < response.data.metadata.pages);
-      
+
       // After a short delay, mark images as loaded for animation
       setTimeout(() => {
         setLoadedImages(prev => [...prev, ...imagesWithHeight.map(img => img._id)]);
         setLoading(false);
         setLoadingMore(false);
       }, 300);
-      
+
     } catch (error) {
       console.error('Error fetching images:', error);
       setLoading(false);
@@ -72,8 +74,10 @@ const Feed = () => {
 
   // Initial fetch
   useEffect(() => {
-    fetchImages();
-  }, []);
+    if (user) {
+      fetchImages();
+    }
+  }, [user]);
 
   // Active users (for stories)
   const activeUsers = [
@@ -128,16 +132,16 @@ const Feed = () => {
       </div>
 
       {/* For you / curated section */}
-      <CuratedSection 
-        feedImages={images} 
-        loadedImages={loadedImages} 
-        loading={loading} 
+      <CuratedSection
+        feedImages={images}
+        loadedImages={loadedImages}
+        loading={loading}
       />
 
       {/* Load more button */}
       <div className="flex justify-center mt-8 mb-20">
         {hasMore && (
-          <button 
+          <button
             className={`px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 ${loadingMore ? 'opacity-70 cursor-wait' : ''}`}
             onClick={handleLoadMore}
             disabled={loadingMore}

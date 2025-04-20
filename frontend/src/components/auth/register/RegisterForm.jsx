@@ -65,8 +65,8 @@ export default function RegisterForm() {
     if (step === 2) {
       if (!formData.password) {
         tempErrors.password = "Password is required";
-      } else if (formData.password.length < 8) {
-        tempErrors.password = "Password must be at least 8 characters";
+      } else if (formData.password.length < 6) {
+        tempErrors.password = "Password must be at least 6 characters";
       }
 
       if (!formData.confirmPassword) {
@@ -164,7 +164,7 @@ export default function RegisterForm() {
 
       if (success) {
         toast.success("Registration successful!");
-        router.push("/"); // Redirect to home page
+        router.push("/dashboard"); // Redirect to dashboard page
       } else {
         toast.error(error || "Registration failed. Please try again.");
       }

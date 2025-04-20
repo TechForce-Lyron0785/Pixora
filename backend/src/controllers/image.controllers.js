@@ -5,26 +5,42 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import cloudinary from "../config/cloudinary.js";
 import { User } from "../models/user.model.js";
 import { updateUserBadge } from "../utils/userUpdates.js";
+import { Follow } from "../models/follow.model.js";
 
 /**
  * @desc Get image by ID
  * @route GET /api/images/:imageId
- * @access Public
+ * @access Private
  */
 export const getImage = asyncHandler(async (req, res) => {
   const { imageId } = req.params;
 
   const image = await Image.findById(imageId)
     .populate("user", "username profilePicture")
-    .populate("album", "name");
 
   if (!image) {
     throw new ApiError(404, "Image not found");
   }
 
-  // Check if private image is accessible by user
-  if (!image.isPublic && (!req.user || image.user._id.toString() !== req.user._id.toString())) {
-    throw new ApiError(403, "Access denied to private image");
+  // Check visibility permissions
+  if (image.visibility !== "public") {
+    // If not public, user must be logged in
+    if (!req.user) {
+      throw new ApiError(403, "Access denied to non-public image");
+    }
+
+    // If private, only the owner can access
+    if (image.visibility === "private" && image.user._id.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, "Access denied to private image");
+    }
+
+    // If followers-only, check if user is following the image owner
+    if (image.visibility === "followers" && image.user._id.toString() !== req.user._id.toString()) {
+      const isFollowing = await Follow.checkFollowStatus(req.user._id, image.user._id);
+      if (!isFollowing) {
+        throw new ApiError(403, "Access denied: you must follow this user to view this image");
+      }
+    }
   }
 
   res.status(200).json(
@@ -35,22 +51,41 @@ export const getImage = asyncHandler(async (req, res) => {
 /**
  * @desc Get all public images with pagination
  * @route GET /api/images/public
- * @access Public
+ * @access Private
  */
 export const getAllImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  // const images = await Image.find({ visibility: "public" })
-  const images = await Image.find()
+  let query = { visibility: "public" };
+  
+  // If logged in, also include "followers" visibility images from users the requester follows
+  // and all images owned by the requesting user
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    // Show public images + follower-only images from users being followed + all user's own images
+    query = {
+      $or: [
+        { visibility: "public" },
+        { 
+          visibility: "followers", 
+          user: { $in: followingIds } 
+        },
+        { user: req.user._id } // Include all of the user's own images
+      ]
+    };
+  }
+
+  const images = await Image.find(query)
     .populate("user", "username profilePicture")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  // const total = await Image.countDocuments({ visibility: "public" });
-  const total = await Image.countDocuments();
+  const total = await Image.countDocuments(query);
 
   const metadata = {
     total,
@@ -97,7 +132,7 @@ export const getUserImages = asyncHandler(async (req, res) => {
 /**
  * @desc Get user's public images
  * @route GET /api/images/user/:userId
- * @access Public
+ * @access Private
  */
 export const getUserPublicImages = asyncHandler(async (req, res) => {
   const { userId } = req.params;
@@ -105,19 +140,38 @@ export const getUserPublicImages = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const images = await Image.find({ 
+  let query = { 
     user: userId,
-    isPublic: true 
-  })
+    visibility: "public" 
+  };
+  
+  // If logged in, check if user is following the requested user
+  if (req.user) {
+    // If requesting their own images, show all
+    if (req.user._id.toString() === userId) {
+      query = { user: userId };
+    } else {
+      // Check if following the user to include "followers" visibility
+      const isFollowing = await Follow.checkFollowStatus(req.user._id, userId);
+      if (isFollowing) {
+        query = { 
+          user: userId,
+          $or: [
+            { visibility: "public" },
+            { visibility: "followers" }
+          ]
+        };
+      }
+    }
+  }
+
+  const images = await Image.find(query)
     .populate("user", "username profilePicture")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  const total = await Image.countDocuments({ 
-    user: userId,
-    isPublic: true 
-  });
+  const total = await Image.countDocuments(query);
 
   const metadata = {
     total,
@@ -127,7 +181,7 @@ export const getUserPublicImages = asyncHandler(async (req, res) => {
   };
 
   res.status(200).json(
-    new ApiResponse(200, "User public images fetched successfully", images, metadata)
+    new ApiResponse(200, "User images fetched successfully", images, metadata)
   );
 });
 
@@ -191,7 +245,7 @@ export const deleteImage = asyncHandler(async (req, res) => {
 /**
  * @desc Search images
  * @route GET /api/images/search/query
- * @access Public
+ * @access Private
  */
 export const searchImages = asyncHandler(async (req, res) => {
   const { q } = req.query;
@@ -203,14 +257,55 @@ export const searchImages = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Search query is required");
   }
 
-  const searchQuery = {
-    isPublic: true,
+  // Set up base search query for public images
+  let searchQuery = {
+    visibility: "public",
     $or: [
       { title: { $regex: q, $options: "i" } },
       { description: { $regex: q, $options: "i" } },
       { tags: { $in: [new RegExp(q, "i")] } }
     ]
   };
+
+  // If user is logged in, also include followers-only images from people they follow
+  // and all of the user's own images
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    searchQuery = {
+      $or: [
+        // Public images
+        {
+          visibility: "public",
+          $or: [
+            { title: { $regex: q, $options: "i" } },
+            { description: { $regex: q, $options: "i" } },
+            { tags: { $in: [new RegExp(q, "i")] } }
+          ]
+        },
+        // Followers-only images from people the user follows
+        {
+          visibility: "followers",
+          user: { $in: followingIds },
+          $or: [
+            { title: { $regex: q, $options: "i" } },
+            { description: { $regex: q, $options: "i" } },
+            { tags: { $in: [new RegExp(q, "i")] } }
+          ]
+        },
+        // All of the user's own images
+        {
+          user: req.user._id,
+          $or: [
+            { title: { $regex: q, $options: "i" } },
+            { description: { $regex: q, $options: "i" } },
+            { tags: { $in: [new RegExp(q, "i")] } }
+          ]
+        }
+      ]
+    };
+  }
 
   const images = await Image.find(searchQuery)
     .populate("user", "username profilePicture")
@@ -235,14 +330,35 @@ export const searchImages = asyncHandler(async (req, res) => {
 /**
  * @desc Get trending images
  * @route GET /api/images/discover/trending
- * @access Public
+ * @access Private
  */
 export const getTrendingImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const images = await Image.find()
+  // Base query for public images
+  let query = { visibility: "public" };
+  
+  // If logged in, include followers-only images from people they follow
+  // and all images owned by the requesting user
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    query = {
+      $or: [
+        { visibility: "public" },
+        { 
+          visibility: "followers", 
+          user: { $in: followingIds } 
+        },
+        { user: req.user._id } // Include all of the user's own images
+      ]
+    };
+  }
+
+  const images = await Image.find(query)
     .populate("user", "username profilePicture")
     .sort({ 
       likesCount: -1,
@@ -253,7 +369,7 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-  const total = await Image.countDocuments();
+  const total = await Image.countDocuments(query);
 
   const metadata = {
     total,
@@ -270,7 +386,7 @@ export const getTrendingImages = asyncHandler(async (req, res) => {
 /**
  * @desc Get images by tag
  * @route GET /api/images/tags/:tag
- * @access Public
+ * @access Private
  */
 export const getImagesByTag = asyncHandler(async (req, res) => {
   const { tag } = req.params;
@@ -278,19 +394,38 @@ export const getImagesByTag = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const images = await Image.find({ 
+  // Base query for public images with the tag
+  let query = { 
     tags: { $in: [tag.toLowerCase()] },
-    isPublic: true 
-  })
+    visibility: "public" 
+  };
+  
+  // If logged in, include followers-only images from people they follow
+  // and all of the user's own images with the tag
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    query = {
+      tags: { $in: [tag.toLowerCase()] },
+      $or: [
+        { visibility: "public" },
+        { 
+          visibility: "followers", 
+          user: { $in: followingIds } 
+        },
+        { user: req.user._id } // Include all of the user's own images with the tag
+      ]
+    };
+  }
+
+  const images = await Image.find(query)
     .populate("user", "username profilePicture")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  const total = await Image.countDocuments({ 
-    tags: { $in: [tag.toLowerCase()] },
-    isPublic: true 
-  });
+  const total = await Image.countDocuments(query);
 
   const metadata = {
     total,
@@ -330,6 +465,19 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Title and description are required");
   }
 
+  // Check user's storage limit for non-premium users (10MB = 10240KB)
+  const STORAGE_LIMIT = 10240; // 10MB in KB
+  
+  if (!req.user.isPremium) {
+    const currentStorage = req.user.storageUsed || 0;
+    const fileSize = parseInt(imageSize) || 0;
+    
+    if (currentStorage + fileSize > STORAGE_LIMIT) {
+      // If the user would exceed their storage limit with this upload
+      throw new ApiError(400, "Storage limit reached (10MB). Please upgrade to premium to upload more images.");
+    }
+  }
+
   // The file is already uploaded to cloudinary by multer-storage-cloudinary
   const imageUrl = req.file.path;
   const publicId = req.file.filename;
@@ -356,7 +504,7 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     album: albumId,
     imageSize,
     commentsAllowed: commentsAllowed ?? true,
-    visibility,
+    visibility: visibility || 'public',
   });
 
   await User.findByIdAndUpdate(req.user._id, { 
@@ -366,9 +514,142 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     } 
   });
 
+  // Update user badge after post count change
+  await updateUserBadge(req.user._id);
+
   await image.populate("user", "username profilePicture");
 
   res.status(201).json(
     new ApiResponse(201, "Image uploaded successfully", image)
+  );
+});
+
+/**
+ * @desc Upload a temporary image file to Cloudinary before form submission
+ * @route POST /api/images/upload-temp
+ * @access Private
+ */
+export const uploadTempImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "No image file provided");
+  }
+
+  // Check storage limit for non-premium users (10MB = 10240KB)
+  const STORAGE_LIMIT = 10240; // 10MB in KB
+  
+  if (!req.user.isPremium) {
+    const currentStorage = req.user.storageUsed || 0;
+    const fileSize = req.file.size ? Math.round(req.file.size / 1024) : 0; // Convert to KB
+    
+    if (currentStorage + fileSize > STORAGE_LIMIT) {
+      // Delete the uploaded file from cloudinary since we're rejecting it
+      if (req.file.filename) {
+        await cloudinary.uploader.destroy(req.file.filename);
+      }
+      throw new ApiError(400, "Storage limit reached (10MB). Please upgrade to premium to upload more images.");
+    }
+  }
+
+  // The file is already uploaded to cloudinary by multer-storage-cloudinary
+  const imageUrl = req.file.path;
+  const publicId = req.file.filename;
+  const fileSize = req.file.size ? Math.round(req.file.size / 1024) : 0; // Size in KB
+
+  res.status(200).json(
+    new ApiResponse(200, "Temporary image uploaded successfully", {
+      imageUrl,
+      publicId,
+      imageSize: fileSize
+    })
+  );
+});
+
+/**
+ * @desc Delete an image from Cloudinary
+ * @route DELETE /api/images/cloudinary/:publicId
+ * @access Private
+ */
+export const deleteCloudinaryImage = asyncHandler(async (req, res) => {
+  const { publicId } = req.params;
+
+  if (!publicId) {
+    throw new ApiError(400, "Public ID is required");
+  }
+
+  // Delete from cloudinary
+  await cloudinary.uploader.destroy(publicId);
+
+  res.status(200).json(
+    new ApiResponse(200, "Image deleted from Cloudinary successfully")
+  );
+});
+
+/**
+ * @desc Save image details after temporary upload
+ * @route POST /api/images/save-details
+ * @access Private
+ */
+export const saveImageDetails = asyncHandler(async (req, res) => {
+  const { 
+    publicId, 
+    imageUrl,
+    title, 
+    description, 
+    tags, 
+    visibility, 
+    albumId, 
+    category,
+    license,
+    imageSize,
+    commentsAllowed,
+  } = req.body;
+
+  if (!publicId || !imageUrl || !title || !description) {
+    throw new ApiError(400, "Missing required image information");
+  }
+
+  // Check user's storage limit for non-premium users (10MB = 10240KB)
+  const STORAGE_LIMIT = 10240; // 10MB in KB
+  
+  if (!req.user.isPremium) {
+    const currentStorage = req.user.storageUsed || 0;
+    const fileSize = parseInt(imageSize) || 0;
+    
+    if (currentStorage + fileSize > STORAGE_LIMIT) {
+      // If the user would exceed their storage limit with this upload
+      throw new ApiError(400, "Storage limit reached (10MB). Please upgrade to premium to upload more images.");
+    }
+  }
+
+  // Create the image record in the database
+  const image = await Image.create({
+    user: req.user._id,
+    title,
+    description,
+    imageUrl,
+    publicId,
+    category: category || 'other',
+    license: license || 'standard',
+    tags: tags || [],
+    album: albumId,
+    imageSize,
+    commentsAllowed: commentsAllowed ?? true,
+    visibility: visibility || 'public',
+  });
+
+  await User.findByIdAndUpdate(req.user._id, { 
+    $inc: { 
+      postsCount: 1, 
+      storageUsed: imageSize // Increment storage used by the image size
+    } 
+  });
+
+  // Update user badge after post count change
+  await updateUserBadge(req.user._id);
+
+  await image.populate("user", "username profilePicture");
+
+  res.status(201).json(
+    new ApiResponse(201, "Image details saved successfully", image)
   );
 });

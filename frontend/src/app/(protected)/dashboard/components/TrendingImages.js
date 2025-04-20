@@ -39,7 +39,7 @@ const TrendingImages = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trendingImages.slice(0,3).map(image => (
+        {trendingImages.slice(0,6).map(image => (
           <div key={image._id} className="group relative rounded-xl overflow-hidden aspect-[3/4] bg-zinc-800 border border-white/10">
             <div className="absolute inset-0 overflow-hidden">
               <img
