@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { FollowProvider } from "@/context/FollowContext";
 import { UsersProvider } from "@/context/UsersContext";
+import { LikesFavoritesProvider } from "@/context/LikesFavoritesContext";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
 import LoadingScreen from "@/components/screens/LoadingScreen";
@@ -22,12 +23,14 @@ export default function RootLayout({ children }) {
             <AuthProvider>
               <FollowProvider>
                 <UsersProvider>
-                  <NextTopLoader
-                    color="#8b5cf6"
-                    showSpinner={false}
-                  />
-                  <Toaster position="top-center" />
-                  {children}
+                  <LikesFavoritesProvider>
+                    <NextTopLoader
+                      color="#8b5cf6"
+                      showSpinner={false}
+                    />
+                    <Toaster position="top-center" />
+                    {children}
+                  </LikesFavoritesProvider>
                 </UsersProvider>
               </FollowProvider>
             </AuthProvider>

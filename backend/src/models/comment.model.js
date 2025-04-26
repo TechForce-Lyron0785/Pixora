@@ -81,7 +81,8 @@ commentSchema.statics.createComment = async function (userId, imageId, text, par
   // Increment the comment count on the image
   await mongoose.model('Image').findByIdAndUpdate(imageId, { $inc: { commentsCount: 1 } });
 
-  return newComment.save();
+  // Populate user details before returning the new comment
+  return newComment.save().then(comment => comment.populate('user', 'fullName username profilePicture'));
 };
 
 // Method to update an existing comment
@@ -169,7 +170,7 @@ commentSchema.statics.getLikedUsers = async function(commentId, page = 1, limit 
 
   const users = await mongoose.model('User')
     .find({ _id: { $in: comment.likes }})
-    .select('username profilePicture')
+    .select('fullName username profilePicture')
     .skip(skip)
     .limit(limit);
 
@@ -199,7 +200,7 @@ commentSchema.statics.getImageComments = async function (imageId, page = 1, limi
     image: imageId,
     parentComment: null // Only get top-level comments
   })
-    .populate('user', 'username profilePicture')
+    .populate('user', 'fullName username profilePicture')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);

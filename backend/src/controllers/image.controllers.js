@@ -27,7 +27,7 @@ export const getImage = asyncHandler(async (req, res) => {
   const { imageId } = req.params;
 
   const image = await Image.findById(imageId)
-    .populate("user", "username profilePicture")
+    .populate("user", "fullName username profilePicture")
 
   if (!image) {
     throw new ApiError(404, "Image not found");

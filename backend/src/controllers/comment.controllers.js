@@ -24,29 +24,6 @@ export const createComment = asyncHandler(async (req, res) => {
   // Update interaction points for commenting
   await updateInteractionPoints(userId, 'comment');
 
-  // Send notification for new comment
-  if (parentCommentId) {
-    // If replying to a comment, notify the parent comment author
-    const parentComment = await Comment.findById(parentCommentId);
-    await Notification.createNotification({
-      recipient: parentComment.user,
-      sender: userId,
-      type: 'reply',
-      content: 'replied to your comment',
-      relatedImage: imageId,
-      relatedComment: comment._id
-    });
-  } else {
-    // If commenting on image, notify image owner
-    await Notification.createNotification({
-      recipient: comment.image.user,
-      sender: userId,
-      type: 'comment',
-      content: 'commented on your image',
-      relatedImage: imageId,
-      relatedComment: comment._id
-    });
-  }
 
   res.status(201).json(
     new ApiResponse(201, "Comment created successfully", comment)
@@ -87,7 +64,7 @@ export const getCommentReplies = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const replies = await Comment.find({ parentComment: commentId })
-    .populate('user', 'username profilePicture')
+    .populate('user', 'fullName username profilePicture')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);

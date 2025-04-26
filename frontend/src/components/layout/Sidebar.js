@@ -15,6 +15,7 @@ import {
   TrendingUp,
   User,
   Users,
+  BookmarkIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -34,6 +35,8 @@ const Sidebar = () => {
     { name: 'Dashboard', icon: <Compass className="transition-transform duration-300 group-hover:scale-110" />, href: '/dashboard' },
     { name: 'Feed', icon: <Grid className="transition-transform duration-300 group-hover:scale-110" />, href: '/feed' },
     { name: 'Profile', icon: <User className="transition-transform duration-300 group-hover:scale-110" />, href: `/profile/@${user?.username || 'username'}` },
+    { name: 'Likes', icon: <Heart className="transition-transform duration-300 group-hover:scale-110" />, href: '/likes' },
+    { name: 'Favorites', icon: <BookmarkIcon className="transition-transform duration-300 group-hover:scale-110" />, href: '/favorites' },
     { name: 'Search', icon: <Search className="transition-transform duration-300 group-hover:scale-110" />, href: '/search' },
     { name: 'Users', icon: <Users className="transition-transform duration-300 group-hover:scale-110" />, href: '/users' },
     { name: 'Upload Image', icon: <ImagePlus className="transition-transform duration-300 group-hover:scale-110" />, href: '/upload-image' },
