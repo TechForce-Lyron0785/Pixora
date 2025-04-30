@@ -232,7 +232,7 @@ const ProfilePage = () => {
       ) : (
         // Tab Content
         <div className="px-6 md:px-10 py-8">
-          {activeTab === 'works' && <WorksTab />}
+          {activeTab === 'works' && <WorksTab user={profile} />}
 
           {activeTab === 'collections' && <CollectionsTab />}
 

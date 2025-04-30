@@ -50,8 +50,9 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
 export const getFavorites = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const { category } = req.query;
 
-  const result = await Favorite.getUserFavorites(req.user._id, page, limit);
+  const result = await Favorite.getUserFavorites(req.user._id, page, limit, category);
 
   res.status(200).json(
     new ApiResponse(

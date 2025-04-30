@@ -68,8 +68,15 @@ export const getAllImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+  const { category } = req.query;
 
+  // Base query for public images
   let query = { visibility: "public" };
+  
+  // Add category filter if provided and not 'all'
+  if (category && category !== 'all') {
+    query.category = category;
+  }
   
   // If logged in, also include "followers" visibility images from users the requester follows
   // and all images owned by the requesting user
@@ -77,17 +84,32 @@ export const getAllImages = asyncHandler(async (req, res) => {
     const followingList = await Follow.find({ follower: req.user._id }).select("following");
     const followingIds = followingList.map(follow => follow.following);
     
-    // Show public images + follower-only images from users being followed + all user's own images
-    query = {
-      $or: [
-        { visibility: "public" },
-        { 
-          visibility: "followers", 
-          user: { $in: followingIds } 
-        },
-        { user: req.user._id } // Include all of the user's own images
-      ]
-    };
+    // Build the query with category filter if it exists
+    if (category && category !== 'all') {
+      query = {
+        category,
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images
+        ]
+      };
+    } else {
+      // Show public images + follower-only images from users being followed + all user's own images
+      query = {
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images
+        ]
+      };
+    }
   }
 
   const images = await Image.find(query)
@@ -150,34 +172,58 @@ export const getUserPublicImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+  const { category } = req.query;
 
+  // Base query for public images
   let query = { 
     user: userId,
     visibility: "public" 
   };
+  
+  // Add category filter if provided and not 'all'
+  if (category && category !== 'all') {
+    query.category = category;
+  }
   
   // If logged in, check if user is following the requested user
   if (req.user) {
     // If requesting their own images, show all
     if (req.user._id.toString() === userId) {
       query = { user: userId };
+      
+      // Add category filter if provided
+      if (category && category !== 'all') {
+        query.category = category;
+      }
     } else {
       // Check if following the user to include "followers" visibility
       const isFollowing = await Follow.checkFollowStatus(req.user._id, userId);
       if (isFollowing) {
-        query = { 
-          user: userId,
-          $or: [
-            { visibility: "public" },
-            { visibility: "followers" }
-          ]
-        };
+        // Build the query with category filter if it exists
+        if (category && category !== 'all') {
+          query = { 
+            user: userId,
+            category,
+            $or: [
+              { visibility: "public" },
+              { visibility: "followers" }
+            ]
+          };
+        } else {
+          query = { 
+            user: userId,
+            $or: [
+              { visibility: "public" },
+              { visibility: "followers" }
+            ]
+          };
+        }
       }
     }
   }
 
   const images = await Image.find(query)
-    .populate("user", "username profilePicture")
+    .populate("user", "username profilePicture fullName")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -424,6 +470,7 @@ export const getImagesByTag = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+  const { category } = req.query;
 
   // Base query for public images with the tag
   let query = { 
@@ -431,27 +478,48 @@ export const getImagesByTag = asyncHandler(async (req, res) => {
     visibility: "public" 
   };
   
+  // Add category filter if provided and not 'all'
+  if (category && category !== 'all') {
+    query.category = category;
+  }
+  
   // If logged in, include followers-only images from people they follow
   // and all of the user's own images with the tag
   if (req.user) {
     const followingList = await Follow.find({ follower: req.user._id }).select("following");
     const followingIds = followingList.map(follow => follow.following);
     
-    query = {
-      tags: { $in: [tag.toLowerCase()] },
-      $or: [
-        { visibility: "public" },
-        { 
-          visibility: "followers", 
-          user: { $in: followingIds } 
-        },
-        { user: req.user._id } // Include all of the user's own images with the tag
-      ]
-    };
+    // Build the query with category filter if it exists
+    if (category && category !== 'all') {
+      query = {
+        tags: { $in: [tag.toLowerCase()] },
+        category,
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images with the tag
+        ]
+      };
+    } else {
+      query = {
+        tags: { $in: [tag.toLowerCase()] },
+        $or: [
+          { visibility: "public" },
+          { 
+            visibility: "followers", 
+            user: { $in: followingIds } 
+          },
+          { user: req.user._id } // Include all of the user's own images with the tag
+        ]
+      };
+    }
   }
 
   const images = await Image.find(query)
-    .populate("user", "username profilePicture")
+    .populate("user", "username profilePicture fullName")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -682,5 +750,60 @@ export const saveImageDetails = asyncHandler(async (req, res) => {
 
   res.status(201).json(
     new ApiResponse(201, "Image details saved successfully", image)
+  );
+});
+
+/**
+ * @desc Get popular tags
+ * @route GET /api/images/tags/popular
+ * @access Private
+ */
+export const getPopularTags = asyncHandler(async (req, res) => {
+  const { limit = 30 } = req.query;
+  
+  // Find all public images (and followers-only/private if user is logged in)
+  let query = { visibility: "public" };
+  
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    query = {
+      $or: [
+        { visibility: "public" },
+        { 
+          visibility: "followers", 
+          user: { $in: followingIds } 
+        },
+        { user: req.user._id }
+      ]
+    };
+  }
+  
+  // Aggregate to get tag frequency
+  const tagAggregation = await Image.aggregate([
+    { $match: query },
+    { $unwind: "$tags" },
+    { 
+      $group: { 
+        _id: "$tags", 
+        count: { $sum: 1 },
+        // Get a sample image for each tag
+        sampleImage: { $first: "$imageUrl" }
+      } 
+    },
+    { $sort: { count: -1 } },
+    { $limit: parseInt(limit) }
+  ]);
+  
+  // Format tags for response
+  const popularTags = tagAggregation.map(tag => ({
+    name: tag._id,
+    count: tag.count,
+    sampleImage: tag.sampleImage
+  }));
+  
+  res.status(200).json(
+    new ApiResponse(200, "Popular tags fetched successfully", popularTags)
   );
 });

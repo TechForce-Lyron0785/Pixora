@@ -5,7 +5,7 @@ import { useApi } from '@/hooks/useApi';
 import { useLikesFavorites } from '@/context/LikesFavoritesContext';
 import { useFollow } from '@/context/FollowContext';
 import { useAuth } from '@/context/AuthContext';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MessageSquareOff } from 'lucide-react';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 
 // Import components
@@ -36,6 +36,7 @@ const ImageDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [relatedImages, setRelatedImages] = useState([]);
+  const [likesCount, setLikesCount] = useState(0);
 
   // Fetch image data
   useEffect(() => {
@@ -46,6 +47,7 @@ const ImageDetail = () => {
         
         const response = await api.get(`/api/images/${imageId}`);
         setImage(response.data.data);
+        setLikesCount(response.data.data.likesCount)
         
         // Fetch creator's other images
         if (response.data.data.user?._id) {
@@ -78,7 +80,7 @@ const ImageDetail = () => {
     if (imageId) {
       fetchImageData();
     }
-  }, [imageId, api, user, checkFollowStatus, checkLikeStatus, checkFavoriteStatus]);
+  }, [imageId, api, user, checkFollowStatus]);
 
   // Handle like toggle
   const handleLikeToggle = async () => {
@@ -87,10 +89,7 @@ const ImageDetail = () => {
     // Optimistic update
     const newLikeStatus = !isLiked;
     setIsLiked(newLikeStatus);
-    setImage(prev => ({
-      ...prev,
-      likesCount: newLikeStatus ? (prev.likesCount + 1) : (prev.likesCount - 1)
-    }));
+    setLikesCount(prev => newLikeStatus ? prev + 1 : prev - 1);
     
     // API call
     const result = await toggleLike(imageId);
@@ -98,10 +97,7 @@ const ImageDetail = () => {
     // Revert if failed
     if (!result.success) {
       setIsLiked(!newLikeStatus);
-      setImage(prev => ({
-        ...prev,
-        likesCount: !newLikeStatus ? (prev.likesCount + 1) : (prev.likesCount - 1)
-      }));
+      setLikesCount(prev => newLikeStatus ? prev - 1 : prev + 1);
     }
   };
 
@@ -194,6 +190,7 @@ const ImageDetail = () => {
             image={image}
             isLiked={isLiked}
             isBookmarked={isBookmarked}
+            likesCount={likesCount}
             handleLikeToggle={handleLikeToggle}
             handleBookmarkToggle={handleBookmarkToggle}
           />
@@ -208,10 +205,16 @@ const ImageDetail = () => {
           />
 
           {/* Comments Section Component */}
-          <CommentsSection
+          {image.commentsAllowed ? <CommentsSection
             imageId={imageId}
             user={user}
-          />
+          /> : (
+            <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-6 py-10 text-center my-4">
+              <MessageSquareOff className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-300 font-medium">Comments are disabled for this image</p>
+              <p className="text-gray-400 text-sm mt-1">The creator has turned off commenting for this content</p>
+            </div>
+          )}
         </div>
 
         {/* Sidebar Component */}

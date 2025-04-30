@@ -6,6 +6,7 @@ import {
 import CuratedSection from './CuratedSection';
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from '@/context/AuthContext';
+import { CategoryFilter } from '../dashboard/components';
 
 const Feed = () => {
   const [images, setImages] = useState([]);
@@ -15,6 +16,7 @@ const Feed = () => {
   const [hasMore, setHasMore] = useState(true);
   const { user } = useAuth();
   const [loadedImages, setLoadedImages] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const api = useApi();
 
@@ -33,10 +35,16 @@ const Feed = () => {
       setLoadingMore(true);
     } else {
       setLoading(true);
+      setLoadedImages([]);
     }
 
     try {
-      const response = await api.get(`/api/images/public?page=${pageNum}&limit=12`);
+      // Add category to the API request if it's not 'all'
+      const endpoint = selectedCategory && selectedCategory !== 'all'
+        ? `/api/images/public?page=${pageNum}&limit=12&category=${selectedCategory}`
+        : `/api/images/public?page=${pageNum}&limit=12`;
+      
+      const response = await api.get(endpoint);
 
       const imagesWithHeight = assignRandomHeight(response.data.data);
 
@@ -72,12 +80,13 @@ const Feed = () => {
     }
   };
 
-  // Initial fetch
+  // Re-fetch when category changes
   useEffect(() => {
     if (user) {
-      fetchImages();
+      setPage(1);
+      fetchImages(1, false);
     }
-  }, [user]);
+  }, [user, selectedCategory]);
 
   // Active users (for stories)
   const activeUsers = [
@@ -129,6 +138,11 @@ const Feed = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Category filter */}
+      <div className="px-4 mb-4">
+        <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
       </div>
 
       {/* For you / curated section */}

@@ -53,8 +53,9 @@ export const toggleLike = asyncHandler(async (req, res) => {
 export const getLikes = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const { category } = req.query;
 
-  const result = await Like.getUserLikes(req.user._id, page, limit);
+  const result = await Like.getUserLikes(req.user._id, page, limit, category);
 
   res.status(200).json(
     new ApiResponse(

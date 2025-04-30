@@ -106,7 +106,7 @@ const ImageMetadata = ({
             <div className="flex flex-wrap gap-2">
               {image.tags.map((tag, idx) => (
                 <Link 
-                  href={`/tag/${tag}`} 
+                  href={`/tags/${tag}`} 
                   key={idx} 
                   className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-full text-sm transition-colors cursor-pointer"
                 >

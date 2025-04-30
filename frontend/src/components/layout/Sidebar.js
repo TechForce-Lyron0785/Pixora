@@ -16,6 +16,7 @@ import {
   User,
   Users,
   BookmarkIcon,
+  Hash,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -38,6 +39,7 @@ const Sidebar = () => {
     { name: 'Likes', icon: <Heart className="transition-transform duration-300 group-hover:scale-110" />, href: '/likes' },
     { name: 'Favorites', icon: <BookmarkIcon className="transition-transform duration-300 group-hover:scale-110" />, href: '/favorites' },
     { name: 'Search', icon: <Search className="transition-transform duration-300 group-hover:scale-110" />, href: '/search' },
+    { name: 'Tags', icon: <Hash className="transition-transform duration-300 group-hover:scale-110" />, href: '/tags' },
     { name: 'Users', icon: <Users className="transition-transform duration-300 group-hover:scale-110" />, href: '/users' },
     { name: 'Upload Image', icon: <ImagePlus className="transition-transform duration-300 group-hover:scale-110" />, href: '/upload-image' },
   ];

@@ -15,6 +15,7 @@ const ImageHeader = ({
   isLiked, 
   isBookmarked, 
   handleLikeToggle, 
+  likesCount,
   handleBookmarkToggle 
 }) => {
   return (
@@ -64,7 +65,7 @@ const ImageHeader = ({
             onClick={handleLikeToggle}
           >
             <Heart className={`w-5 h-5 ${isLiked ? 'fill-rose-400' : ''}`} />
-            <span>{image.likesCount || 0}</span>
+            <span>{likesCount || 0}</span>
           </button>
 
           <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">

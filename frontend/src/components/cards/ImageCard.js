@@ -12,7 +12,9 @@ const ImageCard = ({
   isLoaded = true,
   heightClass = "aspect-square",
   index = 0,
-  columnIndex = 0
+  columnIndex = 0,
+  onUnlike,
+  onRemoveFavorite
 }) => {
   const { user } = useAuth();
   const {
@@ -88,6 +90,9 @@ const ImageCard = ({
     if (!result.success) {
       setIsLiked(!newLikedStatus);
       setLikesCount(prev => newLikedStatus ? prev - 1 : prev + 1);
+    } else if (!newLikedStatus && onUnlike) {
+      // If we're unliking and there's an onUnlike callback, call it
+      onUnlike(image._id);
     }
   };
 
@@ -110,6 +115,9 @@ const ImageCard = ({
     // If the API call failed, revert the optimistic update
     if (!result.success) {
       setIsFavorited(!newFavoritedStatus);
+    } else if (!newFavoritedStatus && onRemoveFavorite) {
+      // If we're removing from favorites and there's an onRemoveFavorite callback, call it
+      onRemoveFavorite(image._id);
     }
   };
 
@@ -246,8 +254,8 @@ const ImageCard = ({
           </Link>
         </div>
 
-        {/* Image actions overlay - now floating in the middle right */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Image actions overlay */}
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 flex flex-col gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
           <button
             className={`p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isLiked
               ? 'bg-rose-500/30 text-rose-300'
@@ -426,7 +434,7 @@ const ImageCard = ({
                       <div className="flex flex-wrap gap-2">
                         {image.tags.map((tag, i) => (
                           <Link
-                            href={`/tag/${tag}`}
+                            href={`/tags/${tag}`}
                             key={i}
                             className="bg-zinc-800/70 hover:bg-zinc-700 text-white/80 hover:text-white text-xs px-3 py-1.5 rounded-full transition-colors"
                             onClick={(e) => e.stopPropagation()}

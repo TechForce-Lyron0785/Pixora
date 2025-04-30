@@ -1,122 +1,123 @@
 "use client"
-import React, { useState } from 'react';
-import { 
-  Filter, 
-  ChevronDown, 
-  Zap, 
-  Heart, 
-  BookmarkIcon, 
-  Share2 
+import React, { useState, useEffect } from 'react';
+import {
+  Filter,
+  ChevronDown,
 } from 'lucide-react';
+import ImageCard from '@/components/cards/ImageCard';
+import { CategoryFilter } from '@/app/(protected)/dashboard/components';
+import { useApi } from '@/hooks/useApi';
+import ImageSkeleton from '@/components/skeletons/ImageSkeleton';
 
-const WorksTab = ({ works = [] }) => {
-  const [selectedFilter, setSelectedFilter] = useState('all');
+const WorksTab = ({user}) => {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [loadedImages, setLoadedImages] = useState([]);
+  const [userImages, setUserImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Sample data if works is not provided
-  const sampleWorks = [
-    { id: 1, title: "Neon Dreams", thumbnail: "/images/upload/img1.webp", likes: "3.4K", saves: "842", featured: true },
-    { id: 2, title: "Cosmic Journey", thumbnail: "/images/upload/img2.jpg", likes: "2.8K", saves: "562" },
-    { id: 3, title: "Digital Eden", thumbnail: "/images/upload/img3.jpg", likes: "5.1K", saves: "1.2K", featured: true },
-    { id: 4, title: "Midnight City", thumbnail: "/images/upload/img7.png", likes: "4.7K", saves: "903" },
-    { id: 5, title: "Futuristic Portal", thumbnail: "/images/upload/img6.webp", likes: "3.9K", saves: "715" },
-    { id: 6, title: "Ethereal Landscape", thumbnail: "/images/upload/img3.jpg", likes: "6.2K", saves: "1.5K", featured: true },
-  ];
+  const api = useApi();
 
-  const displayWorks = works.length > 0 ? works : sampleWorks;
+  const fetchUserImages = async (pageNum = 1, isLoadMore = false) => {
+    if (!user?._id) return;
+    
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
 
-  // Filters
-  const filters = [
-    { id: 'all', name: 'All Works' },
-    { id: 'featured', name: 'Featured' },
-    { id: 'recent', name: 'Recent' },
-    { id: 'popular', name: 'Popular' },
-  ];
+    try {
+      // Add category to the API request if it's not 'all'
+      const endpoint = selectedCategory && selectedCategory !== 'all'
+        ? `/api/images/user/${user._id}?page=${pageNum}&limit=9&category=${selectedCategory}`
+        : `/api/images/user/${user._id}?page=${pageNum}&limit=9`;
+        
+      const response = await api.get(endpoint);
+      
+      if (isLoadMore) {
+        setUserImages(prevImages => [...prevImages, ...response.data.data]);
+      } else {
+        setUserImages(response.data.data);
+      }
+
+      // Check if more images are available
+      setHasMore(response.data.metadata.page < response.data.metadata.pages);
+
+      // After a short delay, mark images as loaded for animation
+      setTimeout(() => {
+        setLoadedImages(prev => [...prev, ...response.data.data.map(img => img._id)]);
+        setLoading(false);
+        setLoadingMore(false);
+      }, 300);
+    } catch (error) {
+      console.error('Error fetching user images:', error);
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // Load more images
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchUserImages(nextPage, true);
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      setPage(1);
+      fetchUserImages(1, false);
+    }
+  }, [user, selectedCategory]);
+
+  if(!user) return null;
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3 overflow-x-auto py-2 no-scrollbar">
-          {filters.map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => setSelectedFilter(filter.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${selectedFilter === filter.id
-                ? 'bg-violet-600 text-white'
-                : 'bg-white/5 hover:bg-white/10 text-gray-300'
-                } transition-colors duration-200`}
-            >
-              {filter.name}
-            </button>
+      {/* Category filter */}
+      <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {Array.from({ length: 9 }).map((_, index) => (
+            <ImageSkeleton key={`skeleton-${index}`} heightClass="aspect-[4/4]" />
           ))}
         </div>
+      ) : userImages.length === 0 ? (
+        <div className="flex justify-center items-center h-64 bg-zinc-900/60 border border-white/10 rounded-xl mt-4">
+          <p className="text-gray-400">No images available for this category</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          {userImages.map((image, index) => (
+            <ImageCard
+              key={image._id}
+              image={image}
+              heightClass="aspect-[4/4]"
+              isLoaded={loadedImages.includes(image._id)}
+              index={index % 3}
+              columnIndex={Math.floor(index / 3)}
+            />
+          ))}
+        </div>
+      )}
 
-        <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-            <Filter className="w-4 h-4" />
-          </button>
-          <button className="flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm">
-            <span>Latest</span>
-            <ChevronDown className="w-4 h-4" />
+      {hasMore && !loading && (
+        <div className="flex justify-center mt-8">
+          <button 
+            className={`px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium ${loadingMore ? 'opacity-70 cursor-wait' : ''}`}
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load More'}
           </button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayWorks.map(work => (
-          <div key={work.id} className="group relative rounded-xl overflow-hidden aspect-square bg-zinc-800/50 border border-white/10">
-            <img
-              src={work.thumbnail}
-              alt={work.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-            {/* Featured badge */}
-            {work.featured && (
-              <div className="absolute top-3 left-3 bg-violet-600/90 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-md flex items-center">
-                <Zap className="w-3 h-3 mr-1" />
-                Featured
-              </div>
-            )}
-
-            {/* Image actions */}
-            <div className="absolute top-3 right-3 flex gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-              <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                <Heart className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                <BookmarkIcon className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-lg bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
-                <Share2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Info */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <h4 className="text-lg font-medium">{work.title}</h4>
-              <div className="flex justify-between items-center mt-2">
-                <span className="flex items-center text-sm text-rose-300">
-                  <Heart className="w-3.5 h-3.5 mr-1 fill-rose-300" />
-                  {work.likes}
-                </span>
-                <span className="flex items-center text-sm text-amber-300">
-                  <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
-                  {work.saves}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-center mt-8">
-        <button className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium">
-          Load More
-        </button>
-      </div>
+      )}
     </div>
   );
 };
