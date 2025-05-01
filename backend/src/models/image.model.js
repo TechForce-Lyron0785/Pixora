@@ -12,8 +12,6 @@ size
 
 likecount
 favoritescount
-
-album
 */
 
 import mongoose from 'mongoose';
@@ -86,10 +84,6 @@ const imageSchema = new Schema(
     commentsAllowed: {
       type: Boolean,
       default: true, // Whether the image is public or private
-    },
-    album: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Album', // If the image is associated with an album, link to the Album model
     },
   },
   {

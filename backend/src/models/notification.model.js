@@ -19,7 +19,7 @@ const notificationSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ['follow', 'like', 'comment', 'reply', 'favorite', 'mention'],
+      enum: ['follow', 'like', 'comment', 'reply', 'favorite'],
     },
     read: {
       type: Boolean,
@@ -29,6 +29,10 @@ const notificationSchema = new Schema(
       type: String,
       required: true,
     },
+    relatedUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
     relatedImage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Image',
@@ -36,10 +40,6 @@ const notificationSchema = new Schema(
     relatedComment: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Comment',
-    },
-    relatedAlbum: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Album', 
     }
   },
   {
@@ -66,10 +66,10 @@ notificationSchema.statics.getUserNotifications = async function(userId, page = 
   const skip = (page - 1) * limit;
 
   const notifications = await this.find({ recipient: userId })
-    .populate('sender', 'username profilePicture')
+    .populate('sender', 'username profilePicture fullName')
+    .populate('relatedUser', 'username profilePicture fullName')
     .populate('relatedImage', 'title imageUrl')
     .populate('relatedComment', 'text')
-    .populate('relatedAlbum', 'name')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);

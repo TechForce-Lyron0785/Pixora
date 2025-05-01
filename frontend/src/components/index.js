@@ -8,4 +8,4 @@ export { default as Header } from './layout/Header';
 export { default as Footer } from './layout/Footer';
 export { default as Sidebar } from './layout/Sidebar';
 export { default as FooterCompact } from './layout/FooterCompact';
-export { default as LoggedInHeader } from './layout/LoggedInHeader';
+export { default as LoggedInHeader } from './layout/header/LoggedInHeader';

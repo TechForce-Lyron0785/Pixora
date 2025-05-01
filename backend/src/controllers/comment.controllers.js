@@ -1,4 +1,5 @@
 import { Comment } from "../models/comment.model.js";
+import { Image } from "../models/image.model.js";
 import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -24,6 +25,38 @@ export const createComment = asyncHandler(async (req, res) => {
   // Update interaction points for commenting
   await updateInteractionPoints(userId, 'comment');
 
+  // Get image owner to send notification
+  const image = await Image.findById(imageId);
+  
+  if (image) {
+    if (parentCommentId) {
+      // This is a reply to another comment
+      const parentComment = await Comment.findById(parentCommentId).populate('user', 'username');
+      
+      if (parentComment && parentComment.user._id.toString() !== userId.toString()) {
+        // Send notification to parent comment owner about the reply
+        await Notification.createNotification({
+          recipient: parentComment.user._id,
+          sender: userId,
+          type: 'reply',
+          content: 'replied to your comment',
+          relatedImage: imageId,
+          relatedComment: parentCommentId
+        });
+      }
+    } else if (image.user.toString() !== userId.toString()) {
+      // This is a new comment on the image
+      // Send notification to image owner
+      await Notification.createNotification({
+        recipient: image.user,
+        sender: userId,
+        type: 'comment',
+        content: 'commented on your image',
+        relatedImage: imageId,
+        relatedComment: comment._id
+      });
+    }
+  }
 
   res.status(201).json(
     new ApiResponse(201, "Comment created successfully", comment)
@@ -147,14 +180,18 @@ export const toggleCommentLike = asyncHandler(async (req, res) => {
     await updateInteractionPoints(userId, 'like');
     
     const comment = await Comment.findById(commentId);
-    await Notification.createNotification({
-      recipient: comment.user,
-      sender: userId,
-      type: 'like',
-      content: 'liked your comment',
-      relatedComment: commentId,
-      relatedImage: comment.image
-    });
+    
+    if (comment && comment.user.toString() !== userId.toString()) {
+      // Send notification to comment owner
+      await Notification.createNotification({
+        recipient: comment.user,
+        sender: userId,
+        type: 'like',
+        content: 'liked your comment',
+        relatedComment: commentId,
+        relatedImage: comment.image
+      });
+    }
   }
 
   res.status(200).json(

@@ -30,14 +30,16 @@ export const toggleLike = asyncHandler(async (req, res) => {
     // Update badge for the image owner based on likes
     await updateUserBadge(image.user);
     
-    // Send notification if image was liked
-    await Notification.createNotification({
-      recipient: image.user,
-      sender: userId,
-      type: 'like',
-      content: 'liked your image',
-      relatedImage: imageId
-    });
+    // Send notification to the image owner (only if it's not the same user)
+    if (image.user.toString() !== userId.toString()) {
+      await Notification.createNotification({
+        recipient: image.user,
+        sender: userId,
+        type: 'like',
+        content: 'liked your image',
+        relatedImage: imageId
+      });
+    }
   }
 
   res.status(200).json(

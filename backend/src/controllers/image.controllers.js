@@ -143,7 +143,6 @@ export const getUserImages = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const images = await Image.find({ user: req.user._id })
-    .populate("album", "name")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -553,7 +552,6 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     description, 
     tags, 
     visibility, 
-    albumId, 
     category,
     license,
     imageSize,
@@ -600,7 +598,6 @@ export const uploadImageFile = asyncHandler(async (req, res) => {
     category: category || 'other',
     license: license || 'standard',
     tags: parsedTags,
-    album: albumId,
     imageSize,
     commentsAllowed: commentsAllowed ?? true,
     visibility: visibility || 'public',
@@ -696,7 +693,6 @@ export const saveImageDetails = asyncHandler(async (req, res) => {
     description, 
     tags, 
     visibility, 
-    albumId, 
     category,
     license,
     imageSize,
@@ -730,7 +726,6 @@ export const saveImageDetails = asyncHandler(async (req, res) => {
     category: category || 'other',
     license: license || 'standard',
     tags: tags || [],
-    album: albumId,
     imageSize,
     commentsAllowed: commentsAllowed ?? true,
     visibility: visibility || 'public',

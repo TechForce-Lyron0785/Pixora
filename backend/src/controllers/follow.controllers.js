@@ -38,12 +38,13 @@ export const followUser = asyncHandler(async (req, res) => {
   // Update badge for followed user based on followers count
   await updateUserBadge(userId);
 
-  // Create follow notification
+  // Create notification for the user being followed
   await Notification.createNotification({
     recipient: userId,
     sender: followerId,
     type: 'follow',
-    content: 'started following you'
+    content: 'started following you',
+    relatedUser: followerId
   });
 
   res.status(201).json(new ApiResponse(201, "User followed successfully."));

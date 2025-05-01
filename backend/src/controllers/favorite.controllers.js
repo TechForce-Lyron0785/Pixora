@@ -28,13 +28,16 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
     // Update interaction points for bookmarking/favoriting
     await updateInteractionPoints(userId, 'favorite');
     
-    await Notification.createNotification({
-      recipient: image.user,
-      sender: userId,
-      type: 'favorite',
-      content: 'favorited your image',
-      relatedImage: imageId
-    });
+    // Send notification to image owner (only if it's not the same user)
+    if (image.user.toString() !== userId.toString()) {
+      await Notification.createNotification({
+        recipient: image.user,
+        sender: userId,
+        type: 'favorite',
+        content: 'favorited your image',
+        relatedImage: imageId
+      });
+    }
   }
 
   res.status(200).json(
