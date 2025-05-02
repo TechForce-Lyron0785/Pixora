@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import ImageCard from '@/components/cards/ImageCard';
 import ImageSkeleton from '@/components/skeletons/ImageSkeleton';
 
-const MasonryGrid = ({ images = [], loading = false, columns = [2, 3, 4] }) => {
+const MasonryGrid = ({ 
+  images = [], 
+  loading = false, 
+  columns = [2, 3, 4],
+  onUnlike,
+  onRemoveFavorite,
+  onImageOptions
+}) => {
   // columns is an array of [mobile, tablet, desktop] column counts
   const [imageColumns, setImageColumns] = useState([]);
   const [columnCount, setColumnCount] = useState(columns[0]); // Default to mobile
@@ -42,34 +49,37 @@ const MasonryGrid = ({ images = [], loading = false, columns = [2, 3, 4] }) => {
     return () => window.removeEventListener('resize', updateColumnCount);
   }, [columns]);
 
-  // Distribute images into columns using the height to determine placement
+  // Distribute images into columns for masonry layout
   useEffect(() => {
-    if (images.length && columnCount > 0) {
-      // Initialize column heights
-      const columnHeights = new Array(columnCount).fill(0);
-      const newColumns = Array.from({ length: columnCount }, () => []);
+    if (images.length > 0 && columnCount > 0) {
+      // Create empty columns
+      const columns = Array.from({ length: columnCount }, () => []);
       
-      // Place each image in the shortest column
-      images.forEach(image => {
-        // Determine approximate height based on image.height property
-        let heightFactor = 1; // default for "aspect-square"
-        if (image.height === "tall") heightFactor = 5/3; // aspect-[3/5]
-        if (image.height === "medium") heightFactor = 4/3; // aspect-[3/4]
-        if (image.height === "short") heightFactor = 3/4; // aspect-[4/3]
+      // Distribute images into columns
+      images.forEach((image, index) => {
+        // Find the shortest column
+        const shortestColumnIndex = columns
+          .map(column => column.reduce((height, img) => height + getImageHeight(img), 0))
+          .reduce((minIndex, height, index, heights) => 
+            height < heights[minIndex] ? index : minIndex, 0);
         
-        // Find index of column with smallest height
-        const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
-        
-        // Add image to shortest column
-        newColumns[shortestColumnIndex].push(image);
-        
-        // Update column height
-        columnHeights[shortestColumnIndex] += heightFactor;
+        // Add image to the shortest column
+        columns[shortestColumnIndex].push(image);
       });
       
-      setImageColumns(newColumns);
+      setImageColumns(columns);
+    } else {
+      setImageColumns([]);
     }
   }, [images, columnCount]);
+  
+  // Helper to determine relative height of an image
+  const getImageHeight = (image) => {
+    if (image.height === "tall") return 5;
+    if (image.height === "medium") return 4;
+    if (image.height === "short") return 3;
+    return 4; // default
+  };
 
   // Create skeleton loaders for loading state
   const renderSkeletons = () => {
@@ -122,6 +132,9 @@ const MasonryGrid = ({ images = [], loading = false, columns = [2, 3, 4] }) => {
               isLoaded={loadedImages.includes(image._id)}
               index={imageIndex}
               columnIndex={columnIndex}
+              onUnlike={onUnlike}
+              onRemoveFavorite={onRemoveFavorite}
+              onCollectionOptions={onImageOptions ? () => onImageOptions(image) : undefined}
             />
           ))}
         </div>

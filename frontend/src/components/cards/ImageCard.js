@@ -1,4 +1,4 @@
-import { BookmarkIcon, Heart, Info, MessageSquare, Share2, Zap, EyeIcon, X } from 'lucide-react';
+import { BookmarkIcon, Heart, Info, MessageSquare, Share2, Zap, EyeIcon, X, FolderPlus, MoreVertical } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import { useLikesFavorites } from '@/context/LikesFavoritesContext';
 import { useAuth } from '@/context/AuthContext';
@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import CollectionPickerModal from '@/components/features/collections/CollectionPickerModal';
 
 const ImageCard = ({
   image,
@@ -14,7 +15,8 @@ const ImageCard = ({
   index = 0,
   columnIndex = 0,
   onUnlike,
-  onRemoveFavorite
+  onRemoveFavorite,
+  onCollectionOptions
 }) => {
   const { user } = useAuth();
   const {
@@ -36,6 +38,7 @@ const ImageCard = ({
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [likeAnimation, setLikeAnimation] = useState(false);
   const [showImageDetails, setShowImageDetails] = useState(false);
+  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
   const router = useRouter();
   const cardRef = useRef(null);
 
@@ -179,6 +182,27 @@ const ImageCard = ({
     setShowImageDetails(true);
   };
 
+  // Function to handle adding to collection
+  const handleAddToCollection = (e) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      showLoginTooltip('add this image to collections', e);
+      return;
+    }
+    
+    setShowCollectionPicker(true);
+  };
+
+  // Function to handle removing from collection
+  const handleRemoveFromCollection = (e) => {
+    e.stopPropagation();
+    
+    if (onCollectionOptions) {
+      onCollectionOptions();
+    }
+  };
+
   return (
     <>
       <div
@@ -227,7 +251,7 @@ const ImageCard = ({
         </AnimatePresence>
 
         {/* Top actions bar */}
-        <div className="absolute top-0 left-0 right-0 p-3 flex gap-2 items-center transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
+        <div className="absolute top-0 left-0 right-0 px-3 py-3 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity z-10">
           {image.user?.profilePicture && (
             <Link
               href={`/profile/${image.user.username}`}
@@ -255,7 +279,7 @@ const ImageCard = ({
         </div>
 
         {/* Image actions overlay */}
-        <div className="absolute top-1/2 -translate-y-1/2 right-3 flex flex-col gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
           <button
             className={`p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isLiked
               ? 'bg-rose-500/30 text-rose-300'
@@ -276,6 +300,20 @@ const ImageCard = ({
           </button>
           <button
             className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+            onClick={handleAddToCollection}
+          >
+            <FolderPlus className="w-4 w-4" />
+          </button>
+          {onCollectionOptions && (
+            <button
+              className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+              onClick={handleRemoveFromCollection}
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -289,9 +327,7 @@ const ImageCard = ({
             <Share2 className="w-4 h-4" />
           </button>
           <button
-            // href={`/image/${image._id}`}
             className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
-            // onClick={(e) => e.stopPropagation()}
             onClick={handleViewDetails}
           >
             <Info className="w-4 h-4" />
@@ -419,11 +455,12 @@ const ImageCard = ({
 
                     <motion.button
                       className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 text-white/90 hover:bg-zinc-700 transition-colors shadow-lg"
-                      onClick={handleCopyLink}
+                      onClick={handleAddToCollection}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Share2 className="w-5 h-5" />
+                      <FolderPlus className="w-5 h-5" />
+                      <span>Add to Collection</span>
                     </motion.button>
                   </div>
 
@@ -459,6 +496,36 @@ const ImageCard = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Tooltip */}
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            className="fixed bg-black text-white text-sm px-3 py-2 rounded-lg z-50 pointer-events-none shadow-xl"
+            style={{
+              top: tooltipPosition.y - 10,
+              left: tooltipPosition.x - 100,
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+          >
+            {tooltipMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Collection Picker Modal */}
+      <CollectionPickerModal
+        isOpen={showCollectionPicker}
+        onClose={() => setShowCollectionPicker(false)}
+        imageId={image._id}
+        onSuccess={() => {
+          setTooltipMessage('Added to collections');
+          setShowTooltip(true);
+          setTimeout(() => setShowTooltip(false), 2000);
+        }}
+      />
     </>
   );
 };

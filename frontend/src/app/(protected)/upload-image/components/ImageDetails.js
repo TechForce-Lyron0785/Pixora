@@ -1,10 +1,11 @@
 "use client"
-import { PlusCircle, X, AlertCircle } from 'lucide-react';
+import { Tag, X, ArrowRight, Save, Copy, AlertCircle, FolderPlus, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 const ImageDetails = ({ 
   imageDetails, 
   handleChange, 
-  files,
+  files, 
   selectedTags, 
   setSelectedTags, 
   inputTag, 
@@ -12,11 +13,23 @@ const ImageDetails = ({
   uploadError,
   removeFile,
   suggestedTags,
-  categories 
+  categories,
+  collections,
+  loadingCollections,
+  selectedCollectionId,
+  setSelectedCollectionId
 }) => {
-  const handleTagAdd = (tag) => {
-    if (tag && !selectedTags.includes(tag) && selectedTags.length < 10) {
-      setSelectedTags([...selectedTags, tag]);
+  const handleTagInput = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    const trimmedTag = inputTag.trim().toLowerCase();
+    if (trimmedTag && !selectedTags.includes(trimmedTag)) {
+      setSelectedTags([...selectedTags, trimmedTag]);
       setInputTag('');
     }
   };
@@ -25,89 +38,208 @@ const ImageDetails = ({
     setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
+  const addSuggestedTag = (tag) => {
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  // Error handling
+  const titleError = uploadError && !imageDetails.title.trim() ? "Title is required" : null;
+  const descriptionError = uploadError && !imageDetails.description.trim() ? "Description is required" : null;
+
   return (
     <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
       <h2 className="text-xl font-bold mb-6">Image Details</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Title</label>
-            <input
+      <div className="grid grid-cols-12 gap-6">
+        {/* Preview Column */}
+        <div className="col-span-12 md:col-span-5">
+          {files[0]?.preview && (
+            <div className="relative aspect-square rounded-xl overflow-hidden border border-white/10 mb-4">
+              <Image 
+                src={files[0].preview}
+                alt="Image preview"
+                fill
+                className="object-cover"
+              />
+              <button 
+                onClick={() => removeFile(0)}
+                className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          
+          <div className="bg-zinc-800/50 rounded-lg p-4">
+            <h3 className="font-medium mb-2 text-sm">File Information</h3>
+            <div className="text-xs text-gray-400">
+              <p className="mb-1">Name: {files[0]?.name}</p>
+              <p className="mb-1">Size: {files[0]?.size} MB</p>
+              <p className="mb-1">
+                Status: {
+                  files[0]?.error ? 
+                    <span className="text-red-400">Error: {files[0].error}</span> : 
+                    files[0]?.uploaded ? 
+                    <span className="text-green-400">Ready</span> : 
+                    <span className="text-yellow-400">Processing...</span>
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Column */}
+        <div className="col-span-12 md:col-span-7 space-y-5">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Title <span className="text-red-400">*</span>
+            </label>
+            <input 
               type="text"
               name="title"
               value={imageDetails.title}
               onChange={handleChange}
-              maxLength={100}
-              placeholder="Give your image a catchy title"
-              className="w-full bg-zinc-800/50 border border-white/10 rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition"
+              placeholder="Give your image a title"
+              className={`bg-zinc-800/70 border ${titleError ? 'border-red-500' : 'border-white/10'} rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition`}
             />
+            {titleError && (
+              <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {titleError}
+              </p>
+            )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Description</label>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Description <span className="text-red-400">*</span>
+            </label>
             <textarea
               name="description"
               value={imageDetails.description}
               onChange={handleChange}
-              maxLength={500}
-              placeholder="Describe your image in detail..."
-              className="w-full bg-zinc-800/50 border border-white/10 rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition h-24 resize-none"
+              placeholder="Describe your image..."
+              rows={4}
+              className={`bg-zinc-800/70 border ${descriptionError ? 'border-red-500' : 'border-white/10'} rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition resize-none`}
             />
+            {descriptionError && (
+              <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {descriptionError}
+              </p>
+            )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Category</label>
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Category
+            </label>
             <select
               name="category"
               value={imageDetails.category}
               onChange={handleChange}
-              className="w-full bg-zinc-800/50 border border-white/10 rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition"
+              className="bg-zinc-800/70 border border-white/10 rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition appearance-none custom-select"
             >
               {categories.map(category => (
-                <option key={category.id} value={category.id}>{category.name}</option>
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Tags</label>
-            <div className="flex flex-wrap gap-2 mb-2">
+          {/* Collection */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-1">
+              Add to Collection <FolderPlus className="h-4 w-4 text-violet-400" />
+            </label>
+            {loadingCollections ? (
+              <div className="flex items-center gap-2 text-gray-400 text-sm py-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading collections...
+              </div>
+            ) : collections.length === 0 ? (
+              <div className="flex items-center gap-2 text-gray-400 text-sm py-2">
+                No collections found
+              </div>
+            ) : (
+              <select
+                value={selectedCollectionId || ""}
+                onChange={(e) => setSelectedCollectionId(e.target.value || null)}
+                className="bg-zinc-800/70 border border-white/10 rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition appearance-none custom-select"
+              >
+                <option value="">Don't add to collection</option>
+                {collections.map(collection => (
+                  <option key={collection._id} value={collection._id}>
+                    {collection.name} ({collection.imageCount || 0} images)
+                  </option>
+                ))}
+              </select>
+            )}
+            <p className="mt-1 text-xs text-gray-400">
+              You can add this image to a collection or leave it unassigned
+            </p>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Tags
+            </label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="relative flex-1">
+                <input 
+                  type="text"
+                  value={inputTag}
+                  onChange={(e) => setInputTag(e.target.value)}
+                  onKeyDown={handleTagInput}
+                  placeholder="Add tags (press Enter after each tag)"
+                  className="bg-zinc-800/70 border border-white/10 rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition pr-10"
+                />
+                <button 
+                  onClick={addTag}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-lg hover:bg-white/10"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Selected tags */}
+            <div className="flex flex-wrap gap-2 mb-3">
               {selectedTags.map(tag => (
-                <div key={tag} className="bg-white/10 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                <span key={tag} className="flex items-center gap-1 text-sm bg-violet-900/30 text-violet-300 py-1 px-2 rounded-lg">
+                  <Tag className="w-3 h-3" />
                   {tag}
-                  <button onClick={() => removeTag(tag)} className="ml-1 text-gray-400 hover:text-white">
+                  <button onClick={() => removeTag(tag)} className="ml-1">
                     <X className="w-3 h-3" />
                   </button>
-                </div>
+                </span>
               ))}
+              {selectedTags.length === 0 && (
+                <span className="text-gray-400 text-sm">No tags selected</span>
+              )}
             </div>
 
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputTag}
-                onChange={(e) => setInputTag(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleTagAdd(inputTag)}
-                placeholder="Add tags"
-                className="flex-1 bg-zinc-800/50 border border-white/10 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-sm"
-              />
-              <button
-                onClick={() => handleTagAdd(inputTag)}
-                className="bg-white/10 hover:bg-white/20 rounded-lg px-3 flex items-center justify-center"
-              >
-                <PlusCircle className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="mt-2">
-              <p className="text-xs text-gray-400 mb-1">Suggested tags:</p>
+            {/* Suggested tags */}
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Suggestions:</p>
               <div className="flex flex-wrap gap-2">
                 {suggestedTags.map(tag => (
                   <button
                     key={tag}
-                    onClick={() => handleTagAdd(tag)}
-                    className="bg-white/5 hover:bg-white/10 rounded-full px-3 py-1 text-xs"
+                    onClick={() => addSuggestedTag(tag)}
+                    disabled={selectedTags.includes(tag)}
+                    className={`text-xs py-1 px-2 rounded-lg 
+                      ${selectedTags.includes(tag) 
+                        ? 'bg-violet-800/20 text-violet-700 cursor-not-allowed' 
+                        : 'bg-zinc-800 text-gray-300 hover:bg-violet-900/30 hover:text-violet-300'
+                      } transition-colors`}
                   >
                     {tag}
                   </button>
@@ -116,61 +248,12 @@ const ImageDetails = ({
             </div>
           </div>
         </div>
-
-        <div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
-              Preview
-              {files.length > 1 && ` (${files.length} files)`}
-            </label>
-
-            <div className="grid grid-cols-2 gap-3">
-              {files.map((file, index) => (
-                <div key={index} className="relative group">
-                  <div className="aspect-square rounded-lg overflow-hidden bg-zinc-800 border border-white/10">
-                    <img
-                      src={file.preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Show upload status indicator */}
-                    {file.uploading && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-t-transparent border-violet-500 rounded-full animate-spin"></div>
-                      </div>
-                    )}
-                    
-                    {file.error && (
-                      <div className="absolute inset-0 bg-red-900/70 flex items-center justify-center">
-                        <AlertCircle className="w-8 h-8 text-red-300" />
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => removeFile(index)}
-                    className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-
-                  <div className="text-xs text-gray-400 mt-1 truncate">
-                    {file.name} ({file.size} MB)
-                    {file.error && <span className="text-red-400 ml-1">- {file.error}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Error display */}
-      {uploadError && (
-        <div className="mt-4 p-4 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-500" />
-          <p className="text-red-100">{uploadError}</p>
+      {uploadError && titleError === null && descriptionError === null && (
+        <div className="mt-4 p-3 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-500" />
+          <p className="text-sm text-red-100">{uploadError}</p>
         </div>
       )}
     </div>

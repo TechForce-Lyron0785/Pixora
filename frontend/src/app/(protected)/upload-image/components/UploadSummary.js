@@ -1,92 +1,143 @@
 "use client"
-import { HelpCircle } from 'lucide-react';
+import { EyeIcon, Lock, Users, FileCheck, Tag, FolderPlus } from 'lucide-react';
 
 const UploadSummary = ({ 
-  files, 
-  imageDetails, 
+  files,
+  imageDetails,
   selectedVisibility, 
-  categories, 
-  licenses 
+  categories,
+  licenses,
+  selectedCollectionId,
+  collections
 }) => {
+  // Helper functions
+  const getCategoryName = (id) => {
+    const category = categories.find(cat => cat.id === id);
+    return category ? category.name : '';
+  };
+
+  const getLicenseName = (id) => {
+    const license = licenses.find(lic => lic.id === id);
+    return license ? license.name : '';
+  };
+
+  const getCollectionInfo = () => {
+    if (!selectedCollectionId) return null;
+    const collection = collections.find(c => c._id === selectedCollectionId);
+    return collection ? collection : null;
+  };
+
+  const getVisibilityInfo = () => {
+    switch(selectedVisibility) {
+      case 'public':
+        return { icon: <EyeIcon className="w-4 h-4 text-green-400" />, name: 'Public' };
+      case 'private':
+        return { icon: <Lock className="w-4 h-4 text-amber-400" />, name: 'Private' };
+      case 'followers':
+        return { icon: <Users className="w-4 h-4 text-blue-400" />, name: 'Followers Only' };
+      default:
+        return { icon: <EyeIcon className="w-4 h-4" />, name: 'Public' };
+    }
+  };
+
+  // Do not display the summary if there are no files
+  if (files.length === 0) {
+    return null;
+  }
+
+  const collection = getCollectionInfo();
+  const visibilityInfo = getVisibilityInfo();
+
   return (
-    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
-      <h3 className="font-medium mb-4">Upload Summary</h3>
-
-      <div className="space-y-3 mb-6">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Files Selected:</span>
-          <span>{files.length}</span>
+    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6 sticky top-6">
+      <h2 className="text-xl font-bold mb-6">Upload Summary</h2>
+      
+      <div className="space-y-5">
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm text-gray-400">File Status</h3>
+            <span className="text-xs bg-violet-600/20 text-violet-400 py-1 px-2 rounded-full">
+              {files.every(f => f.uploaded) ? 'Ready to Publish' : 'Processing...'}
+            </span>
+          </div>
+          
+          <div className="space-y-2">
+            {files.map((file, index) => (
+              <div 
+                key={index} 
+                className="flex items-center gap-3 p-2 rounded-lg bg-zinc-800/50"
+              >
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                  <img 
+                    src={file.preview} 
+                    alt={file.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm truncate">{file.name}</p>
+                  <p className="text-xs text-gray-400">{file.size} MB</p>
+                </div>
+                <div>
+                  {file.error ? (
+                    <span className="text-red-400 text-xs">Error</span>
+                  ) : file.uploaded ? (
+                    <FileCheck className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <div className="w-4 h-4 border-2 border-t-transparent border-violet-500 rounded-full animate-spin"></div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Total Size:</span>
-          <span>
-            {files.length > 0
-              ? `${files.reduce((total, file) => total + parseFloat(file.size), 0).toFixed(2)} MB`
-              : '0 MB'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Category:</span>
-          <span>
-            {imageDetails.category
-              ? categories.find(c => c.id === imageDetails.category)?.name
-              : 'Not selected'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">License:</span>
-          <span>
-            {imageDetails.license
-              ? licenses.find(l => l.id === imageDetails.license)?.name
-              : 'Not selected'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Visibility:</span>
-          <span className="capitalize">{selectedVisibility}</span>
-        </div>
-      </div>
-
-      <div className="border-t border-white/10 pt-4 pb-2">
-        <h4 className="text-sm font-medium mb-3">Upload Progress</h4>
-
-        {files.map((file, index) => (
-          <div key={index} className="mb-3">
-            <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-gray-400 truncate max-w-[180px]">{file.name}</span>
-              <span>{file.progress}%</span>
-            </div>
-
-            <div className="w-full bg-zinc-800 rounded-full h-1.5">
-              <div
-                className={`h-1.5 rounded-full ${file.error
-                  ? 'bg-red-500'
-                  : file.uploaded
-                    ? 'bg-green-500'
-                    : 'bg-violet-500'
-                  }`}
-                style={{ width: `${file.progress}%` }}
-              ></div>
-            </div>
-
-            {file.error && (
-              <p className="text-xs text-red-400 mt-1">{file.error}</p>
+        
+        <div className="border-t border-white/10 pt-4">
+          <h3 className="text-sm text-gray-400 mb-3">Image Details</h3>
+          
+          <div className="space-y-3">
+            {imageDetails.title && (
+              <div>
+                <h4 className="text-xs text-gray-400 mb-1">Title</h4>
+                <p className="text-sm">{imageDetails.title}</p>
+              </div>
+            )}
+            
+            {imageDetails.category && (
+              <div>
+                <h4 className="text-xs text-gray-400 mb-1">Category</h4>
+                <p className="text-sm">{getCategoryName(imageDetails.category)}</p>
+              </div>
+            )}
+            
+            {imageDetails.license && (
+              <div>
+                <h4 className="text-xs text-gray-400 mb-1">License</h4>
+                <p className="text-sm">{getLicenseName(imageDetails.license)}</p>
+              </div>
+            )}
+            
+            {collection && (
+              <div>
+                <h4 className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                  <FolderPlus className="w-3 h-3 text-violet-400" />
+                  Collection
+                </h4>
+                <p className="text-sm">{collection.name}</p>
+              </div>
             )}
           </div>
-        ))}
-      </div>
-
-      <div className="border-t border-white/10 pt-4 mt-4">
-        <h4 className="text-sm font-medium mb-3">Need Help?</h4>
-        <div className="text-sm text-gray-400">
-          <p className="mb-2">
-            If you&apos;re having trouble uploading your images, check out our
-            <a href="#" className="text-violet-400 hover:text-violet-300 ml-1">upload guide</a>.
-          </p>
-          <p>
-            Still need assistance?
-            <a href="#" className="text-violet-400 hover:text-violet-300 ml-1">Contact support</a>.
-          </p>
+        </div>
+        
+        <div className="border-t border-white/10 pt-4">
+          <h3 className="text-sm text-gray-400 mb-3">Publishing Settings</h3>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              {visibilityInfo.icon}
+              <span className="text-sm">{visibilityInfo.name}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

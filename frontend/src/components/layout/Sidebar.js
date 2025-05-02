@@ -17,6 +17,8 @@ import {
   Users,
   BookmarkIcon,
   Hash,
+  Bell,
+  FolderPlus,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -38,8 +40,10 @@ const Sidebar = () => {
     { name: 'Profile', icon: <User className="transition-transform duration-300 group-hover:scale-110" />, href: `/profile/@${user?.username || 'username'}` },
     { name: 'Likes', icon: <Heart className="transition-transform duration-300 group-hover:scale-110" />, href: '/likes' },
     { name: 'Favorites', icon: <BookmarkIcon className="transition-transform duration-300 group-hover:scale-110" />, href: '/favorites' },
+    { name: 'Collections', icon: <FolderPlus className="transition-transform duration-300 group-hover:scale-110" />, href: '/collections' },
     { name: 'Search', icon: <Search className="transition-transform duration-300 group-hover:scale-110" />, href: '/search' },
     { name: 'Tags', icon: <Hash className="transition-transform duration-300 group-hover:scale-110" />, href: '/tags' },
+    { name: 'Notifications', icon: <Bell className="transition-transform duration-300 group-hover:scale-110" />, href: '/notifications' },
     { name: 'Users', icon: <Users className="transition-transform duration-300 group-hover:scale-110" />, href: '/users' },
     { name: 'Upload Image', icon: <ImagePlus className="transition-transform duration-300 group-hover:scale-110" />, href: '/upload-image' },
   ];
@@ -57,8 +61,8 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <div className="py-8 flex flex-col flex-1">
-        <div className="space-y-2 px-3">
+      <div className="py-8 flex flex-col flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-300">
+        <div className="space-y-2 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-600 scrollbar-track-gray-300">
           {menuItems.map(item => (
             <Link
               key={item.href}

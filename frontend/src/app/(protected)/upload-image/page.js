@@ -1,8 +1,9 @@
 "use client"
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 import {
   UploadHeader,
@@ -19,6 +20,9 @@ import {
 const ImageUpload = () => {
   const api = useApi();
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const initialCollectionId = searchParams.get('collection');
+  
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -27,6 +31,9 @@ const ImageUpload = () => {
   const [inputTag, setInputTag] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
+  const [collections, setCollections] = useState([]);
+  const [loadingCollections, setLoadingCollections] = useState(false);
   const fileInputRef = useRef(null);
   const [isStorageFull, setIsStorageFull] = useState(false);
 
@@ -53,6 +60,30 @@ const ImageUpload = () => {
   ];
 
   const suggestedTags = ['photography', 'digital art', 'graphic design', 'illustration', 'abstract', 'minimalism', '3d render'];
+
+  // Fetch user collections on mount
+  useEffect(() => {
+    const fetchUserCollections = async () => {
+      try {
+        setLoadingCollections(true);
+        const response = await api.get('/api/collections');
+        
+        if (response.data.success) {
+          setCollections(response.data.data);
+          // If there's a collection ID in the URL, select it
+          if (initialCollectionId) {
+            setSelectedCollectionId(initialCollectionId);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch collections:", error);
+      } finally {
+        setLoadingCollections(false);
+      }
+    };
+    
+    fetchUserCollections();
+  }, [initialCollectionId]);
 
   const handleFiles = async (fileList) => {
     try {
@@ -84,7 +115,7 @@ const ImageUpload = () => {
 
         try {
           // Create FormData for the file
-          const formData = new FormData();
+        const formData = new FormData();
           formData.append('image', file.file);
 
           // Simulate progress
@@ -105,18 +136,18 @@ const ImageUpload = () => {
           try {
             // Use fetch instead of axios for file upload
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:5000'}/api/images/upload-temp`, {
-              method: 'POST',
-              headers: {
+            method: 'POST',
+            headers: {
                 // Don't set Content-Type with FormData - fetch sets it automatically with boundary
-                Authorization: session?.backendToken ? `Bearer ${session.backendToken}` : '',
-              },
+              Authorization: session?.backendToken ? `Bearer ${session.backendToken}` : '',
+            },
               credentials: 'include',
               body: formData
-            });
+          });
 
             clearInterval(progressInterval);
 
-            if (!response.ok) {
+          if (!response.ok) {
               const errorData = await response.json();
               throw new Error(errorData.message || 'Failed to upload image');
             }
@@ -129,13 +160,13 @@ const ImageUpload = () => {
                 return {
                   ...f,
                   progress: 100,
-                  uploading: false,
-                  uploaded: true,
+                uploading: false,
+                uploaded: true,
                   publicId: data.data.publicId,
                   cloudinaryUrl: data.data.imageUrl,
                   imageSize: data.data.imageSize
-                };
-              }
+              };
+            }
               return f;
             }));
           } catch (error) {
@@ -149,7 +180,7 @@ const ImageUpload = () => {
             setIsStorageFull(true);
             setUploadError(error.message);
           }
-
+          
           // Update file with error
           setFiles(prev => prev.map((f, index) => {
             if (index === prev.length - filesArray.length + i) {
@@ -165,8 +196,8 @@ const ImageUpload = () => {
         }
       }
     } catch (error) {
-      console.error('Handle files error:', error);
-      setUploadError(error.message || 'An error occurred while processing files');
+      console.error('Error processing files:', error);
+      setUploadError(error.message || 'Error processing files');
     }
   };
 
@@ -223,7 +254,8 @@ const ImageUpload = () => {
         visibility: selectedVisibility,
         imageSize: files[0].imageSize,
         commentsAllowed: commentsAllowed,
-        tags: selectedTags.length > 0 ? selectedTags : undefined
+        tags: selectedTags.length > 0 ? selectedTags : undefined,
+        collectionId: selectedCollectionId
       };
 
       try {
@@ -241,6 +273,19 @@ const ImageUpload = () => {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to save image details');
+        }
+
+        // Add to collection if selected
+        const result = await response.json();
+        const imageId = result.data._id;
+        
+        if (selectedCollectionId && imageId) {
+          try {
+            await api.post(`/api/collections/${selectedCollectionId}/images/${imageId}`);
+          } catch (error) {
+            console.error('Error adding to collection:', error);
+            // Don't fail the entire upload if just adding to collection fails
+          }
         }
 
         setCurrentStep(4); // Move to success step
@@ -297,6 +342,7 @@ const ImageUpload = () => {
     setFiles([]);
     setCurrentStep(1);
     setSelectedTags([]);
+    setSelectedCollectionId(initialCollectionId); // Reset to initial if provided in URL
     setImageDetails({
       title: '',
       description: '',
@@ -343,6 +389,10 @@ const ImageUpload = () => {
               removeFile={removeFile}
               suggestedTags={suggestedTags}
               categories={categories}
+              collections={collections}
+              loadingCollections={loadingCollections}
+              selectedCollectionId={selectedCollectionId}
+              setSelectedCollectionId={setSelectedCollectionId}
             />
           )}
 
@@ -371,6 +421,8 @@ const ImageUpload = () => {
               selectedVisibility={selectedVisibility}
               categories={categories}
               licenses={licenses}
+              selectedCollectionId={selectedCollectionId}
+              collections={collections}
             />
           )}
         </div>
