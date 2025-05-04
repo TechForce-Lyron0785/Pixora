@@ -7,7 +7,6 @@ const ROUTES = {
   // Routes requiring authentication
   protected: [
     '/collections',
-    '/collection',
     '/dashboard',
     '/notifications',
     '/feed',
@@ -64,7 +63,6 @@ export default async function middleware(request) {
 export const config = {
   matcher: [
     '/collections/:path*',
-    '/collection/:path*',
     '/dashboard/:path*',
     '/feed/:path*',
     '/image/:path*',

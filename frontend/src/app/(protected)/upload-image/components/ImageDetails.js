@@ -173,7 +173,7 @@ const ImageDetails = ({
                 onChange={(e) => setSelectedCollectionId(e.target.value || null)}
                 className="bg-zinc-800/70 border border-white/10 rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition appearance-none custom-select"
               >
-                <option value="">Don't add to collection</option>
+                <option value="">Don&apos;t add to collection</option>
                 {collections.map(collection => (
                   <option key={collection._id} value={collection._id}>
                     {collection.name} ({collection.imageCount || 0} images)

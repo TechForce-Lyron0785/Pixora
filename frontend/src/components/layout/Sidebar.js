@@ -61,8 +61,8 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <div className="py-8 flex flex-col flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-300">
-        <div className="space-y-2 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-600 scrollbar-track-gray-300">
+      <div className="py-8 flex flex-col flex-1 overflow-y-auto">
+        <div className="space-y-2 px-3 overflow-y-auto custom-scrollbar">
           {menuItems.map(item => (
             <Link
               key={item.href}
@@ -86,21 +86,16 @@ const Sidebar = () => {
           ))}
         </div>
 
-        <div className="mt-8 px-3">
-          <div className="text-xs font-medium px-3 hidden lg:block text-violet-400">COLLECTIONS</div>
+        <div className="mt-8 px-3 mb-4">
+          <div className="text-xs font-medium px-3 hidden lg:block text-violet-400">WIDGET</div>
           <div className="mt-3 space-y-2">
-            {[
-              { name: 'Abstract Art', color: 'from-rose-500 to-rose-600' },
-              { name: 'Portraits', color: 'from-amber-500 to-amber-600' },
-            ].map((collection, idx) => (
-              <button 
-                key={idx} 
-                className="group flex items-center lg:space-x-3 px-4 py-3 rounded-xl text-sm text-gray-300 hover:bg-white/5 transition-all duration-300 w-full justify-center lg:justify-start"
-              >
-                <span className={`w-3 h-3 rounded-lg bg-gradient-to-br ${collection.color} shadow-lg transition-transform duration-300 group-hover:scale-110`}></span>
-                <span className="hidden lg:block group-hover:translate-x-1 transition-transform duration-300">{collection.name}</span>
+            <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+              <h2 className="text-sm font-bold text-white">Interactive Card</h2>
+              <p className="text-gray-300">This card provides useful information and actions.</p>
+              <button className="mt-2 bg-violet-600 text-white px-3 py-1 rounded-lg hover:bg-violet-700 transition-all duration-300">
+                Action Button
               </button>
-            ))}
+            </div>
           </div>
         </div>
 
