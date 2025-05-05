@@ -13,7 +13,9 @@ import {
   uploadTempImage,
   deleteCloudinaryImage,
   saveImageDetails,
-  getPopularTags
+  getPopularTags,
+  searchTags,
+  getTrendingSearches
 } from "../controllers/image.controllers.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import upload from "../config/multer.js";
@@ -25,10 +27,12 @@ router.get("/public", authenticateUser, getAllImages);
 router.get("/search", authenticateUser, searchImages);
 router.get("/discover/trending", authenticateUser, getTrendingImages);
 router.get("/tags/popular", authenticateUser, getPopularTags);
+router.get("/tags/search", authenticateUser, searchTags);
 router.get("/tags/:tag", authenticateUser, getImagesByTag);
 router.get("/user/:userId", authenticateUser, getUserPublicImages);
-router.get("/:imageId", authenticateUser, getImage);
 router.get("/me", authenticateUser, getUserImages);
+router.get("/trending-search", authenticateUser, getTrendingSearches);
+router.get("/:imageId", authenticateUser, getImage);
 
 router.post("/upload", authenticateUser, upload.single("image"), uploadImageFile);
 router.post("/upload-temp", authenticateUser, upload.single("image"), uploadTempImage);

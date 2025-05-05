@@ -464,4 +464,80 @@ export const getPublicCollections = asyncHandler(async (req, res) => {
   res.status(200).json(
     new ApiResponse(200, "Public collections fetched successfully", collections, metadata)
   );
+});
+
+/**
+ * @desc Search collections
+ * @route GET /api/collections/search
+ * @access Private
+ */
+export const searchCollections = asyncHandler(async (req, res) => {
+  const { query } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  if (!query) {
+    throw new ApiError(400, "Search query is required");
+  }
+
+  // Search public collections by default
+  let searchQuery = {
+    visibility: 'public',
+    $or: [
+      { name: { $regex: query, $options: 'i' } },
+      { description: { $regex: query, $options: 'i' } },
+      { tags: { $in: [new RegExp(query, 'i')] } }
+    ]
+  };
+
+  // If user is logged in, also include their private collections
+  if (req.user) {
+    searchQuery = {
+      $or: [
+        // Public collections
+        {
+          visibility: 'public',
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } },
+            { tags: { $in: [new RegExp(query, 'i')] } }
+          ]
+        },
+        // User's own collections (both public and private)
+        {
+          user: req.user._id,
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } },
+            { tags: { $in: [new RegExp(query, 'i')] } }
+          ]
+        }
+      ]
+    };
+  }
+
+  const collections = await Collection.find(searchQuery)
+    .populate('user', 'username profilePicture fullName')
+    .populate({
+      path: 'images',
+      select: 'imageUrl title',
+      options: { limit: 1 } // Just get one image for preview
+    })
+    .sort({ updatedAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Collection.countDocuments(searchQuery);
+
+  const metadata = {
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit)
+  };
+
+  res.status(200).json(
+    new ApiResponse(200, "Collections search results", collections, metadata)
+  );
 }); 

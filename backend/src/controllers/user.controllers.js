@@ -342,13 +342,35 @@ export const getAllUsers = asyncHandler(async (req, res) => {
  */
 export const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
   if (!query) throw new ApiError(400, "Search query is required.");
 
-  const users = await User.find({ username: { $regex: query, $options: "i" } })
-    .select("_id username profilePicture fullName");
+  const searchQuery = {
+    $or: [
+      { username: { $regex: query, $options: "i" } },
+      { fullName: { $regex: query, $options: "i" } },
+      { email: { $regex: query, $options: "i" } }
+    ]
+  };
 
-  res.status(200).json(new ApiResponse(200, "Users fetched", users));
+  const users = await User.find(searchQuery)
+    .select("_id username profilePicture fullName followersCount followingCount postsCount badge isVerified")
+    .skip(skip)
+    .limit(limit);
+
+  const total = await User.countDocuments(searchQuery);
+
+  const metadata = {
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit)
+  };
+
+  res.status(200).json(new ApiResponse(200, "Users fetched", users, metadata));
 });
 
 /** 

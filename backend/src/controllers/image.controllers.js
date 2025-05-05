@@ -802,3 +802,101 @@ export const getPopularTags = asyncHandler(async (req, res) => {
     new ApiResponse(200, "Popular tags fetched successfully", popularTags)
   );
 });
+
+/**
+ * @desc Search tags
+ * @route GET /api/images/tags/search
+ * @access Private
+ */
+export const searchTags = asyncHandler(async (req, res) => {
+  const { query } = req.query;
+  const { limit = 20 } = req.query;
+  
+  if (!query) {
+    throw new ApiError(400, "Search query is required");
+  }
+  
+  // Find all public images (and followers-only/private if user is logged in)
+  let imageQuery = { visibility: "public" };
+  
+  if (req.user) {
+    const followingList = await Follow.find({ follower: req.user._id }).select("following");
+    const followingIds = followingList.map(follow => follow.following);
+    
+    imageQuery = {
+      $or: [
+        { visibility: "public" },
+        { 
+          visibility: "followers", 
+          user: { $in: followingIds } 
+        },
+        { user: req.user._id }
+      ]
+    };
+  }
+  
+  // Aggregate to get tag frequency for tags matching the query
+  const tagAggregation = await Image.aggregate([
+    { $match: imageQuery },
+    { $unwind: "$tags" },
+    { $match: { tags: { $regex: query, $options: "i" } } }, // Filter tags matching the query
+    { 
+      $group: { 
+        _id: "$tags", 
+        count: { $sum: 1 },
+        // Get a sample image for each tag
+        sampleImage: { $first: "$imageUrl" }
+      } 
+    },
+    { $sort: { count: -1 } },
+    { $limit: parseInt(limit) }
+  ]);
+  
+  // Format tags for response
+  const matchingTags = tagAggregation.map(tag => ({
+    name: tag._id,
+    count: tag.count,
+    sampleImage: tag.sampleImage
+  }));
+  
+  res.status(200).json(
+    new ApiResponse(200, "Matching tags fetched successfully", matchingTags)
+  );
+});
+
+/**
+ * @desc Get trending search terms
+ * @route GET /api/images/trending-searches
+ * @access Private
+ */
+export const getTrendingSearches = asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+  
+  // This would typically be implemented with a real-time analytics system
+  // For demonstration, we'll return popular tags as trending searches
+  // In a production environment, you would track and store search queries
+  
+  // For now, we'll use the popular tags as a proxy for trending searches
+  const tagAggregation = await Image.aggregate([
+    { $match: { visibility: "public" } },
+    { $unwind: "$tags" },
+    { 
+      $group: { 
+        _id: "$tags", 
+        count: { $sum: 1 },
+      } 
+    },
+    { $sort: { count: -1 } },
+    { $limit: parseInt(limit) }
+  ]);
+  
+  // Format trending searches for response
+  const trendingSearches = tagAggregation.map(tag => ({
+    query: tag._id,
+    count: `${tag.count} searches today`
+  }));
+  
+  res.status(200).json(
+    new ApiResponse(200, "Trending searches fetched successfully", trendingSearches)
+  );
+});

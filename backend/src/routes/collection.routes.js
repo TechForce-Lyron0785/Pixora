@@ -10,7 +10,8 @@ import {
   addCollaborator,
   removeCollaborator,
   getCollectionsByImage,
-  getPublicCollections
+  getPublicCollections,
+  searchCollections
 } from "../controllers/collection.controllers.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 
@@ -20,6 +21,7 @@ const router = Router();
 router.post("/", authenticateUser, createCollection);
 router.get("/", authenticateUser, getUserCollections);
 router.get("/public", authenticateUser, getPublicCollections);
+router.get("/search", authenticateUser, searchCollections);
 router.get("/image/:imageId", authenticateUser, getCollectionsByImage);
 router.get("/:collectionId", authenticateUser, getCollectionById);
 router.put("/:collectionId", authenticateUser, updateCollection);
