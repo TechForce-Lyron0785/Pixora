@@ -1,12 +1,15 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import {
+  Camera,
+  Image,
   PlusSquare,
 } from 'lucide-react';
 import CuratedSection from './CuratedSection';
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from '@/context/AuthContext';
 import { CategoryFilter } from '../dashboard/components';
+import Link from 'next/link';
 
 const Feed = () => {
   const [images, setImages] = useState([]);
@@ -43,7 +46,7 @@ const Feed = () => {
       const endpoint = selectedCategory && selectedCategory !== 'all'
         ? `/api/images/public?page=${pageNum}&limit=12&category=${selectedCategory}`
         : `/api/images/public?page=${pageNum}&limit=12`;
-      
+
       const response = await api.get(endpoint);
 
       const imagesWithHeight = assignRandomHeight(response.data.data);
@@ -103,40 +106,28 @@ const Feed = () => {
   return (
     <div className="">
       {/* Stories */}
-      <div className="px-4 pt-6 overflow-x-auto no-scrollbar">
-        <div className="flex gap-4 pb-4">
-          {/* Your story */}
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 p-0.5">
-                <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center">
-                  <PlusSquare className="w-7 h-7 text-violet-400" />
-                </div>
+      {/* Quick Actions Bar */}
+      <div className="px-4 pt-6 pb-4">
+        <div className="flex justify-between items-center bg-zinc-900/50 rounded-2xl p-4 backdrop-blur-sm border border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 p-0.5">
+              <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center">
+                <PlusSquare className="w-5 h-5 text-violet-400" />
               </div>
             </div>
-            <span className="text-xs mt-2">Add Story</span>
+            <div>
+              <p className="text-sm font-medium">Create Post</p>
+              <p className="text-xs text-gray-400">Share your moment</p>
+            </div>
           </div>
-
-          {/* Active users stories */}
-          {activeUsers.map(user => (
-            <div key={user.id} className="flex flex-col items-center">
-              <div className="relative">
-                <div className={`w-16 h-16 rounded-full ${user.hasNewStory
-                  ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600'
-                  : 'bg-white/20'
-                  } p-0.5`}>
-                  <div className="w-full h-full rounded-full bg-zinc-900 p-0.5">
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                </div>
-              </div>
-              <span className="text-xs mt-2">{user.name}</span>
-            </div>
-          ))}
+          <div className="flex gap-3">
+            <Link href={"/upload-image"} className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+              <Camera className="w-5 h-5 text-gray-300" />
+            </Link>
+            <Link href={"/upload-image"} className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+              <Image className="w-5 h-5 text-gray-300" />
+            </Link>
+          </div>
         </div>
       </div>
 
