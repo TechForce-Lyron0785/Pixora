@@ -90,11 +90,10 @@ const Sidebar = () => {
           <div className="text-xs font-medium px-3 hidden lg:block text-violet-400">WIDGET</div>
           <div className="mt-3 space-y-2">
             <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-              <h2 className="text-sm font-bold text-white">Interactive Card</h2>
-              <p className="text-gray-300">This card provides useful information and actions.</p>
-              <button className="mt-2 bg-violet-600 text-white px-3 py-1 rounded-lg hover:bg-violet-700 transition-all duration-300">
-                Action Button
-              </button>
+              <p className="text-gray-300 mb-2">Explore your profile to see for followers, following and posts.</p>
+              <Link href={"/profile"} className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20 px-3 py-1.5 rounded-md hover:bg-violet-700 transition-all duration-300 text-sm">
+                See profile
+              </Link>
             </div>
           </div>
         </div>

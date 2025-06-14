@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import CollectionPickerModal from '@/components/features/collections/CollectionPickerModal';
+import toast from 'react-hot-toast';
 
 const ImageCard = ({
   image,
@@ -321,6 +322,7 @@ const ImageCard = ({
               navigator.clipboard.writeText(`${window.location.origin}/image/${image._id}`);
               setTooltipMessage('Link copied!');
               setShowTooltip(true);
+              toast.success('Image link copied to clipboard!');
               setTimeout(() => setShowTooltip(false), 2000);
             }}
           >

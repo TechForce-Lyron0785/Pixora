@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Heart,
   MessageSquare,
@@ -6,54 +6,99 @@ import {
   Share2,
   Download,
   MoreHorizontal,
-  ChevronLeft,
-  ChevronRight
+  ExternalLink,
+  Copy,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const ImageHeader = ({ 
-  image, 
-  isLiked, 
-  isBookmarked, 
-  handleLikeToggle, 
+const ImageHeader = ({
+  image,
+  isLiked,
+  isBookmarked,
+  handleLikeToggle,
   likesCount,
-  handleBookmarkToggle 
+  handleBookmarkToggle
 }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handler = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement && containerRef.current) {
+        await containerRef.current.requestFullscreen();
+        setIsFullscreen(true);
+      } else if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (e) {
+      toast.error('Fullscreen not supported');
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied!');
+  };
+
   return (
     <>
       {/* Image container */}
-      <div className="rounded-xl overflow-hidden bg-zinc-900 border border-white/10 relative group">
+      <div ref={containerRef} className="rounded-xl overflow-hidden bg-zinc-900 border border-white/10 relative group">
+        {!imageLoaded && (
+          <div className="w-full h-96 bg-zinc-800 animate-pulse" />
+        )}
         <img
           src={image.imageUrl}
           alt={image.title}
-          className="w-full object-cover"
+          className={`w-full object-cover max-h-[48rem] ${imageLoaded ? '' : 'hidden'}`}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(true)}
         />
 
         {/* Overlay controls */}
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="flex justify-between items-center">
-            <button className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition">
+            <a
+              href={image.imageUrl}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+            >
               <Download className="w-5 h-5" />
-            </button>
+            </a>
 
             <div className="flex gap-2">
-              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition">
-                <ChevronLeft className="w-5 h-5" />
+              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors" onClick={handleCopyLink}>
+                <Copy className="w-5 h-5" />
               </button>
-              <button className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition">
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              <a
+                href={image.imageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+              >
+                <ExternalLink className="w-5 h-5" />
+              </a>
             </div>
           </div>
         </div>
 
         {/* Fullscreen button */}
-        <button className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition opacity-0 group-hover:opacity-100">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
-            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
-            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
-            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
-          </svg>
+        <button onClick={toggleFullscreen} className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition opacity-0 group-hover:opacity-100">
+          {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
         </button>
       </div>
 
@@ -83,17 +128,17 @@ const ImageHeader = ({
         </div>
 
         <div className="flex gap-2">
-          <button 
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+          <button
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
             onClick={() => {
               navigator.clipboard.writeText(window.location.href);
-              // Could add a toast notification here
+              toast.success('Image link copied to clipboard!');
             }}
           >
             <Share2 className="w-5 h-5" />
           </button>
-          <a 
-            href={image.imageUrl} 
+          <a
+            href={image.imageUrl}
             download
             target="_blank"
             rel="noopener noreferrer"
@@ -101,9 +146,6 @@ const ImageHeader = ({
           >
             <Download className="w-5 h-5" />
           </a>
-          <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </>

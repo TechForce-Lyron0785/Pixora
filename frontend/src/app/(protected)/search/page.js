@@ -18,6 +18,7 @@ import {
   TagsTab,
   TrendingSearches
 } from './components';
+import { Search } from 'lucide-react';
 
 const SearchPage = () => {
   const api = useApi();
@@ -25,28 +26,28 @@ const SearchPage = () => {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { followUser, unfollowUser, checkFollowStatus } = useFollow();
-  
+
   // Get search query from URL params
   const queryParam = searchParams.get('q') || '';
-  
+
   // State for search and filters
   const [searchQuery, setSearchQuery] = useState(queryParam);
   const [displayedQuery, setDisplayedQuery] = useState(queryParam); // For display only
   const [activeTab, setActiveTab] = useState('all');
   const [activeFilters, setActiveFilters] = useState(['recent']);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  
+
   // Loading states
   const [loading, setLoading] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
-  
+
   // Results states
   const [imageResults, setImageResults] = useState([]);
   const [userResults, setUserResults] = useState([]);
   const [collectionResults, setCollectionResults] = useState([]);
   const [tagResults, setTagResults] = useState([]);
   const [trendingSearches, setTrendingSearches] = useState([]);
-  
+
   // Pagination
   const [imagePage, setImagePage] = useState(1);
   const [imageTotal, setImageTotal] = useState(0);
@@ -54,15 +55,15 @@ const SearchPage = () => {
   const [usersTotal, setUsersTotal] = useState(0);
   const [collectionsPage, setCollectionsPage] = useState(1);
   const [collectionsTotal, setCollectionsTotal] = useState(0);
-  
+
   // Following state
   const [followingStatus, setFollowingStatus] = useState({});
-  
+
   // Check if user is following another user
   const isFollowing = (userId) => {
     return followingStatus[userId] || false;
   };
-  
+
   // Toggle filter
   const toggleFilter = (filter) => {
     if (activeFilters.includes(filter)) {
@@ -80,7 +81,7 @@ const SearchPage = () => {
   const updateSearchParams = (query) => {
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
-  
+
   // Handle search
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -88,7 +89,7 @@ const SearchPage = () => {
     updateSearchParams(query);
     performSearch(query);
   };
-  
+
   // Effect to perform search on initial load if query parameter exists
   useEffect(() => {
     if (queryParam) {
@@ -100,7 +101,7 @@ const SearchPage = () => {
       fetchTrendingSearches();
     }
   }, [queryParam]);
-  
+
   // Effect to perform search when tab changes
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -125,9 +126,9 @@ const SearchPage = () => {
   // Search function
   const performSearch = async (query) => {
     if (!query.trim()) return;
-    
+
     setLoading(true);
-    
+
     try {
       // Search images, users, collections, and tags in parallel
       await Promise.all([
@@ -136,7 +137,7 @@ const SearchPage = () => {
         searchCollections(query),
         searchTags(query)
       ]);
-      
+
       // Only fetch trending searches if we haven't already
       if (trendingSearches.length === 0) {
         fetchTrendingSearches();
@@ -147,32 +148,32 @@ const SearchPage = () => {
       setLoading(false);
     }
   };
-  
+
   // Search users
   const searchUsers = async (query = searchQuery) => {
     try {
       const response = await api.get(`/api/users/search?query=${query}&page=${usersPage}&limit=12`);
       setUserResults(response.data.data);
       setUsersTotal(response.data.metadata?.total || 0);
-      
+
       // Check follow status for all users
       if (user) {
         const newFollowingStatus = { ...followingStatus };
-        
+
         for (const fetchedUser of response.data.data) {
           if (newFollowingStatus[fetchedUser._id] === undefined) {
             const isFollowing = await checkFollowStatus(fetchedUser._id);
             newFollowingStatus[fetchedUser._id] = isFollowing;
           }
         }
-        
+
         setFollowingStatus(newFollowingStatus);
       }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
-  
+
   // Search images
   const searchImages = async (query = searchQuery) => {
     try {
@@ -183,7 +184,7 @@ const SearchPage = () => {
       console.error("Error fetching images:", error);
     }
   };
-  
+
   // Search collections
   const searchCollections = async (query = searchQuery) => {
     try {
@@ -194,7 +195,7 @@ const SearchPage = () => {
       console.error("Error fetching collections:", error);
     }
   };
-  
+
   // Search tags
   const searchTags = async (query = searchQuery) => {
     try {
@@ -204,7 +205,7 @@ const SearchPage = () => {
       console.error("Error fetching tags:", error);
     }
   };
-  
+
   // Fetch trending searches
   const fetchTrendingSearches = async () => {
     try {
@@ -214,23 +215,23 @@ const SearchPage = () => {
       console.error("Error fetching trending searches:", error);
     }
   };
-  
+
   // Handle trending search click
   const handleTrendingClick = (query) => {
     handleSearch(query);
   };
-  
+
   // Handle follow/unfollow
   const handleFollowToggle = async (userId) => {
     if (!user) return;
-    
+
     setFollowLoading(true);
-    
+
     try {
       // Optimistic update
       const currentStatus = followingStatus[userId];
       setFollowingStatus(prev => ({ ...prev, [userId]: !currentStatus }));
-      
+
       if (currentStatus) {
         await unfollowUser(userId);
       } else {
@@ -264,35 +265,35 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       {/* Search bar component */}
-      <SearchBar 
+      <SearchBar
         initialQuery={searchQuery}
         onSearch={handleSearch}
         loading={loading}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
       />
-      
+
       {/* Filter menu component */}
-      <FilterMenu 
+      <FilterMenu
         showFilterMenu={showFilterMenu}
         activeFilters={activeFilters}
         toggleFilter={toggleFilter}
         clearFilters={clearFilters}
       />
-      
+
       {/* Content */}
       <div className="max-w-screen-2xl mx-auto px-6 py-8">
         {/* Active filters component */}
-        <ActiveFilters 
+        <ActiveFilters
           activeFilters={activeFilters}
           toggleFilter={toggleFilter}
         />
-        
+
         {/* When we have a search query */}
         {searchQuery && (
           <>
             {/* Results tabs component */}
-            <ResultTabs 
+            <ResultTabs
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               counts={{
@@ -302,10 +303,10 @@ const SearchPage = () => {
                 tags: tagResults.length
               }}
             />
-            
+
             {/* All results section */}
             {activeTab === 'all' && (
-              <SearchResults 
+              <SearchResults
                 searchQuery={displayedQuery}
                 loading={loading}
                 imageResults={imageResults}
@@ -318,20 +319,20 @@ const SearchPage = () => {
                 followLoading={followLoading}
               />
             )}
-            
+
             {/* Images tab content */}
             {activeTab === 'images' && (
-              <ImagesTab 
+              <ImagesTab
                 loading={loading}
                 imageResults={imageResults}
                 loadMore={loadMoreImages}
                 hasMore={imageTotal > imageResults.length}
               />
             )}
-            
+
             {/* Users tab content */}
             {activeTab === 'users' && (
-              <UsersTab 
+              <UsersTab
                 loading={loading}
                 userResults={userResults}
                 loadMore={loadMoreUsers}
@@ -341,38 +342,39 @@ const SearchPage = () => {
                 followLoading={followLoading}
               />
             )}
-            
+
             {/* Collections tab content */}
             {activeTab === 'collections' && (
-              <CollectionsTab 
+              <CollectionsTab
                 loading={loading}
                 collectionResults={collectionResults}
                 loadMore={loadMoreCollections}
                 hasMore={collectionsTotal > collectionResults.length}
               />
             )}
-            
+
             {/* Tags tab content */}
             {activeTab === 'tags' && (
-              <TagsTab 
+              <TagsTab
                 loading={loading}
                 tagResults={tagResults}
               />
             )}
           </>
         )}
-        
+
+        {!searchQuery && (
+          <div className="text-center py-12 bg-zinc-900/60 border border-white/10 rounded-xl">
+            <Search className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+            <h3 className="text-xl font-medium mb-2">Search the world of images</h3>
+            <p className="text-gray-400 mb-6">Use the search bar above to find images, users, collections, and tags</p>
+          </div>
+        )}
+
         {/* If no search or on all tab, show trending */}
         {(!searchQuery || activeTab === 'all') && (
           <div className={searchQuery ? '' : 'mt-8'}>
-            {!searchQuery && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-2">Popular searches</h2>
-                <p className="text-gray-400">Discover trending content and connect with creators</p>
-              </div>
-            )}
-            
-            <TrendingSearches 
+            <TrendingSearches
               loading={loading}
               trendingSearches={trendingSearches}
               onTrendingClick={handleTrendingClick}

@@ -7,6 +7,7 @@ const ImageMetadata = ({
   formatDate, 
   user, 
   isFollowing, 
+  followLoading,
   handleFollowToggle 
 }) => {
   return (
@@ -15,7 +16,7 @@ const ImageMetadata = ({
       <p className="text-gray-300 mb-6">{image.description}</p>
 
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+        <Link href={`/profile/${image.user.username}`} className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-violet-500">
             <img 
               src={image.user.profilePicture} 
@@ -24,22 +25,25 @@ const ImageMetadata = ({
             />
           </div>
           <div>
-            <p className="font-medium">{image.user.fullName || image.user.username}</p>
+            <p className="font-medium hover:underline">{image.user.fullName || image.user.username}</p>
             <p className="text-sm text-gray-400">
               {image.user.isPremium ? "Premium Creator" : "Creator"}
             </p>
           </div>
-        </div>
+        </Link>
 
         {user && user._id !== image.user._id && (
           <button 
             className={`px-4 py-2 ${isFollowing 
               ? 'bg-violet-500/20 text-violet-400 hover:bg-rose-500/20 hover:text-rose-400' 
               : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500'} 
-              rounded-lg text-sm font-medium transition-all duration-300`}
+              rounded-lg text-sm font-medium transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed`}
             onClick={handleFollowToggle}
+            type='button'
+            disabled={!!followLoading}
+            
           >
-            {isFollowing ? 'Following' : 'Follow'}
+            {followLoading ? 'Please wait…' : (isFollowing ? 'Following' : 'Follow')}
           </button>
         )}
       </div>

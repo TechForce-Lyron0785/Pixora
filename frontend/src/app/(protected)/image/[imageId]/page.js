@@ -33,12 +33,13 @@ const ImageDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [relatedImages, setRelatedImages] = useState([]);
   const [likesCount, setLikesCount] = useState(0);
 
-  // Fetch image data
+  // Fetch image data (only when imageId changes)
   useEffect(() => {
     const fetchImageData = async () => {
       try {
@@ -47,27 +48,12 @@ const ImageDetail = () => {
         
         const response = await api.get(`/api/images/${imageId}`);
         setImage(response.data.data);
-        setLikesCount(response.data.data.likesCount)
+        setLikesCount(response.data.data.likesCount);
         
         // Fetch creator's other images
         if (response.data.data.user?._id) {
           const creatorImagesResponse = await api.get(`/api/images/user/${response.data.data.user._id}?limit=4`);
           setRelatedImages(creatorImagesResponse.data.data);
-        }
-        
-        // Check if user is following the creator
-        if (user && response.data.data.user?._id && user._id !== response.data.data.user._id) {
-          const followStatus = await checkFollowStatus(response.data.data.user._id);
-          setIsFollowing(followStatus);
-        }
-        
-        // Check like and bookmark status
-        if (user) {
-          const likeStatus = await checkLikeStatus(imageId);
-          setIsLiked(likeStatus);
-          
-          const bookmarkStatus = await checkFavoriteStatus(imageId);
-          setIsBookmarked(bookmarkStatus);
         }
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load image");
@@ -80,7 +66,34 @@ const ImageDetail = () => {
     if (imageId) {
       fetchImageData();
     }
-  }, [imageId, api, user, checkFollowStatus]);
+  }, [imageId]);
+
+  // Fetch user-specific statuses (like/bookmark/follow) when user or image changes
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      if (!user || !imageId || !image?.user?._id) return;
+      
+      try {
+        // Follow status
+        if (user._id !== image.user._id) {
+          const followStatus = await checkFollowStatus(image.user._id);
+          setIsFollowing(followStatus);
+        }
+
+        // Like status
+        const likeStatus = await checkLikeStatus(imageId);
+        setIsLiked(likeStatus);
+
+        // Bookmark status
+        const bookmarkStatus = await checkFavoriteStatus(imageId);
+        setIsBookmarked(bookmarkStatus);
+      } catch (err) {
+        console.error('Error fetching statuses:', err);
+      }
+    };
+
+    fetchStatuses();
+  }, [user, imageId, image?.user?._id]);
 
   // Handle like toggle
   const handleLikeToggle = async () => {
@@ -120,18 +133,24 @@ const ImageDetail = () => {
 
   // Handle follow toggle
   const handleFollowToggle = async () => {
-    if (!user || !image?.user) return;
+    if (!user || !image?.user || followLoading) return;
+    
+    const nextStatus = !isFollowing;
+    setIsFollowing(nextStatus);
+    setFollowLoading(true);
     
     try {
-      if (isFollowing) {
-        await unfollowUser(image.user._id);
-      } else {
+      if (nextStatus) {
         await followUser(image.user._id);
+      } else {
+        await unfollowUser(image.user._id);
       }
-      
-      setIsFollowing(!isFollowing);
     } catch (err) {
       console.error("Error toggling follow status:", err);
+      // Revert optimistic update on failure
+      setIsFollowing(!nextStatus);
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -169,7 +188,7 @@ const ImageDetail = () => {
   };
 
   return (
-    <div className="px-6">
+    <div className="px-6 pt-5">
       {/* Back navigation */}
       <div className="mb-6">
         <button 
@@ -201,6 +220,7 @@ const ImageDetail = () => {
             formatDate={formatDate}
             user={user}
             isFollowing={isFollowing}
+            followLoading={followLoading}
             handleFollowToggle={handleFollowToggle}
           />
 

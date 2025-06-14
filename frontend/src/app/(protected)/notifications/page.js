@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Heart, 
-  MessageSquare, 
-  UserPlus, 
-  Clock, 
+import {
+  Heart,
+  MessageSquare,
+  UserPlus,
+  Clock,
   ExternalLink,
   Bell,
   Loader2,
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '@/context/AuthContext';
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
@@ -43,15 +44,18 @@ const NotificationsPage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  
+
+  const { user } = useAuth();
+
   const api = useApi();
   const router = useRouter();
 
   useEffect(() => {
     fetchNotifications();
-  }, [page, activeFilter, sortBy, showRead]);
+  }, [page, activeFilter, sortBy, showRead, user]);
 
   const fetchNotifications = async (isRefresh = false) => {
+    if (!user) return;
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -59,7 +63,7 @@ const NotificationsPage = () => {
       } else {
         setLoading(true);
       }
-      
+
       const params = new URLSearchParams({
         page: isRefresh ? 1 : page,
         limit: 20
@@ -76,13 +80,13 @@ const NotificationsPage = () => {
 
       const response = await api.get(`/api/notifications?${params}`);
       const newNotifications = response.data.data;
-      
+
       if (isRefresh || page === 1) {
         setNotifications(newNotifications);
       } else {
         setNotifications(prev => [...prev, ...newNotifications]);
       }
-      
+
       setHasMore(newNotifications.length === 20);
       setError(null);
     } catch (err) {
@@ -103,22 +107,22 @@ const NotificationsPage = () => {
     try {
       if (Array.isArray(notificationIds)) {
         // Bulk mark as read
-        await Promise.all(notificationIds.map(id => 
+        await Promise.all(notificationIds.map(id =>
           api.patch(`/api/notifications/${id}/read`)
         ));
       } else {
         // Single notification
         await api.patch(`/api/notifications/${notificationIds}/read`);
       }
-      
-      setNotifications(prev => 
-        prev.map(notification => 
+
+      setNotifications(prev =>
+        prev.map(notification =>
           (Array.isArray(notificationIds) ? notificationIds.includes(notification._id) : notificationIds === notification._id)
             ? { ...notification, read: true }
             : notification
         )
       );
-      
+
       toast.success('Marked as read');
     } catch (err) {
       console.error('Error marking as read:', err);
@@ -130,20 +134,20 @@ const NotificationsPage = () => {
     try {
       if (Array.isArray(notificationIds)) {
         // Bulk delete
-        await Promise.all(notificationIds.map(id => 
+        await Promise.all(notificationIds.map(id =>
           api.delete(`/api/notifications/${id}`)
         ));
       } else {
         // Single notification
         await api.delete(`/api/notifications/${notificationIds}`);
       }
-      
-      setNotifications(prev => 
-        prev.filter(notification => 
+
+      setNotifications(prev =>
+        prev.filter(notification =>
           !(Array.isArray(notificationIds) ? notificationIds.includes(notification._id) : notificationIds === notification._id)
         )
       );
-      
+
       setSelectedNotifications([]);
       setIsSelectMode(false);
       toast.success('Notifications deleted');
@@ -170,7 +174,7 @@ const NotificationsPage = () => {
   };
 
   const toggleNotificationSelection = (notificationId) => {
-    setSelectedNotifications(prev => 
+    setSelectedNotifications(prev =>
       prev.includes(notificationId)
         ? prev.filter(id => id !== notificationId)
         : [...prev, notificationId]
@@ -184,6 +188,14 @@ const NotificationsPage = () => {
   const deselectAll = () => {
     setSelectedNotifications([]);
   };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
   // Get activity icon based on notification type
   const getActivityIcon = (type) => {
@@ -206,34 +218,34 @@ const NotificationsPage = () => {
   // Format time as relative
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
-    
+
     try {
       const date = new Date(timestamp);
       const now = new Date();
       const diffInSeconds = Math.floor((now - date) / 1000);
-      
+
       if (diffInSeconds < 60) return 'just now';
-      
+
       const diffInMinutes = Math.floor(diffInSeconds / 60);
       if (diffInMinutes < 60) {
         return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
       }
-      
+
       const diffInHours = Math.floor(diffInMinutes / 60);
       if (diffInHours < 24) {
         return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
       }
-      
+
       const diffInDays = Math.floor(diffInHours / 24);
       if (diffInDays < 30) {
         return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
       }
-      
+
       const diffInMonths = Math.floor(diffInDays / 30);
       if (diffInMonths < 12) {
         return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
       }
-      
+
       const diffInYears = Math.floor(diffInMonths / 12);
       return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;
     } catch (err) {
@@ -252,35 +264,35 @@ const NotificationsPage = () => {
       if (username) {
         router.push(`/profile/${username}`);
       }
-    } 
+    }
     else if (['like', 'favorite', 'comment'].includes(notification.type) && notification.relatedImage) {
       const imageId = notification.relatedImage._id || notification.relatedImage;
       let url = `/image/${imageId}`;
-      
+
       if (notification.type === 'comment' && notification.relatedComment) {
         url += `?comment=${notification.relatedComment._id || notification.relatedComment}`;
       }
-      
+
       router.push(url);
     }
     else if (notification.type === 'reply' && notification.relatedComment) {
       const imageId = notification.relatedImage._id || notification.relatedImage;
       const commentId = notification.relatedComment._id || notification.relatedComment;
-      
+
       router.push(`/image/${imageId}?comment=${commentId}&isReply=true`);
     }
   };
 
   // Filter notifications
   const filteredNotifications = notifications.filter(notification => {
-    const matchesFilter = activeFilter === 'all' || 
+    const matchesFilter = activeFilter === 'all' ||
       (activeFilter === 'unread' && !notification.read) ||
       notification.type === activeFilter;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       notification.sender?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       notification.content?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesReadStatus = showRead || !notification.read;
-    
+
     return matchesFilter && matchesSearch && matchesReadStatus;
   });
 
@@ -298,7 +310,7 @@ const NotificationsPage = () => {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
       {/* Main container */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -320,7 +332,7 @@ const NotificationsPage = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -331,18 +343,17 @@ const NotificationsPage = () => {
               >
                 <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleSelectMode}
-                className={`p-3 rounded-xl transition-colors ${
-                  isSelectMode ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'
-                }`}
+                className={`p-3 rounded-xl transition-colors ${isSelectMode ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'
+                  }`}
               >
                 <CheckCircle className="w-5 h-5" />
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -366,7 +377,7 @@ const NotificationsPage = () => {
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
               />
             </div>
-            
+
             {isSelectMode && (
               <div className="flex items-center gap-3">
                 <button
@@ -399,7 +410,7 @@ const NotificationsPage = () => {
                 )}
               </div>
             )}
-            
+
             {!isSelectMode && (
               <div className="flex items-center gap-3">
                 <button
@@ -418,11 +429,10 @@ const NotificationsPage = () => {
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                  activeFilter === filter.id 
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20' 
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${activeFilter === filter.id
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
                     : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 {filter.icon}
                 <span>{filter.label}</span>
@@ -455,7 +465,7 @@ const NotificationsPage = () => {
                       <option value="unread">Unread First</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Show Read</label>
                     <div className="flex items-center gap-3">
@@ -470,7 +480,7 @@ const NotificationsPage = () => {
                       </label>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Quick Actions</label>
                     <div className="flex gap-2">
@@ -505,7 +515,7 @@ const NotificationsPage = () => {
               <div className="text-center p-4 rounded-lg bg-red-500/10 border border-red-500/20 mb-2">
                 {error}
               </div>
-              <button 
+              <button
                 onClick={() => fetchNotifications(true)}
                 className="text-sm bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 px-4 py-2 rounded-lg transition-colors"
               >
@@ -517,8 +527,8 @@ const NotificationsPage = () => {
               <Bell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-300 mb-2">No notifications</h3>
               <p className="text-gray-500">
-                {activeFilter === 'all' 
-                  ? "You're all caught up! Check back later for new notifications." 
+                {activeFilter === 'all'
+                  ? "You're all caught up! Check back later for new notifications."
                   : `No ${activeFilter} notifications found.`}
               </p>
             </div>
@@ -530,11 +540,10 @@ const NotificationsPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: idx * 0.05 }}
-                  className={`relative flex items-start gap-4 p-4 rounded-xl transition-all cursor-pointer group border ${
-                    notification.read 
-                      ? 'bg-gray-800/30 border-gray-700/50' 
+                  className={`relative flex items-start gap-4 p-4 rounded-xl transition-all cursor-pointer group border ${notification.read
+                      ? 'bg-gray-800/30 border-gray-700/50'
                       : 'bg-purple-900/20 border-purple-500/30'
-                  } hover:bg-gray-800/50 hover:border-purple-500/50`}
+                    } hover:bg-gray-800/50 hover:border-purple-500/50`}
                   onClick={() => !isSelectMode && handleNotificationClick(notification)}
                 >
                   {/* Selection checkbox */}
@@ -547,19 +556,19 @@ const NotificationsPage = () => {
                       onClick={(e) => e.stopPropagation()}
                     />
                   )}
-                  
+
                   {/* Unread indicator */}
                   {!notification.read && (
                     <div className="absolute top-4 right-4 w-3 h-3 bg-purple-500 rounded-full"></div>
                   )}
-                  
+
                   {/* Avatar */}
                   <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-700/30 to-gray-800 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all flex-shrink-0">
                     {notification.sender?.profilePicture ? (
-                      <img 
-                        src={notification.sender.profilePicture} 
-                        alt={notification.sender?.username || 'User'} 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={notification.sender.profilePicture}
+                        alt={notification.sender?.username || 'User'}
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <span className="text-gray-200 font-bold text-xl">
@@ -567,7 +576,7 @@ const NotificationsPage = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
@@ -576,24 +585,24 @@ const NotificationsPage = () => {
                           <span className="font-semibold text-white">{notification.sender?.username || 'Someone'}</span>
                           <span className="text-gray-300"> {notification.content}</span>
                         </p>
-                        
+
                         {/* Preview of related content if available */}
                         {notification.relatedImage && notification.relatedImage.title && (
                           <div className="mt-2 p-2 rounded-lg bg-gray-800/70 border border-gray-700/50 text-xs text-gray-300 truncate group-hover:bg-gray-800 transition-colors">
                             &quot;{notification.relatedImage.title}&quot;
                           </div>
                         )}
-                        
+
                         <div className="flex items-center mt-2">
                           <Clock className="w-3 h-3 text-purple-300/50 mr-1" />
                           <p className="text-xs text-purple-300/70">{formatTime(notification.createdAt)}</p>
                         </div>
                       </div>
-                      
+
                       {/* Action buttons */}
                       <div className="flex items-center gap-2 ml-4">
                         {getActivityIcon(notification.type)}
-                        
+
                         {!isSelectMode && (
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <button
@@ -621,7 +630,7 @@ const NotificationsPage = () => {
                   </div>
                 </motion.div>
               ))}
-              
+
               {/* Load More */}
               {hasMore && (
                 <div className="text-center py-6">

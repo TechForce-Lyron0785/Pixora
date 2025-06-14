@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const LicenseInfo = ({ image }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-6">
       <div className="flex items-center gap-3 mb-4">
@@ -30,9 +32,61 @@ const LicenseInfo = ({ image }) => {
         </div>
       </div>
 
-      <button className="w-full py-2 text-center bg-white/5 hover:bg-white/10 rounded-lg text-violet-400 transition-colors">
+      <button 
+        className="w-full py-2 text-center bg-white/5 hover:bg-white/10 rounded-lg text-violet-400 transition-colors cursor-pointer"
+        onClick={() => setIsOpen(true)}
+      >
         View full license details
       </button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setIsOpen(false)} />
+          <div className="relative z-10 w-full max-w-lg mx-4 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-white/10 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold">License Details</h4>
+              <button 
+                className="text-gray-400 hover:text-white transition-colors"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close license details"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Type</span>
+                <span className="font-medium capitalize">{image.license || 'Standard'} License</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Status</span>
+                <span className="text-emerald-400">Active</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-300">
+                  {image.license === 'extended' 
+                    ? 'Personal and commercial use with no attribution required.' 
+                    : 'Personal and commercial use with attribution required.'}
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Attribution</span>
+                <span>{image.license === 'extended' ? 'Not Required' : 'Required'}</span>
+              </div>
+            </div>
+
+            <div className="mt-6 text-right">
+              <button 
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
