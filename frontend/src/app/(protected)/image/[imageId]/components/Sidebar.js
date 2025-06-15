@@ -5,6 +5,7 @@ import TechnicalDetails from './sidebar/TechnicalDetails';
 import LicenseInfo from './sidebar/LicenseInfo';
 import RatingsReviews from './sidebar/RatingsReviews';
 import RelatedImages from './sidebar/RelatedImages';
+import ReportImage from './sidebar/ReportImage';
 
 const Sidebar = ({ image, relatedImages }) => {
   return (
@@ -15,22 +16,14 @@ const Sidebar = ({ image, relatedImages }) => {
       {/* License info */}
       <LicenseInfo image={image} />
       
-      {/* Rating & reviews - keeping this static */}
-      {/* <RatingsReviews /> */}
+      {/* Ratings & reviews */}
+      <RatingsReviews imageId={image._id} />
       
       {/* Related images */}
       <RelatedImages image={image} relatedImages={relatedImages} />
       
       {/* Report section */}
-      {/* <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-gray-400">
-          <Flag className="w-4 h-4" />
-          <span className="text-sm">Report content</span>
-        </div>
-        <button className="text-sm text-violet-400 hover:text-violet-300 transition-colors">
-          Report
-        </button>
-      </div> */}
+      <ReportImage imageId={image._id} ownerId={image.user?._id} />
     </div>
   );
 };

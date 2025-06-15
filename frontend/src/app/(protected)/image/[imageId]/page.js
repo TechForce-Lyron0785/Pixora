@@ -66,7 +66,7 @@ const ImageDetail = () => {
     if (imageId) {
       fetchImageData();
     }
-  }, [imageId]);
+  }, [imageId, user]);
 
   // Fetch user-specific statuses (like/bookmark/follow) when user or image changes
   useEffect(() => {
@@ -155,7 +155,7 @@ const ImageDetail = () => {
   };
 
   // Loading state
-  if (loading) {
+  if (loading || !user) {
     return <LoadingScreen />;
   }
 

@@ -9,6 +9,11 @@ import {
   searchImages,
   getTrendingImages,
   getImagesByTag,
+  getImageReviews,
+  getImageReviewStats,
+  upsertImageReview,
+  deleteImageReview,
+  reportImage,
   uploadImageFile,
   uploadTempImage,
   deleteCloudinaryImage,
@@ -33,6 +38,15 @@ router.get("/user/:userId", authenticateUser, getUserPublicImages);
 router.get("/me", authenticateUser, getUserImages);
 router.get("/trending-search", authenticateUser, getTrendingSearches);
 router.get("/:imageId", authenticateUser, getImage);
+
+// Reviews
+router.get("/:imageId/reviews", authenticateUser, getImageReviews);
+router.get("/:imageId/reviews/stats", authenticateUser, getImageReviewStats);
+router.post("/:imageId/reviews", authenticateUser, upsertImageReview);
+router.delete("/:imageId/reviews", authenticateUser, deleteImageReview);
+
+// Report image
+router.post("/:imageId/report", authenticateUser, reportImage);
 
 router.post("/upload", authenticateUser, upload.single("image"), uploadImageFile);
 router.post("/upload-temp", authenticateUser, upload.single("image"), uploadTempImage);

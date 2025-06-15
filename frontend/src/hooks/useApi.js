@@ -21,7 +21,7 @@ export const useApi = () => {
       // Cleanup interceptor on unmount
       api.interceptors.request.eject(requestInterceptor);
     };
-  }, [session]);
+  }, [session?.backendToken]); // Only depend on the token, not the entire session object
 
   return api;
 };

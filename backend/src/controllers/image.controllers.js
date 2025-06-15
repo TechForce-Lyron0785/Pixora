@@ -6,6 +6,9 @@ import cloudinary from "../config/cloudinary.js";
 import { User } from "../models/user.model.js";
 import { updateUserBadge } from "../utils/userUpdates.js";
 import { Follow } from "../models/follow.model.js";
+import { Review } from "../models/review.model.js";
+import { Report } from "../models/report.model.js";
+import { Notification } from "../models/notification.model.js";
 
 
 // Get image by ID
@@ -534,6 +537,146 @@ export const getImagesByTag = asyncHandler(async (req, res) => {
 
   res.status(200).json(
     new ApiResponse(200, "Images by tag fetched successfully", images, metadata)
+  );
+});
+
+/**
+ * @desc Get reviews for an image
+ * @route GET /api/images/:imageId/reviews
+ * @access Private
+ */
+export const getImageReviews = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const reviews = await Review.find({ image: imageId })
+    .populate('user', 'username profilePicture fullName')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Review.countDocuments({ image: imageId });
+
+  const metadata = {
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit)
+  };
+
+  res.status(200).json(
+    new ApiResponse(200, "Reviews fetched successfully", reviews, metadata)
+  );
+});
+
+/**
+ * @desc Get review stats for an image
+ * @route GET /api/images/:imageId/reviews/stats
+ * @access Private
+ */
+export const getImageReviewStats = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const stats = await Review.getStatsForImage(imageId);
+  res.status(200).json(
+    new ApiResponse(200, "Review stats fetched successfully", stats)
+  );
+});
+
+/**
+ * @desc Create or update a review for an image
+ * @route POST /api/images/:imageId/reviews
+ * @access Private
+ */
+export const upsertImageReview = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const { rating, comment } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    throw new ApiError(400, "Rating must be between 1 and 5");
+  }
+
+  // Ensure image exists and visibility allows current user (reuse getImage logic minimally)
+  const image = await Image.findById(imageId).populate('user', '_id');
+  if (!image) {
+    throw new ApiError(404, "Image not found");
+  }
+
+  const review = await Review.findOneAndUpdate(
+    { image: imageId, user: req.user._id },
+    { rating, comment: comment || '' },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  await review.populate('user', 'username profilePicture fullName');
+
+  res.status(200).json(
+    new ApiResponse(200, "Review saved successfully", review)
+  );
+});
+
+/**
+ * @desc Delete current user's review for an image
+ * @route DELETE /api/images/:imageId/reviews
+ * @access Private
+ */
+export const deleteImageReview = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  await Review.findOneAndDelete({ image: imageId, user: req.user._id });
+  res.status(200).json(
+    new ApiResponse(200, "Review deleted successfully")
+  );
+});
+
+/**
+ * @desc Report an image
+ * @route POST /api/images/:imageId/report
+ * @access Private
+ */
+export const reportImage = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const { message } = req.body;
+
+  if (!message || message.trim().length === 0) {
+    throw new ApiError(400, "Report message is required");
+  }
+
+  const image = await Image.findById(imageId).populate('user', '_id');
+  if (!image) {
+    throw new ApiError(404, "Image not found");
+  }
+
+  if (image.user._id.toString() === req.user._id.toString()) {
+    throw new ApiError(400, "You cannot report your own image");
+  }
+
+  let report;
+  try {
+    report = await Report.create({
+      image: imageId,
+      reporter: req.user._id,
+      owner: image.user._id,
+      message: message.trim(),
+      status: 'open',
+    });
+  } catch (e) {
+    // Handle duplicate open report unique index
+    throw new ApiError(400, "You already have an open report for this image");
+  }
+
+  // Notify the image owner
+  await Notification.createNotification({
+    recipient: image.user._id,
+    sender: req.user._id,
+    type: 'report',
+    content: 'Your image was reported. Please correct it to avoid account action.',
+    relatedImage: image._id,
+    relatedUser: req.user._id,
+  });
+
+  res.status(201).json(
+    new ApiResponse(201, "Report submitted successfully", report)
   );
 });
 

@@ -14,7 +14,30 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastVerified, setLastVerified] = useState(null);
   const router = useRouter();
+
+  // Load cached user data on mount
+  useEffect(() => {
+    try {
+      const cachedUser = sessionStorage.getItem('cachedUser');
+      const cachedTimestamp = sessionStorage.getItem('cachedUserTimestamp');
+      
+      if (cachedUser && cachedTimestamp) {
+        const timestamp = parseInt(cachedTimestamp);
+        const now = Date.now();
+        
+        // Use cached data if it's less than 5 minutes old
+        if (now - timestamp < 300000) {
+          setUser(JSON.parse(cachedUser));
+          setLastVerified(timestamp);
+          setLoading(false); // Set loading to false since we have cached data
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached user data:', error);
+    }
+  }, []);
 
   // Use the custom hook to get the API client
   const api = useApi();
@@ -26,7 +49,18 @@ export const AuthProvider = ({ children }) => {
       await api.post("/api/users/logout");
       setUser(null);
 
-      await signOut();
+      // Clear cached user data
+      try {
+        sessionStorage.removeItem('cachedUser');
+        sessionStorage.removeItem('cachedUserTimestamp');
+      } catch (cacheError) {
+        console.error('Error clearing cached user data:', cacheError);
+      }
+
+      // Only sign out of NextAuth if there is an active NextAuth session
+      if (status === "authenticated") {
+        await signOut();
+      }
       router.push("/login");
       return { success: true };
     } catch (err) {
@@ -39,11 +73,37 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Verify user with API, but rate limit to prevent too many calls
-  const verifyUser = useCallback(async () => {
-    try {
+  const verifyUser = useCallback(async (force = false) => {
+    // Don't verify if we already have user data and session is valid, unless forced
+    if (!force && user && session && status === "authenticated") {
+      return;
+    }
+
+    // Rate limiting: don't verify more than once every 30 seconds unless forced
+    const now = Date.now();
+    if (!force && lastVerified && (now - lastVerified) < 30000) {
+      return;
+    }
+
+    // Only set loading to true if we don't have user data yet
+    const shouldSetLoading = !user;
+    if (shouldSetLoading) {
       setLoading(true);
+    }
+
+    try {
       const response = await api.get("/api/users/me");
-      setUser(response.data.data);
+      const userData = response.data.data;
+      setUser(userData);
+      setLastVerified(now);
+      
+      // Cache user data in sessionStorage
+      try {
+        sessionStorage.setItem('cachedUser', JSON.stringify(userData));
+        sessionStorage.setItem('cachedUserTimestamp', now.toString());
+      } catch (cacheError) {
+        console.error('Error caching user data:', cacheError);
+      }
     } catch (error) {
       console.error("Auth verification error:", error);
       setUser(null);
@@ -52,22 +112,49 @@ export const AuthProvider = ({ children }) => {
       // We'll handle the silent cleanup without redirecting
       try {
         await api.post("/api/users/logout");
-        await signOut({ redirect: false });
+        // Only sign out of NextAuth if there is an active NextAuth session
+        if (status === "authenticated") {
+          await signOut({ redirect: false });
+        }
       } catch (logoutError) {
         console.error("Silent logout error:", logoutError);
       }
     } finally {
-      setLoading(false);
+      if (shouldSetLoading) {
+        setLoading(false);
+      }
     }
-  }, [api]);
+  }, [api, user, session, status, lastVerified]);
 
   // Initialize from cache and session
   useEffect(() => {
-    // verify with API if session is loaded
+    // Regardless of NextAuth status, verify backend user if not loaded yet
     if (status !== "loading") {
-      verifyUser();
+      if (!user) {
+        verifyUser();
+      } else {
+        setLoading(false);
+      }
     }
-  }, [session, status, verifyUser]);
+  }, [status, user, verifyUser]);
+
+  // Handle visibility change (tab switching) to prevent unnecessary re-fetching
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Only verify if the page becomes visible and we have a session but no user
+      // Also check if we haven't verified recently
+      const now = Date.now();
+      if (!document.hidden && status === "authenticated" && !user && 
+          (!lastVerified || (now - lastVerified) > 30000)) {
+        verifyUser();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [status, user, verifyUser, lastVerified]);
 
   // Register a new user
   const register = async (userData) => {

@@ -1,3 +1,16 @@
+// TODO:
+// refetching bug
+// image/id - add feature: report and reviews
+
+// profile page - collection & activity, other make static options dynamic
+// users page - pagination, static to dynamic
+// comment in notifications
+// collection page
+// settings
+// footer & header
+// landing page
+// responsive
+
 "use client";
 
 import {
