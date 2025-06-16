@@ -61,20 +61,7 @@ const EditCollectionModal = ({
               />
               <label htmlFor="edit-privacy" className="text-sm text-gray-300">Make this collection private</label>
             </div>
-            
-            <div className="flex items-center">
-              <input 
-                type="checkbox" 
-                id="edit-collaboration" 
-                className="mr-2"
-                checked={collectionToEdit.visibility === 'shared'}
-                onChange={(e) => setCollectionToEdit({
-                  ...collectionToEdit,
-                  visibility: e.target.checked ? 'shared' : 'public'
-                })} 
-              />
-              <label htmlFor="edit-collaboration" className="text-sm text-gray-300">Allow collaboration</label>
-            </div>
+
           </div>
           
           <div className="flex items-center space-x-2">

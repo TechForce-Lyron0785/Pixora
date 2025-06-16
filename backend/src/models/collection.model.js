@@ -25,7 +25,7 @@ const collectionSchema = new Schema(
     },
     visibility: {
       type: String,
-      enum: ['public', 'private', 'shared'],
+      enum: ['public', 'private'],
       default: 'private',
     },
     images: [{
@@ -36,17 +36,6 @@ const collectionSchema = new Schema(
       type: String,
       lowercase: true,
       trim: true,
-    }],
-    collaborators: [{
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-      role: {
-        type: String,
-        enum: ['editor', 'viewer'],
-        default: 'viewer',
-      }
     }],
     isStarred: {
       type: Boolean,

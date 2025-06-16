@@ -37,7 +37,7 @@ const SearchAndFilters = ({
 
   return (
     <div className="mb-6 grid grid-cols-12 gap-4">
-      <div className="col-span-12 md:col-span-8 lg:col-span-9 relative">
+      <div className="col-span-12 md:col-span-9 relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <input 
           type="text" 
@@ -48,84 +48,8 @@ const SearchAndFilters = ({
         />
       </div>
       
-      <div className="col-span-12 md:col-span-4 lg:col-span-3 grid grid-cols-2 gap-3">
-        <div className="relative">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setFilterOpen(!filterOpen);
-            }} 
-            className="bg-zinc-800/50 border border-white/10 rounded-lg px-4 py-2 flex items-center justify-between w-full hover:bg-zinc-800 transition-colors"
-          >
-            <div className="flex items-center">
-              <SortAsc className="w-4 h-4 mr-2 text-gray-400" />
-              <span className="text-sm">{getSortDisplay()}</span>
-            </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
-          
-          {filterOpen && (
-            <div className="absolute top-full mt-1 left-0 right-0 bg-zinc-800 border border-white/10 rounded-lg shadow-lg overflow-hidden z-20">
-              <button
-                onClick={() => {
-                  setSortOption('updatedAt');
-                  setSortOrder('desc');
-                  setFilterOpen(false);
-                }}
-                className={`w-full text-left p-3 flex items-center hover:bg-white/5 transition-colors ${sortOption === 'updatedAt' && sortOrder === 'desc' ? 'bg-white/10' : ''}`}
-              >
-                <span className="mr-2 text-gray-400"><Clock className="w-4 h-4" /></span>
-                <span className="text-sm">Most Recent</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSortOption('updatedAt');
-                  setSortOrder('asc');
-                  setFilterOpen(false);
-                }}
-                className={`w-full text-left p-3 flex items-center hover:bg-white/5 transition-colors ${sortOption === 'updatedAt' && sortOrder === 'asc' ? 'bg-white/10' : ''}`}
-              >
-                <span className="mr-2 text-gray-400"><Calendar className="w-4 h-4" /></span>
-                <span className="text-sm">Oldest First</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSortOption('name');
-                  setSortOrder('asc');
-                  setFilterOpen(false);
-                }}
-                className={`w-full text-left p-3 flex items-center hover:bg-white/5 transition-colors ${sortOption === 'name' && sortOrder === 'asc' ? 'bg-white/10' : ''}`}
-              >
-                <span className="mr-2 text-gray-400"><SortAsc className="w-4 h-4" /></span>
-                <span className="text-sm">Name (A-Z)</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSortOption('name');
-                  setSortOrder('desc');
-                  setFilterOpen(false);
-                }}
-                className={`w-full text-left p-3 flex items-center hover:bg-white/5 transition-colors ${sortOption === 'name' && sortOrder === 'desc' ? 'bg-white/10' : ''}`}
-              >
-                <span className="mr-2 text-gray-400"><SortAsc className="w-4 h-4 transform rotate-180" /></span>
-                <span className="text-sm">Name (Z-A)</span>
-              </button>
-              <button
-                onClick={() => {
-                  setSortOption('imageCount');
-                  setSortOrder('desc');
-                  setFilterOpen(false);
-                }}
-                className={`w-full text-left p-3 flex items-center hover:bg-white/5 transition-colors ${sortOption === 'imageCount' && sortOrder === 'desc' ? 'bg-white/10' : ''}`}
-              >
-                <span className="mr-2 text-gray-400"><Layers className="w-4 h-4" /></span>
-                <span className="text-sm">Most Images</span>
-              </button>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex gap-3">
+      <div className="col-span-12 md:col-span-3 grid grid-cols-2">
+        <div className="flex gap-3 items-end">
           <button 
             onClick={() => setViewMode('grid')}
             className={`flex-1 flex items-center justify-center p-2 rounded-lg border ${viewMode === 'grid' ? 'bg-white/10 border-violet-500' : 'border-white/10 hover:bg-white/5'} transition-colors`}

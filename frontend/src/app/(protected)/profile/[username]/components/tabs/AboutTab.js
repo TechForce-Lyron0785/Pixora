@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   Users, 
   TrendingUp, 
@@ -10,8 +10,23 @@ import {
   Check
 } from 'lucide-react';
 
-const AboutTab = ({ profile }) => {
+import { useAuth } from '@/context/AuthContext';
+
+const AboutTab = ({ profile, isOwnProfile = false }) => {
   const [copiedField, setCopiedField] = useState(null);
+  const { updateProfile, user } = useAuth();
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    bio: profile.bio || '',
+    socialLinks: {
+      instagram: profile.socialLinks?.instagram || '',
+      twitter: profile.socialLinks?.twitter || '',
+      facebook: profile.socialLinks?.facebook || '',
+    },
+    profileVisibility: profile.profileVisibility || 'public',
+    userStatus: profile.userStatus || 'online',
+  });
 
   // Function to extract domain from full URL
   const extractDomain = (url) => {
@@ -61,6 +76,43 @@ const AboutTab = ({ profile }) => {
     return icons[platform] || <Globe className="w-4 h-4" />;
   };
 
+  const canEdit = isOwnProfile && user?._id === profile?._id;
+
+  const handleSave = async () => {
+    if (!canEdit) return;
+    try {
+      setSaving(true);
+      const updates = {
+        bio: form.bio,
+        socialLinks: {
+          instagram: form.socialLinks.instagram || undefined,
+          twitter: form.socialLinks.twitter || undefined,
+          facebook: form.socialLinks.facebook || undefined,
+        },
+        profileVisibility: form.profileVisibility,
+        userStatus: form.userStatus,
+      };
+      await updateProfile(user._id, updates);
+      setEditMode(false);
+    } catch (e) {
+      console.error('Failed to save profile:', e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const visibilityOptions = useMemo(() => [
+    { id: 'public', label: 'Public' },
+    { id: 'private', label: 'Private' },
+  ], []);
+
+  const statusOptions = useMemo(() => [
+    { id: 'online', label: 'Online' },
+    { id: 'away', label: 'Away' },
+    { id: 'busy', label: 'Busy' },
+    { id: 'offline', label: 'Offline' },
+  ], []);
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -70,9 +122,32 @@ const AboutTab = ({ profile }) => {
             <Users className="w-6 h-6 text-violet-400" />
             About Me
           </h3>
-          <p className="text-gray-300 text-lg leading-relaxed">
-            {profile.bio || "No bio available"}
-          </p>
+          {!editMode ? (
+            <p className="text-gray-300 text-lg leading-relaxed">
+              {profile.bio || "No bio available"}
+            </p>
+          ) : (
+            <textarea
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-gray-200 min-h-[120px]"
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              maxLength={260}
+            />
+          )}
+          {canEdit && (
+            <div className="mt-4 flex gap-2">
+              {!editMode ? (
+                <button onClick={() => setEditMode(true)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">Edit</button>
+              ) : (
+                <>
+                  <button disabled={saving} onClick={handleSave} className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-sm">
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button disabled={saving} onClick={() => setEditMode(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">Cancel</button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats section */}
@@ -105,31 +180,47 @@ const AboutTab = ({ profile }) => {
             <LinkIcon className="w-6 h-6 text-violet-400" />
             Contact & Links
           </h3>
-          <div className="space-y-4">
-            {getSocialLinks().map((link, idx) => (
-              <a 
-                href={link.fullUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                key={idx} 
-                className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
-              >
-                <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/15 transition-colors">
-                  {link.icon}
+          {!editMode ? (
+            <div className="space-y-4">
+              {getSocialLinks().map((link, idx) => (
+                <a 
+                  href={link.fullUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  key={idx} 
+                  className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
+                >
+                  <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/15 transition-colors">
+                    {link.icon}
+                  </div>
+                  <div className="flex-grow">
+                    <p className="text-sm text-gray-400">{link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}</p>
+                    <p className="text-base font-medium text-white/90">{link.url}</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-violet-400 transition-colors" />
+                </a>
+              ))}
+              {getSocialLinks().length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 text-lg">No social links available</p>
                 </div>
-                <div className="flex-grow">
-                  <p className="text-sm text-gray-400">{link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}</p>
-                  <p className="text-base font-medium text-white/90">{link.url}</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {['instagram','twitter','facebook'].map((platform) => (
+                <div key={platform} className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-400">{platform.charAt(0).toUpperCase()+platform.slice(1)} URL</label>
+                  <input 
+                    className="bg-white/5 border border-white/10 rounded-lg p-2 text-sm"
+                    placeholder={`https://${platform}.com/username`}
+                    value={form.socialLinks[platform]}
+                    onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, [platform]: e.target.value } })}
+                  />
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-violet-400 transition-colors" />
-              </a>
-            ))}
-            {getSocialLinks().length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-gray-400 text-lg">No social links available</p>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Account Info */}
@@ -144,9 +235,9 @@ const AboutTab = ({ profile }) => {
               { label: "Email", value: profile.email || "N/A", copyable: true },
               { label: "Account Type", value: profile.isPremium ? "Premium" : "Standard", badge: profile.isPremium ? "premium" : "standard" },
               { label: "Verified", value: profile.isVerified ? "Yes" : "No", badge: profile.isVerified ? "verified" : "unverified" },
-              { label: "Profile Visibility", value: profile.profileVisibility },
+              { label: "Profile Visibility", value: profile.profileVisibility, editable: true, field: 'profileVisibility' },
               { label: "Account Status", value: profile.accountStatus },
-              { label: "User Status", value: profile.userStatus },
+              { label: "User Status", value: profile.userStatus, editable: true, field: 'userStatus' },
               { label: "Provider", value: profile.provider },
               { label: "Profile Picture Confirmed", value: profile.isDpConfirm ? "Yes" : "No" },
               { label: "Last Login", value: profile.lastLogin ? new Date(profile.lastLogin).toLocaleDateString() : "N/A" },
@@ -163,7 +254,27 @@ const AboutTab = ({ profile }) => {
                       {info.badge}
                     </span>
                   )}
-                  <span className="font-medium text-white/90">{info.value}</span>
+                  {!editMode || !info.editable ? (
+                    <span className="font-medium text-white/90">{info.value}</span>
+                  ) : info.field === 'profileVisibility' ? (
+                    <select 
+                      className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-sm"
+                      value={form.profileVisibility}
+                      onChange={(e) => setForm({ ...form, profileVisibility: e.target.value })}
+                    >
+                      {visibilityOptions.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+                    </select>
+                  ) : info.field === 'userStatus' ? (
+                    <select 
+                      className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-sm"
+                      value={form.userStatus}
+                      onChange={(e) => setForm({ ...form, userStatus: e.target.value })}
+                    >
+                      {statusOptions.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+                    </select>
+                  ) : (
+                    <span className="font-medium text-white/90">{info.value}</span>
+                  )}
                   {info.copyable && (
                     <button
                       onClick={() => copyToClipboard(info.value, info.label)}

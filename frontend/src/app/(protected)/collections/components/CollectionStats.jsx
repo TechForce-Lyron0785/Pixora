@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Grid, Lock, Users } from 'lucide-react';
+import { Layers, Grid, Lock, Globe } from 'lucide-react';
 
 const CollectionStats = ({ collections }) => {
   return (
@@ -52,15 +52,15 @@ const CollectionStats = ({ collections }) => {
       <div className="bg-zinc-900/60 border border-white/10 rounded-lg p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-gray-400 text-sm">Collaborations</p>
-            <p className="text-2xl font-bold mt-1">{collections.filter(c => c.visibility === 'shared').length}</p>
+            <p className="text-gray-400 text-sm">Public Collections</p>
+            <p className="text-2xl font-bold mt-1">{collections.filter(c => c.visibility === 'public').length}</p>
           </div>
           <div className="p-3 rounded-lg bg-emerald-900/30">
-            <Users className="w-5 h-5 text-emerald-400" />
+            <Globe className="w-5 h-5 text-emerald-400" />
           </div>
         </div>
         <div className="mt-2 text-xs text-gray-400 flex items-center">
-          <span>{collections.filter(c => c.visibility === 'shared').length} shared collections</span>
+          <span>{collections.filter(c => c.visibility === 'public').length} public collections</span>
         </div>
       </div>
     </div>

@@ -44,7 +44,7 @@ export const getUserCollections = asyncHandler(async (req, res) => {
   const sortOrder = req.query.sortOrder === "asc" ? 1 : -1; // Default to descending (newest first)
   const search = req.query.search || "";
 
-  // Build query for searching
+  // Build query for searching - only show user's own collections
   let query = { user: req.user._id };
   
   if (search) {
@@ -72,10 +72,6 @@ export const getUserCollections = asyncHandler(async (req, res) => {
       path: 'images',
       select: 'imageUrl title',
       options: { limit: 1 } // Just get the first image for preview
-    })
-    .populate({
-      path: 'collaborators.user',
-      select: 'username profilePicture'
     });
 
   // Count total collections matching the query
@@ -107,10 +103,6 @@ export const getCollectionById = asyncHandler(async (req, res) => {
     .populate({
       path: 'images',
       select: 'imageUrl title description user favoritesCount likesCount commentsCount'
-    })
-    .populate({
-      path: 'collaborators.user',
-      select: 'username profilePicture fullName'
     });
 
   if (!collection) {
@@ -119,11 +111,8 @@ export const getCollectionById = asyncHandler(async (req, res) => {
 
   // Check if user has permission to view this collection
   const isOwner = collection.user.toString() === req.user._id.toString();
-  const isCollaborator = collection.collaborators.some(collab => 
-    collab.user._id.toString() === req.user._id.toString()
-  );
 
-  if (!isOwner && !isCollaborator && collection.visibility === 'private') {
+  if (!isOwner && collection.visibility === 'private') {
     throw new ApiError(403, "You don't have permission to view this collection");
   }
 
@@ -152,16 +141,9 @@ export const updateCollection = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Collection not found");
   }
 
-  // Check if user has permission to update
+  // Check if user has permission to update (only owner can update)
   if (collection.user.toString() !== req.user._id.toString()) {
-    // Check if user is an editor collaborator
-    const isEditor = collection.collaborators.some(collab => 
-      collab.user.toString() === req.user._id.toString() && collab.role === 'editor'
-    );
-
-    if (!isEditor) {
-      throw new ApiError(403, "You don't have permission to update this collection");
-    }
+    throw new ApiError(403, "You don't have permission to update this collection");
   }
 
   // Update fields if provided
@@ -195,7 +177,7 @@ export const deleteCollection = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Collection not found");
   }
 
-  // Check if user has permission to delete
+  // Check if user has permission to delete (only owner can delete)
   if (collection.user.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "You don't have permission to delete this collection");
   }
@@ -223,16 +205,9 @@ export const addImageToCollection = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Collection not found");
   }
 
-  // Check if user has permission to update
+  // Check if user has permission to update (only owner can update)
   if (collection.user.toString() !== req.user._id.toString()) {
-    // Check if user is an editor collaborator
-    const isEditor = collection.collaborators.some(collab => 
-      collab.user.toString() === req.user._id.toString() && collab.role === 'editor'
-    );
-
-    if (!isEditor) {
-      throw new ApiError(403, "You don't have permission to update this collection");
-    }
+    throw new ApiError(403, "You don't have permission to update this collection");
   }
 
   // Check if the image exists
@@ -276,16 +251,9 @@ export const removeImageFromCollection = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Collection not found");
   }
 
-  // Check if user has permission to update
+  // Check if user has permission to update (only owner can update)
   if (collection.user.toString() !== req.user._id.toString()) {
-    // Check if user is an editor collaborator
-    const isEditor = collection.collaborators.some(collab => 
-      collab.user.toString() === req.user._id.toString() && collab.role === 'editor'
-    );
-
-    if (!isEditor) {
-      throw new ApiError(403, "You don't have permission to update this collection");
-    }
+    throw new ApiError(403, "You don't have permission to update this collection");
   }
 
   // Remove the image from the collection
@@ -305,92 +273,6 @@ export const removeImageFromCollection = asyncHandler(async (req, res) => {
 
   res.status(200).json(
     new ApiResponse(200, "Image removed from collection successfully", collection)
-  );
-});
-
-/**
- * @desc Add a collaborator to a collection
- * @route POST /api/collections/:collectionId/collaborators
- * @access Private
- */
-export const addCollaborator = asyncHandler(async (req, res) => {
-  const { collectionId } = req.params;
-  const { userId, role } = req.body;
-
-  if (!userId) {
-    throw new ApiError(400, "User ID is required");
-  }
-
-  // Find the collection
-  const collection = await Collection.findById(collectionId);
-
-  if (!collection) {
-    throw new ApiError(404, "Collection not found");
-  }
-
-  // Check if user is the owner
-  if (collection.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Only the collection owner can add collaborators");
-  }
-
-  // Check if user is already a collaborator
-  const existingCollaborator = collection.collaborators.find(
-    collab => collab.user.toString() === userId
-  );
-
-  if (existingCollaborator) {
-    throw new ApiError(400, "User is already a collaborator");
-  }
-
-  // Add the collaborator
-  collection.collaborators.push({
-    user: userId,
-    role: role || 'viewer'
-  });
-
-  await collection.save();
-
-  // Populate collaborator info before returning
-  const updatedCollection = await Collection.findById(collectionId)
-    .populate({
-      path: 'collaborators.user',
-      select: 'username profilePicture fullName'
-    });
-
-  res.status(200).json(
-    new ApiResponse(200, "Collaborator added successfully", updatedCollection)
-  );
-});
-
-/**
- * @desc Remove a collaborator from a collection
- * @route DELETE /api/collections/:collectionId/collaborators/:userId
- * @access Private
- */
-export const removeCollaborator = asyncHandler(async (req, res) => {
-  const { collectionId, userId } = req.params;
-
-  // Find the collection
-  const collection = await Collection.findById(collectionId);
-
-  if (!collection) {
-    throw new ApiError(404, "Collection not found");
-  }
-
-  // Check if user is the owner
-  if (collection.user.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Only the collection owner can remove collaborators");
-  }
-
-  // Remove the collaborator
-  collection.collaborators = collection.collaborators.filter(
-    collab => collab.user.toString() !== userId
-  );
-
-  await collection.save();
-
-  res.status(200).json(
-    new ApiResponse(200, "Collaborator removed successfully", collection)
   );
 });
 

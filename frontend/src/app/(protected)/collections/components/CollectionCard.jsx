@@ -5,12 +5,13 @@ import {
   MoreHorizontal,
   Eye,
   EyeOff,
-  Users,
   Edit,
   Trash2,
   Star,
   Calendar,
   Tag,
+  Lock,
+  Globe,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -22,6 +23,7 @@ const CollectionCard = ({
   onDelete,
   onEdit,
   onToggleStar,
+  onToggleVisibility,
   className = "",
 }) => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -53,6 +55,12 @@ const CollectionCard = ({
     e.preventDefault();
     e.stopPropagation();
     if (onToggleStar) onToggleStar(collection);
+  };
+
+  const handleToggleVisibility = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleVisibility) onToggleVisibility(collection);
   };
 
   const toggleContextMenu = (e) => {
@@ -88,11 +96,18 @@ const CollectionCard = ({
                 </p>
               </div>
 
-              {collection.visibility === "private" && (
-                <div className="p-2 rounded-lg bg-white/10">
-                  <EyeOff className="w-4 h-4" />
-                </div>
-              )}
+              {/* Visibility indicator */}
+              <div className={`p-2 rounded-lg ${
+                collection.visibility === "private" 
+                  ? "bg-amber-500/20 border border-amber-500/30" 
+                  : "bg-emerald-500/20 border border-emerald-500/30"
+              }`}>
+                {collection.visibility === "private" ? (
+                  <Lock className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Globe className="w-4 h-4 text-emerald-400" />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -104,12 +119,22 @@ const CollectionCard = ({
               <span>Created {createdDate}</span>
             </div>
 
-            {collection.collaborators > 0 && (
-              <div className="flex items-center gap-1 text-xs text-emerald-400">
-                <Users className="w-3 h-3" />
-                <span>{collection.collaborators} collaborators</span>
-              </div>
-            )}
+            {/* Visibility status */}
+            <div className={`flex items-center gap-1 text-xs ${
+              collection.visibility === "private" ? "text-amber-400" : "text-emerald-400"
+            }`}>
+              {collection.visibility === "private" ? (
+                <>
+                  <Lock className="w-3 h-3" />
+                  <span>Private</span>
+                </>
+              ) : (
+                <>
+                  <Globe className="w-3 h-3" />
+                  <span>Public</span>
+                </>
+              )}
+            </div>
           </div>
 
           {collection.description ? (
@@ -141,6 +166,7 @@ const CollectionCard = ({
           </div>
         </div>
       </Link>
+      
       {/* Collection actions overlay */}
       <div className="absolute top-3 right-3 flex gap-2 transform translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
         <button
@@ -173,22 +199,21 @@ const CollectionCard = ({
               <Edit className="w-4 h-4" />
               <span>Edit Collection</span>
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm hover:bg-white/5 transition-colors flex items-center gap-2">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm hover:bg-white/5 transition-colors flex items-center gap-2"
+              onClick={handleToggleVisibility}
+            >
               {collection.visibility === "private" ? (
                 <>
-                  <Eye className="w-4 h-4" />
+                  <Globe className="w-4 h-4" />
                   <span>Make Public</span>
                 </>
               ) : (
                 <>
-                  <EyeOff className="w-4 h-4" />
+                  <Lock className="w-4 h-4" />
                   <span>Make Private</span>
                 </>
               )}
-            </button>
-            <button className="w-full text-left px-4 py-2 text-sm hover:bg-white/5 transition-colors flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>Manage Access</span>
             </button>
             <button
               className="w-full text-left px-4 py-2 text-sm hover:bg-white/5 transition-colors flex items-center gap-2 text-rose-400"

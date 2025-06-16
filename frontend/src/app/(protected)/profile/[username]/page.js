@@ -5,6 +5,9 @@ import { useAuth } from '@/context/AuthContext';
 import { useFollow } from '@/context/FollowContext';
 import { useApi } from '@/hooks/useApi';
 import { ProfilePicVerify } from '@/components';
+import RecentActivity from '@/app/(protected)/dashboard/components/RecentActivity';
+import { useCollections } from '@/hooks/useCollections';
+import CreateCollectionModal from '@/app/(protected)/collections/components/CreateCollectionModal.jsx';
 
 // Import profile components
 import {
@@ -66,8 +69,22 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [profileCollections, setProfileCollections] = useState([]);
+  const [collectionsLoading, setCollectionsLoading] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCollection, setNewCollection] = useState({
+    name: '',
+    description: '',
+    visibility: 'private',
+    tags: '',
+  });
 
   const api = useApi();
+  const {
+    fetchCollections,
+    collections,
+    createCollection,
+  } = useCollections();
 
   useEffect(() => {
     const checkFollowStatus = async () => {
@@ -104,6 +121,66 @@ const ProfilePage = () => {
   }, [user, userName, api, isAuthenticated, following]);
 
   const [activeTab, setActiveTab] = useState('works');
+
+  // Load profile collections: own -> private+public via hook; others -> public filtered by user
+  useEffect(() => {
+    const loadCollections = async () => {
+      if (!profile?._id) return;
+      setCollectionsLoading(true);
+      try {
+        if (isOwnProfile) {
+          await fetchCollections({ page: 1, limit: 12, sortBy: 'updatedAt', sortOrder: 'desc' });
+          setProfileCollections(collections);
+        } else {
+          // Fetch public collections and filter by profile user id
+          const response = await api.get(`/api/collections/public?page=1&limit=50`);
+          const publicCollections = response?.data?.data || [];
+          const filtered = publicCollections.filter((c) => {
+            const ownerId = typeof c.user === 'string' ? c.user : c.user?._id;
+            return ownerId === profile._id;
+          });
+          setProfileCollections(filtered);
+        }
+      } catch (err) {
+        console.error('Error loading collections:', err);
+      } finally {
+        setCollectionsLoading(false);
+      }
+    };
+    loadCollections();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile._id, isOwnProfile]);
+
+  // Sync local list with hook when viewing own profile
+  useEffect(() => {
+    if (isOwnProfile) {
+      setProfileCollections(collections);
+    }
+  }, [collections, isOwnProfile]);
+
+  const handleCreateCollection = async () => {
+    if (!newCollection.name.trim()) return;
+    try {
+      const tagsArray = newCollection.tags
+        ? newCollection.tags.split(',').map(t => t.trim().toLowerCase())
+        : [];
+      const created = await createCollection({
+        name: newCollection.name,
+        description: newCollection.description,
+        visibility: newCollection.visibility,
+        tags: tagsArray,
+      });
+      if (created) {
+        setNewCollection({ name: '', description: '', visibility: 'private', tags: '' });
+        setShowCreateModal(false);
+        if (isOwnProfile) {
+          await fetchCollections({ page: 1, limit: 12, sortBy: 'updatedAt', sortOrder: 'desc' });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to create collection:', e);
+    }
+  };
 
   // Load followers and following when those tabs are selected
   useEffect(() => {
@@ -234,7 +311,14 @@ const ProfilePage = () => {
         <div className="px-6 md:px-10 py-8">
           {activeTab === 'works' && <WorksTab user={profile} />}
 
-          {activeTab === 'collections' && <CollectionsTab />}
+          {activeTab === 'collections' && (
+            <CollectionsTab 
+              collections={profileCollections} 
+              loading={collectionsLoading}
+              onCreate={() => setShowCreateModal(true)}
+              canCreate={isOwnProfile}
+            />
+          )}
 
           {activeTab === 'followers' && (
             <FollowTab
@@ -252,10 +336,21 @@ const ProfilePage = () => {
             />
           )}
 
-          {activeTab === 'activity' && <ActivityTab />}
+          {activeTab === 'activity' && (
+            isOwnProfile ? <RecentActivity /> : <ActivityTab />
+          )}
 
-          {activeTab === 'about' && <AboutTab profile={profile} />}
+          {activeTab === 'about' && <AboutTab profile={profile} isOwnProfile={isOwnProfile} />}
         </div>)}
+
+      {/* Create Collection Modal */}
+      <CreateCollectionModal 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        newCollection={newCollection}
+        setNewCollection={setNewCollection}
+        handleCreateCollection={handleCreateCollection}
+      />
     </div>
   );
 };

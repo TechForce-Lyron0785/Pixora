@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Calendar,
   Tag,
-  Users 
+  Globe
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -18,6 +18,7 @@ const CollectionList = ({
   onEdit, 
   onDelete, 
   onToggleStar,
+  onToggleVisibility,
   onCollectionClick,
   loadMoreCollections,
   loadingMore,
@@ -49,11 +50,19 @@ const CollectionList = ({
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  {collection.visibility === 'private' && (
-                    <div className="p-1 rounded-lg bg-white/10">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                  )}
+                  {/* Visibility indicator */}
+                  <div className={`p-1 rounded-lg ${
+                    collection.visibility === "private" 
+                      ? "bg-amber-500/20 border border-amber-500/30" 
+                      : "bg-emerald-500/20 border border-emerald-500/30"
+                  }`}>
+                    {collection.visibility === "private" ? (
+                      <Lock className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Globe className="w-4 h-4 text-emerald-400" />
+                    )}
+                  </div>
+                  
                   {collection.isStarred && (
                     <div className="p-1 rounded-lg bg-white/10">
                       <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -79,6 +88,25 @@ const CollectionList = ({
                       >
                         <Edit2 className="w-4 h-4 mr-2" />
                         <span>Edit Collection</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleVisibility(collection);
+                        }}
+                        className="px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                      >
+                        {collection.visibility === "private" ? (
+                          <>
+                            <Globe className="w-4 h-4 mr-2" />
+                            <span>Make Public</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4 mr-2" />
+                            <span>Make Private</span>
+                          </>
+                        )}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -111,12 +139,22 @@ const CollectionList = ({
                   <span>Updated {new Date(collection.updatedAt || Date.now()).toLocaleDateString()}</span>
                 </div>
                 
-                {collection.visibility === 'shared' && (
-                  <div className="flex items-center gap-1 text-emerald-400">
-                    <Users className="w-3 h-3" />
-                    <span>Shared collection</span>
-                  </div>
-                )}
+                {/* Visibility status */}
+                <div className={`flex items-center gap-1 ${
+                  collection.visibility === "private" ? "text-amber-400" : "text-emerald-400"
+                }`}>
+                  {collection.visibility === "private" ? (
+                    <>
+                      <Lock className="w-3 h-3" />
+                      <span>Private</span>
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="w-3 h-3" />
+                      <span>Public</span>
+                    </>
+                  )}
+                </div>
                 
                 {collection.tags && collection.tags.length > 0 && (
                   <div className="flex items-center gap-1">

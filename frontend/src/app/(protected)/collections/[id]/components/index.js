@@ -2,5 +2,4 @@
 export { default as CollectionHeader } from './CollectionHeader';
 export { default as CollectionImages } from './CollectionImages';
 export { default as RemoveImageDialog } from './RemoveImageDialog';
-export { default as DeleteCollectionDialog } from './DeleteCollectionDialog';
-export { default as CollaboratorsDialog } from './CollaboratorsDialog'; 
+export { default as DeleteCollectionDialog } from './DeleteCollectionDialog'; 

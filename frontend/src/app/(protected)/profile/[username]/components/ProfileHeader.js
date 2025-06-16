@@ -22,11 +22,12 @@ import {
   Pencil,
   UserPen
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const ProfileHeader = ({ 
-  profile, 
-  isOwnProfile, 
-  isFollowing, 
+const ProfileHeader = ({
+  profile,
+  isOwnProfile,
+  isFollowing,
   followLoading,
   handleFollowToggle,
   setProfileOpen
@@ -260,14 +261,23 @@ const ProfileHeader = ({
               </button>
             )}
             <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+              {/* TODO: Make message working */}
               <MessageSquare className="w-5 h-5" />
             </button>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                // Share functionality
+                navigator.clipboard.writeText(`${window.location.origin}/profile/@${profile.username}`);
+                toast.success('Profile link copied to clipboard!');
+              }}
+            >
               <Share2 className="w-5 h-5" />
             </button>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+            {/* <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
               <MoreHorizontal className="w-5 h-5" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

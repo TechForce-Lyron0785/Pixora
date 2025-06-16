@@ -8,6 +8,7 @@ const CollectionGrid = ({
   onEdit, 
   onDelete, 
   onToggleStar,
+  onToggleVisibility,
   loadMoreCollections,
   loadingMore,
   hasMore 
@@ -24,6 +25,7 @@ const CollectionGrid = ({
               onEdit={onEdit}
               onDelete={onDelete}
               onToggleStar={onToggleStar}
+              onToggleVisibility={onToggleVisibility}
             />
           ))}
         </AnimatePresence>

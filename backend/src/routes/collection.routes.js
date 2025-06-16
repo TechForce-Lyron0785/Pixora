@@ -7,8 +7,6 @@ import {
   deleteCollection,
   addImageToCollection,
   removeImageFromCollection,
-  addCollaborator,
-  removeCollaborator,
   getCollectionsByImage,
   getPublicCollections,
   searchCollections
@@ -30,9 +28,5 @@ router.delete("/:collectionId", authenticateUser, deleteCollection);
 // Image management in collections
 router.post("/:collectionId/images/:imageId", authenticateUser, addImageToCollection);
 router.delete("/:collectionId/images/:imageId", authenticateUser, removeImageFromCollection);
-
-// Collaborator management
-router.post("/:collectionId/collaborators", authenticateUser, addCollaborator);
-router.delete("/:collectionId/collaborators/:userId", authenticateUser, removeCollaborator);
 
 export default router; 

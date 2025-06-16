@@ -14,6 +14,7 @@ import {
   DeleteConfirmationModal,
   CollectionDetailsModal
 } from './components';
+import { useAuth } from '@/context/AuthContext';
 
 const CollectionsPage = () => {
   // State management
@@ -31,6 +32,9 @@ const CollectionsPage = () => {
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [collectionToEdit, setCollectionToEdit] = useState(null);
   const [collectionToDelete, setCollectionToDelete] = useState(null);
+
+  const { user } = useAuth();
+
   
   // New collection form state
   const [newCollection, setNewCollection] = useState({
@@ -55,15 +59,18 @@ const CollectionsPage = () => {
   
   // Fetch collections on mount and when sort/filter changes
   useEffect(() => {
+    if (!user) return;
     fetchCollections({
       sortBy: sortOption,
       sortOrder: sortOrder,
       search: searchQuery
     });
-  }, [sortOption, sortOrder, filter]);
+  }, [sortOption, sortOrder, filter, user]);
   
   // Handle search query changes with debounce
   useEffect(() => {
+    if (!user) return;
+
     const timer = setTimeout(() => {
       fetchCollections({
         search: searchQuery,
@@ -73,7 +80,7 @@ const CollectionsPage = () => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, user]);
 
   // Close filter dropdown when clicking outside
   useEffect(() => {
@@ -207,6 +214,20 @@ const CollectionsPage = () => {
       console.error("Failed to toggle star:", error);
     }
   };
+
+  // Handle toggling collection visibility
+  const handleToggleVisibility = async (collection) => {
+    try {
+      const newVisibility = collection.visibility === 'private' ? 'public' : 'private';
+      await updateCollection(collection._id, {
+        visibility: newVisibility
+      });
+      // Refresh collections to show updated state
+      fetchCollections();
+    } catch (error) {
+      console.error("Failed to toggle visibility:", error);
+    }
+  };
   
   // Handle load more collections
   const handleLoadMore = () => {
@@ -223,7 +244,7 @@ const CollectionsPage = () => {
   };
   
   // Loading state
-  if (loading && collections.length === 0) {
+  if ((loading && collections.length === 0) || !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh]">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -256,7 +277,7 @@ const CollectionsPage = () => {
         <CollectionStats collections={collections} />
         
         {/* Quick access */}
-        <CollectionQuickAccess />
+        {/* <CollectionQuickAccess /> */}
         
         {/* Collections grid/list view */}
         {getFilteredCollections().length === 0 ? (
@@ -287,6 +308,7 @@ const CollectionsPage = () => {
                 onEdit={handleEditCollection}
                 onDelete={handleDeleteCollection}
                 onToggleStar={handleToggleStar}
+                onToggleVisibility={handleToggleVisibility}
                 loadMoreCollections={handleLoadMore}
                 loadingMore={loadingMore}
                 hasMore={hasMore}
@@ -300,6 +322,7 @@ const CollectionsPage = () => {
                 onEdit={handleEditCollection}
                 onDelete={handleDeleteCollection}
                 onToggleStar={handleToggleStar}
+                onToggleVisibility={handleToggleVisibility}
                 onCollectionClick={handleCollectionClick}
                 loadMoreCollections={handleLoadMore}
                 loadingMore={loadingMore}

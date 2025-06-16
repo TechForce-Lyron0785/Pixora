@@ -62,19 +62,7 @@ const CreateCollectionModal = ({
               <label htmlFor="privacy" className="text-sm text-gray-300">Make this collection private</label>
             </div>
             
-            <div className="flex items-center">
-              <input 
-                type="checkbox" 
-                id="collaboration" 
-                className="mr-2"
-                checked={newCollection.visibility === 'shared'}
-                onChange={(e) => setNewCollection({
-                  ...newCollection,
-                  visibility: e.target.checked ? 'shared' : 'public'
-                })} 
-              />
-              <label htmlFor="collaboration" className="text-sm text-gray-300">Allow collaboration</label>
-            </div>
+
           </div>
           
           <div className="pt-4 flex justify-end gap-3">
