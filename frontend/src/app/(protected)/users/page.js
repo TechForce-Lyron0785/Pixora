@@ -18,6 +18,8 @@ const UsersPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
   
   const { user, isAuthenticated } = useAuth();
   const { 
@@ -89,6 +91,20 @@ const UsersPage = () => {
     
     return users;
   };
+
+  // Derived pagination values
+  const filtered = filteredUsers();
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedUsers = filtered.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTab]);
   
   // Check if current user is following a user using the following array
   const isFollowing = (userId) => {
@@ -151,13 +167,16 @@ const UsersPage = () => {
       <div className="p-6 grid grid-cols-12 gap-6">
         {/* Main content - Users list */}
         <UsersList 
-          filteredUsers={filteredUsers()} 
+          filteredUsers={paginatedUsers} 
           usersLoading={usersLoading} 
           isFollowing={isFollowing}
           handleFollowToggle={handleFollowToggle}
           followLoading={followLoading}
           setSearchQuery={setSearchQuery}
           setActiveTab={setActiveTab}
+          currentPage={safeCurrentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
         />
         
         {/* Right sidebar */}

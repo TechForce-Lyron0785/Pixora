@@ -5,7 +5,7 @@ const SuggestedConnections = ({ suggestedUsers, isFollowing, handleFollowToggle,
   return (
     <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
       <h3 className="text-lg font-bold mb-3">You might like</h3>
-      <div className="flex overflow-x-auto gap-3 py-2 no-scrollbar">
+      <div className="flex overflow-x-auto gap-3 py-2 custom-scrollbar">
         {suggestedUsers.map(user => (
           <div key={user._id} className="flex-shrink-0 w-36 bg-white/5 rounded-lg p-3 text-center">
             <div className="w-16 h-16 mx-auto rounded-full overflow-hidden mb-2">

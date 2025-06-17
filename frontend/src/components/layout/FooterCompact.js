@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import React from 'react'
+import Link from 'next/link'
 
 const FooterCompact = () => {
   return (
@@ -13,9 +14,9 @@ const FooterCompact = () => {
         </div>
 
         <div className="flex gap-4">
-          <button className="text-sm text-gray-400 hover:text-white transition-colors">Terms</button>
-          <button className="text-sm text-gray-400 hover:text-white transition-colors">Privacy</button>
-          <button className="text-sm text-gray-400 hover:text-white transition-colors">Help</button>
+          <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">Terms</Link>
+          <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">Privacy</Link>
+          <Link href="/help" className="text-sm text-gray-400 hover:text-white transition-colors">Help</Link>
         </div>
       </div>
     </div>

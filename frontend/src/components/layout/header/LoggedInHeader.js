@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 // Import our component parts
@@ -24,6 +24,7 @@ const LoggedInHeader = () => {
   const [userStatus, setUserStatus] = useState("online");
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout } = useAuth();
 
   // Handle scroll effect for navbar appearance
@@ -78,6 +79,18 @@ const LoggedInHeader = () => {
   const toggleCreatorMode = () => {
     setIsCreatingMode(!isCreatingMode);
   };
+
+  // Derive current tab from pathname
+  useEffect(() => {
+    if (!pathname) return;
+    if (pathname.startsWith("/dashboard")) setCurrentTab("dashboard");
+    else if (pathname.startsWith("/feed")) setCurrentTab("discover");
+    else if (pathname.startsWith("/search")) setCurrentTab("search");
+    else if (pathname.startsWith("/users")) setCurrentTab("users");
+    else if (pathname.startsWith("/collections")) setCurrentTab("collections");
+    else if (pathname.startsWith("/notifications")) setCurrentTab("notifications");
+    else setCurrentTab("discover");
+  }, [pathname]);
 
   // Toggle quick view
   const toggleQuickView = (e) => {

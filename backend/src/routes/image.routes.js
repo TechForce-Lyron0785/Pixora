@@ -20,7 +20,8 @@ import {
   saveImageDetails,
   getPopularTags,
   searchTags,
-  getTrendingSearches
+  getTrendingSearches,
+  getImageLikers
 } from "../controllers/image.controllers.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import upload from "../config/multer.js";
@@ -37,6 +38,7 @@ router.get("/tags/:tag", authenticateUser, getImagesByTag);
 router.get("/user/:userId", authenticateUser, getUserPublicImages);
 router.get("/me", authenticateUser, getUserImages);
 router.get("/trending-search", authenticateUser, getTrendingSearches);
+router.get("/:imageId/likes", authenticateUser, getImageLikers);
 router.get("/:imageId", authenticateUser, getImage);
 
 // Reviews

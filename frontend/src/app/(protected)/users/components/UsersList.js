@@ -10,8 +10,35 @@ const UsersList = ({
   handleFollowToggle, 
   followLoading, 
   setSearchQuery, 
-  setActiveTab 
+  setActiveTab,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {}
 }) => {
+  const canGoPrev = currentPage > 1;
+  const canGoNext = currentPage < totalPages;
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      onPageChange(page);
+    }
+  };
+
+  const getVisiblePages = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+    pages.push(1);
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    if (start > 2) pages.push('ellipsis-start');
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < totalPages - 1) pages.push('ellipsis-end');
+    pages.push(totalPages);
+    return pages;
+  };
   return (
     <div className="col-span-12 lg:col-span-8">
       {/* Users grid */}
@@ -59,24 +86,41 @@ const UsersList = ({
       
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
-        <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Previous</button>
+        <button 
+          onClick={() => canGoPrev && goToPage(currentPage - 1)}
+          disabled={!canGoPrev}
+          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+            canGoPrev ? 'bg-white/5 hover:bg-white/10' : 'bg-white/5 opacity-50 cursor-not-allowed'
+          }`}
+        >
+          Previous
+        </button>
         <div className="flex items-center gap-2">
-          {[1, 2, 3].map(page => (
-            <button 
-              key={page} 
-              className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
-                page === 1 ? 'bg-violet-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'
-              }`}
-            >
-              {page}
-            </button>
+          {getVisiblePages().map((item, idx) => (
+            item.toString().includes('ellipsis') ? (
+              <span key={item + idx} className="text-gray-500">...</span>
+            ) : (
+              <button 
+                key={item}
+                onClick={() => goToPage(item)}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+                  item === currentPage ? 'bg-violet-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                }`}
+              >
+                {item}
+              </button>
+            )
           ))}
-          <span className="text-gray-500">...</span>
-          <button className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 text-gray-300">
-            12
-          </button>
         </div>
-        <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors">Next</button>
+        <button 
+          onClick={() => canGoNext && goToPage(currentPage + 1)}
+          disabled={!canGoNext}
+          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+            canGoNext ? 'bg-white/5 hover:bg-white/10' : 'bg-white/5 opacity-50 cursor-not-allowed'
+          }`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

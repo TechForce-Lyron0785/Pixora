@@ -9,6 +9,7 @@ import { Follow } from "../models/follow.model.js";
 import { Review } from "../models/review.model.js";
 import { Report } from "../models/report.model.js";
 import { Notification } from "../models/notification.model.js";
+import { Like } from "../models/like.model.js";
 
 
 // Get image by ID
@@ -265,6 +266,8 @@ export const updateImage = asyncHandler(async (req, res) => {
 
   Object.assign(image, updates);
   await image.save();
+  // Ensure user details remain available after update
+  await image.populate("user", "username profilePicture fullName");
 
   res.status(200).json(
     new ApiResponse(200, "Image updated successfully", image)
@@ -1041,5 +1044,60 @@ export const getTrendingSearches = asyncHandler(async (req, res) => {
   
   res.status(200).json(
     new ApiResponse(200, "Trending searches fetched successfully", trendingSearches)
+  );
+});
+
+/**
+ * @desc Get users who liked an image
+ * @route GET /api/images/:imageId/likes
+ * @access Private
+ */
+export const getImageLikers = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  // Ensure image exists and visibility allows current user (mirror getImage checks)
+  const image = await Image.findById(imageId).populate("user", "_id");
+  if (!image) {
+    throw new ApiError(404, "Image not found");
+  }
+
+  if (image.visibility !== "public") {
+    if (!req.user) {
+      throw new ApiError(403, "Access denied to non-public image");
+    }
+    if (image.visibility === "private" && image.user._id.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, "Access denied to private image");
+    }
+    if (image.visibility === "followers" && image.user._id.toString() !== req.user._id.toString()) {
+      const isFollowing = await Follow.checkFollowStatus(req.user._id, image.user._id);
+      if (!isFollowing) {
+        throw new ApiError(403, "Access denied: you must follow this user to view this image");
+      }
+    }
+  }
+
+  const likes = await Like.find({ image: imageId })
+    .populate("user", "username profilePicture fullName")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Like.countDocuments({ image: imageId });
+
+  const metadata = {
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit)
+  };
+
+  // Map to just users for a cleaner payload on the client
+  const likers = likes.map(like => like.user);
+
+  res.status(200).json(
+    new ApiResponse(200, "Image likers fetched successfully", likers, metadata)
   );
 });

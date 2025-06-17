@@ -19,11 +19,15 @@ const ImageHeader = ({
   isBookmarked,
   handleLikeToggle,
   likesCount,
-  handleBookmarkToggle
+  handleBookmarkToggle,
+  isOwner = false,
+  onEditClick,
+  onDeleteClick
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => {
@@ -100,6 +104,24 @@ const ImageHeader = ({
         <button onClick={toggleFullscreen} className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition opacity-0 group-hover:opacity-100">
           {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
         </button>
+
+        {/* Owner overlay controls */}
+        {isOwner && (
+          <div className="absolute top-4 left-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+            <button
+              onClick={onEditClick}
+              className="px-3 py-2 text-xs rounded-md bg-white/10 backdrop-blur-sm hover:bg-white/20"
+            >
+              Edit post
+            </button>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              className="px-3 py-2 text-xs rounded-md bg-red-600/80 hover:bg-red-500"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Action bar */}
@@ -148,6 +170,31 @@ const ImageHeader = ({
           </a>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {isOwner && confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setConfirmOpen(false)} />
+          <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/90 backdrop-blur-md p-6">
+            <h3 className="text-lg font-semibold mb-2">Delete this post?</h3>
+            <p className="text-sm text-gray-400 mb-4">This action cannot be undone.</p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setConfirmOpen(false)}
+                className="px-4 py-2 text-sm rounded-md bg-white/10 hover:bg-white/15"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setConfirmOpen(false); onDeleteClick && onDeleteClick(); }}
+                className="px-4 py-2 text-sm rounded-md bg-red-600/80 hover:bg-red-500"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

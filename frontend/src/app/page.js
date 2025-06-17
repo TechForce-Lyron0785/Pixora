@@ -1,6 +1,6 @@
 // TODO:
 // users page - pagination, static to dynamic
-// comment in notifications
+
 // settings
 // footer & header
 // landing page
