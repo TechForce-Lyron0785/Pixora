@@ -1,10 +1,7 @@
 // TODO:
-// users page - pagination, static to dynamic
-
 // settings
-// footer & header
-// landing page
 // responsive
+// chat
 
 "use client";
 

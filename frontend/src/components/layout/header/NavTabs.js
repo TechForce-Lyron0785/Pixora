@@ -1,14 +1,15 @@
 "use client";
 
 import { Compass, TrendingUp, Zap, Layers, ImagePlus, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 const NavTabs = ({ currentTab, setCurrentTab, isCreatingMode, toggleCreatorMode }) => {
   // Navigation tabs
   const navTabs = [
-    { id: "discover", label: "Discover", icon: Compass },
-    { id: "trending", label: "Trending", icon: TrendingUp },
-    { id: "new", label: "New", icon: Zap },
-    { id: "collections", label: "Collections", icon: Layers },
+    { id: "discover", label: "Discover", icon: Compass, href: "/dashboard" },
+    { id: "trending", label: "Trending", icon: TrendingUp, href: "/tags" },
+    { id: "new", label: "New", icon: Zap, href: "/upload-image" },
+    { id: "collections", label: "Collections", icon: Layers, href: "/collections" },
   ];
 
   return (
@@ -16,7 +17,8 @@ const NavTabs = ({ currentTab, setCurrentTab, isCreatingMode, toggleCreatorMode 
       {/* Navigation tabs */}
       <div className="hidden lg:flex items-center space-x-1 mr-4">
         {navTabs.map((tab) => (
-          <button
+          <Link
+            href={tab.href}
             key={tab.id}
             onClick={() => setCurrentTab(tab.id)}
             className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -27,12 +29,12 @@ const NavTabs = ({ currentTab, setCurrentTab, isCreatingMode, toggleCreatorMode 
           >
             <tab.icon className={`w-4 h-4 mr-2 ${currentTab === tab.id ? "text-violet-400" : "text-gray-400"}`} />
             {tab.label}
-          </button>
+          </Link>
         ))}
       </div>
 
       {/* Creator Mode Toggle */}
-      <button
+      {/* <button
         onClick={toggleCreatorMode}
         className={`hidden md:flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
           isCreatingMode
@@ -51,7 +53,7 @@ const NavTabs = ({ currentTab, setCurrentTab, isCreatingMode, toggleCreatorMode 
             Switch to Creator
           </>
         )}
-      </button>
+      </button> */}
     </div>
   );
 };

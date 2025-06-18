@@ -29,16 +29,16 @@ const FeaturesSection = () => {
   const featuresData = [
     {
       id: 1,
-      title: "AI-Powered Creation",
-      description: "Generate stunning visuals in seconds using our advanced AI models that learn your unique creative style over time.",
+      title: "Effortless Uploads",
+      description: "Post high-quality photos in seconds with fast uploads, auto-optimizations, and clean galleries for your audience.",
       icon: <Sparkles className="w-6 h-6 text-violet-400" />,
       color: "from-violet-600 to-fuchsia-600",
       image: "/images/upload/img1.webp",
     },
     {
       id: 2,
-      title: "Creative Control",
-      description: "Fine-tune every element with precision tools for both casual creators and professionals. Perfect your vision down to the pixel.",
+      title: "Smart Organization",
+      description: "Use albums, tags, and collections to keep work tidy. Perfect for portfolios, series, and client sets.",
       icon: <Wand2 className="w-6 h-6 text-emerald-400" />,
       color: "from-emerald-600 to-teal-600",
       image: "/images/upload/img2.jpg",
@@ -46,15 +46,15 @@ const FeaturesSection = () => {
     {
       id: 3,
       title: "Community & Collaboration",
-      description: "Connect with millions of artists, collaborate on projects, and share ideas in our vibrant creative ecosystem.",
+      description: "Follow creators, get feedback, and collaborate. Build relationships and grow with meaningful engagement.",
       icon: <Users className="w-6 h-6 text-amber-400" />,
       color: "from-amber-600 to-orange-600",
       image: "/images/bg-img2.jpg",
     },
     {
       id: 4,
-      title: "Growth & Analytics",
-      description: "Track your progress with powerful analytics. Understand your audience and optimize your content for maximum engagement.",
+      title: "Insights & Growth",
+      description: "Track likes, views, and shares. Understand what performs best and optimize your posting strategy.",
       icon: <BarChart3 className="w-6 h-6 text-cyan-400" />,
       color: "from-cyan-600 to-blue-600",
       image: "/images/upload/img5.png",
@@ -64,33 +64,33 @@ const FeaturesSection = () => {
   // Secondary features for the grid
   const secondaryFeatures = [
     {
-      title: "Style Consistency",
-      description: "Maintain your unique style across all creations with our AI style preservation system",
+      title: "Brand Consistency",
+      description: "Keep your visual identity cohesive across albums and posts.",
       icon: <Palette className="w-6 h-6 text-rose-400" />
     },
     {
-      title: "Global Distribution",
-      description: "Reach audiences worldwide with intelligent content distribution system",
+      title: "Global Reach",
+      description: "Distribute your work worldwide with smart discovery.",
       icon: <Globe className="w-6 h-6 text-blue-400" />
     },
     {
-      title: "Inspiration Engine",
-      description: "Never run out of ideas with our AI-powered inspiration generator",
+      title: "Inspiration Feed",
+      description: "Find ideas with tailored recommendations and trends.",
       icon: <Lightbulb className="w-6 h-6 text-amber-400" />
     },
     {
-      title: "Private Communities",
-      description: "Create exclusive spaces for your most dedicated fans and collaborators",
+      title: "Private Sharing",
+      description: "Create invite-only collections for clients and teams.",
       icon: <MessagesSquare className="w-6 h-6 text-green-400" />
     },
     {
       title: "Content Protection",
-      description: "Safeguard your creative works with advanced watermarking and tracking",
+      description: "Protect your images with watermarking and tracking.",
       icon: <ShieldCheck className="w-6 h-6 text-purple-400" />
     },
     {
       title: "Multi-Layer Editing",
-      description: "Professional-grade editing tools with unlimited layers and history",
+      description: "Fine-tune details with non-destructive adjustments.",
       icon: <Layers className="w-6 h-6 text-indigo-400" />
     }
   ];
@@ -146,10 +146,10 @@ const FeaturesSection = () => {
         >
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 backdrop-blur-lg border border-violet-500/20 text-sm font-medium text-fuchsia-200 mb-4">
             <Zap className="w-3.5 h-3.5 mr-1.5 text-fuchsia-300" />
-            <span>Powerful Features</span>
+            <span>Powerful features</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Everything you need to <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">create & thrive</span></h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">Our comprehensive suite of tools empowers creators at every level, from hobbyists to professionals, to bring their vision to life and build their audience.</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Everything you need to <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">share & grow</span></h2>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">Our platform helps photographers and creators publish faster, present better, and reach the right audience everywhere.</p>
         </motion.div>
 
         {/* Main features showcase */}
@@ -172,10 +172,10 @@ const FeaturesSection = () => {
                     : 'bg-white/5 hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-start">
+                <div className="flex items:start">
                   <div className={`p-3 rounded-lg ${
                     activeFeature === index 
-                      ? 'bg-white/20' 
+                      ? 'bg:white/20' 
                       : 'bg-gradient-to-r ' + feature.color
                   }`}>
                     {feature.icon}
@@ -214,12 +214,12 @@ const FeaturesSection = () => {
                 fill
                 className="object-cover"
               />
-              <div className={`absolute inset-0 bg-gradient-to-br ${featuresData[activeFeature].color} opacity-60 mix-blend-overlay transition-all duration-500`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br ${featuresData[activeFeature].color} opacity:60 mix-blend-overlay transition-all duration-500`}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
             </div>
             
             <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items:center gap-3 mb-4">
                 {featuresData.map((_, idx) => (
                   <button
                     key={idx}
@@ -251,7 +251,7 @@ const FeaturesSection = () => {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <h3 className="text-2xl font-bold text-white mb-10 text-center">More powerful capabilities</h3>
+          <h3 className="text-2xl font-bold text-white mb-10 text-center">More ways to stand out</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {secondaryFeatures.map((feature, idx) => (
               <motion.div 
@@ -281,13 +281,13 @@ const FeaturesSection = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-violet-900/50 to-fuchsia-900/50"></div>
           <div className="relative p-12 flex flex-col md:flex-row items-center justify-between">
             <div className="mb-8 md:mb-0 md:mr-8">
-              <h3 className="text-3xl font-bold text-white mb-4">Ready to unleash your creativity?</h3>
-              <p className="text-gray-200 mb-6 max-w-xl">Join thousands of creators who are already transforming their ideas into stunning visuals and building their audience.</p>
+              <h3 className="text-3xl font-bold text-white mb-4">Ready to share your best work?</h3>
+              <p className="text-gray-200 mb-6 max-w-xl">Join thousands of photographers publishing beautiful images, organizing galleries, and growing their audience.</p>
               <div className="flex flex-wrap gap-3 mb-6">
                 {[
-                  "Unlimited AI generations", 
-                  "Premium creation tools", 
-                  "Advanced analytics", 
+                  "Unlimited albums", 
+                  "High-res delivery", 
+                  "Engagement insights", 
                   "Community access"
                 ].map((feature, idx) => (
                   <div key={idx} className="flex items-center text-white/90 text-sm">
@@ -301,7 +301,7 @@ const FeaturesSection = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <button className="px-8 py-4 rounded-lg bg-white text-zinc-900 font-medium hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center shadow-lg shadow-white/10">
                 <Sparkles className="w-5 h-5 mr-2 text-violet-600" />
-                <span>Start creating for free</span>
+                <span>Start sharing for free</span>
               </button>
               <button className="px-8 py-4 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium hover:bg-white/20 transition-colors duration-300 flex items-center justify-center">
                 <span>View pricing</span>

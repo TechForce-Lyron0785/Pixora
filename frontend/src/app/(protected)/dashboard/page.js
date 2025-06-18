@@ -9,7 +9,8 @@ import {
   RecentActivity,
   QuickUpload,
   AchievementCard,
-  StorageUsage
+  StorageUsage,
+  UserAnalytics
 } from './components';
 import { FeaturedCreators } from '../users/components';
 
@@ -43,6 +44,9 @@ const DashboardPage = () => {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           {/* Welcome card */}
           <WelcomeCard user={user} />
+
+          {/* User Analytics */}
+          {/* <UserAnalytics user={user} /> */}
 
           {/* Category filter */}
           <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />

@@ -22,26 +22,26 @@ const BenefitsSection = () => {
   const benefits = [
     {
       icon: <PenTool className="w-8 h-8 text-violet-400" />,
-      title: "10x Creative Output",
-      description: "Generate more ideas and turn them into stunning visuals in minutes instead of hours.",
+      title: "10x Publishing Speed",
+      description: "Share more photos and keep your gallery active in minutes, not hours.",
       color: "from-violet-500 to-fuchsia-500"
     },
     {
       icon: <TrendingUp className="w-8 h-8 text-emerald-400" />,
-      title: "Faster Growth",
-      description: "Build your audience with consistent high-quality content that stands out in the feed.",
+      title: "Faster Discovery",
+      description: "Grow your audience with smart feeds, tags, and curated recommendations.",
       color: "from-emerald-500 to-teal-500"
     },
     {
       icon: <Award className="w-8 h-8 text-amber-400" />,
-      title: "Professional Quality",
-      description: "Create studio-quality images regardless of your technical skill level.",
+      title: "Showcase Quality",
+      description: "Present your work beautifully with crisp displays and profile portfolios.",
       color: "from-amber-500 to-orange-500"
     },
     {
       icon: <Repeat className="w-8 h-8 text-cyan-400" />,
-      title: "Style Consistency",
-      description: "Maintain your unique style across all creations with our AI style preservation system.",
+      title: "Consistent Branding",
+      description: "Organize albums, reuse tags, and keep your visual style consistent.",
       color: "from-cyan-500 to-blue-500"
     }
   ];
@@ -49,23 +49,23 @@ const BenefitsSection = () => {
   // Testimonials data
   const testimonials = [
     {
-      quote: "This platform completely transformed my creative workflow. What used to take days now takes minutes, and the quality is even better.",
+      quote: "Pixora made it effortless to publish my photo sets. Engagement went up and managing albums is a breeze.",
       author: "Alexandra Chen",
-      role: "Digital Artist",
+      role: "Photographer",
       avatar: "/images/upload/user1.png",
       stars: 5
     },
     {
-      quote: "I've tried every AI art tool out there, and nothing comes close to the style consistency I get here. It actually feels like my art.",
+      quote: "My work finally gets seen. The search and tags help the right people find my photos.",
       author: "Marcus Rivera",
-      role: "Illustrator",
+      role: "Visual Artist",
       avatar: "/images/upload/user2.png",
       stars: 5
     },
     {
-      quote: "As someone with no design background, I can now create professional graphics for my business. It's been a game-changer.",
+      quote: "I can keep my brand consistent across albums and collaborate easily with clients.",
       author: "Sarah Williams",
-      role: "Small Business Owner",
+      role: "Content Creator",
       avatar: "/images/upload/user3.png",
       stars: 5
     }
@@ -156,10 +156,10 @@ const BenefitsSection = () => {
         >
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 backdrop-blur-lg border border-violet-500/20 text-sm font-medium text-fuchsia-200 mb-4">
             <Rocket className="w-3.5 h-3.5 mr-1.5 text-fuchsia-300" />
-            <span>Why Creators Choose Us</span>
+            <span>Why photographers choose us</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Transform your <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">creative process</span></h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">Join thousands of artists and designers who are revolutionizing their workflow and reaching new heights with our AI-powered platform.</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Elevate your <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">photo workflow</span></h2>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">Join thousands of creators who showcase their best work, collaborate with peers, and get discovered on our fast image sharing platform.</p>
         </motion.div>
 
         {/* Benefits cards */}
@@ -214,8 +214,8 @@ const BenefitsSection = () => {
             </div>
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-              <h3 className="text-3xl font-bold text-white mb-4">See the platform in action</h3>
-              <p className="text-xl text-white/80 max-w-2xl mb-8">Watch how creators are transforming their workflow and achieving stunning results in minutes</p>
+              <h3 className="text-3xl font-bold text-white mb-4">See how creators publish</h3>
+              <p className="text-xl text-white/80 max-w-2xl mb-8">Watch how photographers organize albums, add tags, and share galleries with ease.</p>
               
               <motion.button 
                 className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-900/30"

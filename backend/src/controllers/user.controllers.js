@@ -391,3 +391,119 @@ export const getLoginHistory = asyncHandler(async (req, res) => {
   
   res.status(200).json(new ApiResponse(200, "Login history retrieved successfully", sortedHistory));
 });
+
+/** 
+ * @desc Get user analytics
+ * @route GET /api/users/analytics
+ * @access Private
+ */
+export const getUserAnalytics = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { timeRange = 'week' } = req.query;
+
+  // Calculate date range based on timeRange
+  const now = new Date();
+  let startDate;
+  
+  switch (timeRange) {
+    case 'week':
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case 'month':
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case 'year':
+      startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      break;
+    default:
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  }
+
+  // Get user data
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Mock analytics data (in a real app, you'd calculate this from actual data)
+  const analytics = {
+    views: {
+      total: user.viewsCount || Math.floor(Math.random() * 10000) + 1000,
+      change: Math.floor(Math.random() * 20) + 5
+    },
+    downloads: {
+      total: user.downloadsCount || Math.floor(Math.random() * 500) + 50,
+      change: Math.floor(Math.random() * 15) + 3
+    },
+    shares: {
+      total: user.sharesCount || Math.floor(Math.random() * 200) + 20,
+      change: Math.floor(Math.random() * 25) + 8
+    },
+    engagement: {
+      total: user.engagementRate || Math.floor(Math.random() * 20) + 5,
+      change: Math.floor(Math.random() * 10) + 2
+    },
+    topImages: [
+      {
+        id: '1',
+        title: 'Mountain Landscape',
+        views: Math.floor(Math.random() * 1000) + 500,
+        likes: Math.floor(Math.random() * 100) + 20
+      },
+      {
+        id: '2',
+        title: 'Urban Photography',
+        views: Math.floor(Math.random() * 800) + 300,
+        likes: Math.floor(Math.random() * 80) + 15
+      },
+      {
+        id: '3',
+        title: 'Nature Close-up',
+        views: Math.floor(Math.random() * 600) + 200,
+        likes: Math.floor(Math.random() * 60) + 10
+      }
+    ],
+    recentActivity: [
+      {
+        type: 'upload',
+        title: 'New image uploaded',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      },
+      {
+        type: 'like',
+        title: 'Received 5 new likes',
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000)
+      },
+      {
+        type: 'comment',
+        title: 'New comment on your image',
+        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000)
+      }
+    ],
+    achievements: [
+      {
+        id: '1',
+        title: 'First 100 Views',
+        description: 'Reached 100 total views',
+        unlocked: true,
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000)
+      },
+      {
+        id: '2',
+        title: '10 Images Uploaded',
+        description: 'Uploaded 10 images',
+        unlocked: true,
+        timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000)
+      },
+      {
+        id: '3',
+        title: '50 Followers',
+        description: 'Gained 50 followers',
+        unlocked: false,
+        progress: 35
+      }
+    ]
+  };
+
+  res.status(200).json(new ApiResponse(200, "User analytics retrieved successfully", analytics));
+});

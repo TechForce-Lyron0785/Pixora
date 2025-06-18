@@ -96,7 +96,7 @@ const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, use
 
             <div className="p-1">
               <Link
-                href="/profile"
+                href={`/profile/${user?.username || ""}`}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors"
                 onClick={() => setActiveDropdown(null)}
               >
@@ -120,7 +120,7 @@ const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, use
                 <span>Settings</span>
               </Link>
               <Link
-                href="/bookmarks"
+                href="/favorites"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors"
                 onClick={() => setActiveDropdown(null)}
               >

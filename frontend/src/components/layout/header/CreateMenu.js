@@ -53,7 +53,7 @@ const CreateMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown }) => {
                 </div>
               </Link>
               <Link
-                href="/create-collection"
+                href="/collections"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors"
                 onClick={() => setActiveDropdown(null)}
               >
@@ -65,7 +65,7 @@ const CreateMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown }) => {
                   <div className="text-xs text-gray-400">Organize your work into collections</div>
                 </div>
               </Link>
-              <Link
+              {/* <Link
                 href="/create-story"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors"
                 onClick={() => setActiveDropdown(null)}
@@ -77,8 +77,8 @@ const CreateMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown }) => {
                   <div className="font-medium">Create Story</div>
                   <div className="text-xs text-gray-400">Share the process behind your work</div>
                 </div>
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 href="/schedule-post"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors"
                 onClick={() => setActiveDropdown(null)}
@@ -90,7 +90,7 @@ const CreateMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown }) => {
                   <div className="font-medium">Schedule Post</div>
                   <div className="text-xs text-gray-400">Plan your content calendar</div>
                 </div>
-              </Link>
+              </Link> */}
             </div>
           </motion.div>
         )}

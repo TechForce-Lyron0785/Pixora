@@ -30,7 +30,7 @@ const SearchBar = ({
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-lg border-b border-white/10 px-6 py-4">
+    <div className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-lg border-b border-white/10 px-6 py-4">
       <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center gap-4">
         <form onSubmit={handleSearchSubmit} className="relative w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />

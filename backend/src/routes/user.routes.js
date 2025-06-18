@@ -12,7 +12,8 @@ import {
   searchUsers,
   checkUserAvailability,
   googleLoginUser,
-  getLoginHistory
+  getLoginHistory,
+  getUserAnalytics
 } from "../controllers/user.controllers.js";
 
 const router = express.Router();
@@ -27,6 +28,7 @@ router.post("/check-availability", checkUserAvailability);
 // User profile routes (Protected)
 router.get("/me", authenticateUser, getLoggedInUser);
 router.get("/login-history", authenticateUser, getLoginHistory);
+router.get("/analytics", authenticateUser, getUserAnalytics);
 router.patch("/:userId", authenticateUser, updateUserProfile);
 router.patch("/:userId/password", authenticateUser, updateUserPassword);
 

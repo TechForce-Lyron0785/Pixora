@@ -33,27 +33,27 @@ const HeroSection = () => {
   const tabContent = [
     {
       id: 1,
-      title: "Dream to Reality",
+      title: "Share your story",
       description:
-        "Transform concepts into masterpieces with our revolutionary Pixora, image sharing platform that learns your unique style",
+        "Upload, organize, and showcase your best shots on Pixora — an image sharing platform built for creators and communities",
       image: "/images/bg-img1.jpg",
       color: "from-emerald-500 to-teal-700",
       icon: <Sparkles className="w-6 h-6 text-emerald-300" />,
     },
     {
       id: 2,
-      title: "Endless Customization",
+      title: "Organize with ease",
       description:
-        "Fine-tune every element with precision controls designed for both casual creators and professionals",
+        "Curate collections, add tags, and keep your portfolio consistent with tools that work the way you do",
       image: "/images/bg-img2.jpg",
       color: "from-violet-600 to-indigo-800",
       icon: <Wand2 className="w-6 h-6 text-violet-300" />,
     },
     {
       id: 3,
-      title: "Global Creative Network",
+      title: "Grow your audience",
       description:
-        "Join thriving communities, collaborate on projects, and gain exposure to millions of art enthusiasts",
+        "Join a global community, get discovered through search, and connect with people who love your work",
       image: "/images/bg-img3.jpg",
       color: "from-amber-500 to-orange-700",
       icon: <Users className="w-6 h-6 text-amber-300" />,
@@ -107,7 +107,7 @@ const HeroSection = () => {
   }, [isHovering, tabContent.length]);
 
   // Simulated trending searches
-  const trendingSearches = ["cyberpunk art", "nature fusion", "portrait style", "abstract dreams", "sci-fi landscape"];
+  const trendingSearches = ["street photography", "nature landscapes", "portrait shots", "abstract minimal", "city nights"];
 
   return (
     <motion.div
@@ -164,7 +164,7 @@ const HeroSection = () => {
             }}
           />
         </div>
-
+        
         {/* Animated grid */}
         <div
           className="absolute inset-0 opacity-30"
@@ -267,7 +267,7 @@ const HeroSection = () => {
               >
                 <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 backdrop-blur-lg border border-violet-500/30 text-sm font-medium text-fuchsia-200">
                   <Zap className="w-3.5 h-3.5 mr-1.5 text-fuchsia-300" />
-                  <span>Pixora, image sharing platform</span>
+                  <span>Pixora — image sharing for creators</span>
                 </span>
               </motion.div>
 
@@ -289,7 +289,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                Turn imagination into reality with our AI-powered platform. Create stunning visuals, build your audience, and monetize your unique style.
+                Share stunning images, build your audience, and discover inspiring creators — all in one fast, beautiful platform.
               </motion.p>
 
               {/* Search bar */}
@@ -304,13 +304,13 @@ const HeroSection = () => {
                   <div className="relative flex items-center bg-zinc-950/90 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden">
                     <input
                       type="text"
-                      placeholder="Describe the image you want to create..."
+                      placeholder="Search images, creators, or tags..."
                       className="flex-1 bg-transparent px-4 py-4 text-white outline-none"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <button className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-medium py-4 px-6 rounded-r-lg transition-all duration-300 flex items-center">
-                      <span>Create</span>
+                      <span>Search</span>
                       <CameraIcon className="w-4 h-4 ml-2" />
                     </button>
                   </div>
@@ -342,7 +342,7 @@ const HeroSection = () => {
                   <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
                   <span className="relative flex items-center justify-center">
                     <Sparkles className="w-5 h-5 mr-2" />
-                    <span>Start exploring</span>
+                    <span>Start sharing</span>
                     <ArrowUpRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </span>
                 </button>
@@ -394,7 +394,7 @@ const HeroSection = () => {
               {/* Featured content gallery */}
               <div className="relative w-full mb-8">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-white">Featured Creations</h3>
+                  <h3 className="text-xl font-semibold text-white">Featured Photos</h3>
                   <div className="flex gap-2">
                     <button 
                       className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${

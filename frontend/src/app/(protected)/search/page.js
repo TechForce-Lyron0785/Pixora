@@ -263,7 +263,7 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white relative">
       {/* Search bar component */}
       <SearchBar
         initialQuery={searchQuery}

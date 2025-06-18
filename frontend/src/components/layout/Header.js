@@ -28,6 +28,7 @@ import {
   Star,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -207,14 +208,10 @@ const Header = () => {
     <>
       <motion.header
         ref={headerRef}
-        style={{ opacity: headerOpacity, scale: headerScale }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
           ? "bg-zinc-900/80 backdrop-blur-2xl border-b border-white/5 py-2 shadow-2xl shadow-black/20"
           : "bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 py-4 border-b border-transparent"
           }`}
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-transparent to-fuchsia-500/5 animate-pulse" />
@@ -222,36 +219,37 @@ const Header = () => {
         <div className="container mx-auto px-4 md:px-6 relative">
           <div className="flex items-center justify-between">
             {/* Logo with enhanced animation */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center cursor-pointer"
-            >
-              <div className="relative flex items-center space-x-3">
-                <motion.div
-                  className="p-2 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 backdrop-blur-sm border border-white/10 shadow-lg"
-                  whileHover={{
-                    scale: 1.1,
-                    backgroundColor: "rgba(139, 92, 246, 0.3)",
-                    borderColor: "rgba(255, 255, 255, 0.2)"
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-fuchsia-400 rounded-lg flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
+            <Link href={"/"}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center cursor-pointer"
+              >
+                <div className="relative flex items-center space-x-3">
+                  <motion.div
+                    className="p-2 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 backdrop-blur-sm border border-white/10 shadow-lg"
+                    whileHover={{
+                      scale: 1.1,
+                      backgroundColor: "rgba(139, 92, 246, 0.3)",
+                      borderColor: "rgba(255, 255, 255, 0.2)"
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-fuchsia-400 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                  </motion.div>
+                  <div className="flex flex-col">
+                    <span className="text-white font-bold text-xl bg-gradient-to-r from-white to-gray-300 bg-clip-text">
+                      Pixora
+                    </span>
+                    <span className="text-xs text-violet-400 font-medium">
+                      AI Creative Studio
+                    </span>
                   </div>
-                </motion.div>
-                <div className="flex flex-col">
-                  <span className="text-white font-bold text-xl bg-gradient-to-r from-white to-gray-300 bg-clip-text">
-                    Pixora
-                  </span>
-                  <span className="text-xs text-violet-400 font-medium">
-                    AI Creative Studio
-                  </span>
                 </div>
-              </div>
-            </motion.div>
-
+              </motion.div>
+            </Link>
             {/* Desktop Navigation with enhanced dropdowns */}
             <nav className="hidden lg:flex items-center space-x-1">
               {navigationItems.map((item, index) => (
@@ -268,7 +266,7 @@ const Header = () => {
                     whileTap={{ scale: 0.95 }}
                     className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 flex items-center relative overflow-hidden ${activeDropdown === index
                       ? "text-white bg-white/15 shadow-lg shadow-violet-500/10 border border-white/10"
-                      : "text-gray-300 hover:text-white hover:bg-white/10"
+                      : "text-gray-300 hover:text-white hover:bg:white/10"
                       }`}
                   >
                     <motion.div
@@ -317,14 +315,16 @@ const Header = () => {
                                 whileHover={{ scale: 1.02, x: 4 }}
                                 className="group"
                               >
-                                <div className="flex items-start p-4 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer relative overflow-hidden">
+                                <div className="flex items-start p-4 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer relative overflow-hidden"
+                                  onClick={() => navigateTo('/login')}
+                                >
                                   <motion.div
                                     className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100"
                                     transition={{ duration: 0.2 }}
                                   />
 
                                   <motion.div
-                                    className="p-2.5 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors duration-200"
+                                    className="p-2.5 rounded-xl bg:white/5 group-hover:bg:white/10 transition-colors duration-200"
                                     whileHover={{ rotate: 5 }}
                                   >
                                     {dropdownItem.icon}
@@ -383,7 +383,7 @@ const Header = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 relative overflow-hidden group"
+                className="p-2.5 text-gray-300 hover:text:white hover:bg:white/10 rounded-xl transition-all duration-200 relative overflow-hidden group"
               >
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 opacity-0 group-hover:opacity-100"
@@ -392,11 +392,12 @@ const Header = () => {
                 <Search className="w-5 h-5 relative z-10" />
               </motion.button>
 
-              {/* Enhanced Notifications */}
+              {/* Enhanced Notifications - route to login */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative p-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 group overflow-hidden"
+                className="relative p-2.5 text-gray-300 hover:text:white hover:bg:white/10 rounded-xl transition-all duration-200 group overflow-hidden"
+                onClick={() => navigateTo('/login')}
               >
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100"
@@ -414,23 +415,13 @@ const Header = () => {
                 )}
               </motion.button>
 
-              {/* Theme Toggle */}
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 180 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200"
-              >
-                {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-              </motion.button>
-
-              {/* User Menu */}
+              {/* User Menu - route to login */}
               <div className="relative hidden md:block">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 p-2 rounded-xl hover:bg-white/10 transition-all duration-200"
+                  onClick={() => navigateTo('/login')}
+                  className="flex items-center space-x-2 p-2 rounded-xl hover:bg:white/10 transition-all duration-200"
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-fuchsia-400 rounded-lg flex items-center justify-center">
                     <User className="w-4 h-4 text-white" />
@@ -443,7 +434,7 @@ const Header = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 rounded-xl transition-all duration-200 border border-white/10"
+                  className="px-4 py-2.5 text-sm font-medium text-white hover:bg:white/10 rounded-xl transition-all duration-200 border border:white/10"
                   onClick={() => navigateTo("/login")}
                 >
                   Sign In
@@ -463,7 +454,7 @@ const Header = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="lg:hidden p-2 text-gray-300 hover:text-white rounded-xl transition-colors"
+                className="lg:hidden p-2 text-gray-300 hover:text:white rounded-xl transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 <motion.div
@@ -555,6 +546,7 @@ const Header = () => {
                       key={idx}
                       whileHover={{ x: 4 }}
                       className="flex items-center justify-between p-3 rounded-xl hover:bg-white/10 cursor-pointer text-gray-300 hover:text-white transition-colors"
+                      onClick={() => navigateTo('/login')}
                     >
                       <div className="flex items-center space-x-3">
                         <item.icon className="w-5 h-5" />
@@ -646,6 +638,7 @@ const Header = () => {
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: idx * 0.1 }}
                                   className="flex items-center justify-between p-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                                  onClick={() => navigateTo('/login')}
                                 >
                                   <div className="flex items-center space-x-3">
                                     <div className="p-1.5 rounded-lg bg-white/10">
@@ -675,7 +668,9 @@ const Header = () => {
                         </AnimatePresence>
                       </>
                     ) : (
-                      <button className="w-full text-left p-4 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+                      <button className="w-full text-left p-4 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                        onClick={() => navigateTo('/login')}
+                      >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{item.name}</span>
                           {item.badge && (
@@ -708,6 +703,7 @@ const Header = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className={`p-4 rounded-2xl bg-gradient-to-br ${action.color} cursor-pointer shadow-lg`}
+                      onClick={() => navigateTo('/login')}
                     >
                       <action.icon className="w-6 h-6 text-white mb-2" />
                       <p className="text-white font-medium text-sm">{action.name}</p>
@@ -734,7 +730,7 @@ const Header = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full p-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium flex items-center justify-center transition-colors"
+                    className="w-full p-4 rounded-xl bg-white/10 hover:bg-white/20 text:white font-medium flex items-center justify-center transition-colors"
                     onClick={() => navigateTo("/login")}
                   >
                     <LogIn className="w-5 h-5 mr-2" />
@@ -763,6 +759,7 @@ const Header = () => {
                       key={idx}
                       whileHover={{ x: 4 }}
                       className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                      onClick={() => navigateTo('/login')}
                     >
                       <item.icon className="w-5 h-5" />
                       <span>{item.name}</span>
