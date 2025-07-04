@@ -1,5 +1,4 @@
 // TODO:
-// settings
 // responsive
 // chat
 

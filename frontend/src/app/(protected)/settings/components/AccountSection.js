@@ -1,212 +1,187 @@
 "use client"
 import React, { useState } from 'react';
-import { UserCheck, Award, Trash, LogOut } from 'lucide-react';
+import { UserCheck, Award, Trash, LogOut, Users, Heart, Image as ImageIcon, TrendingUp, Activity, Shield, Calendar, Clock, Star, Zap } from 'lucide-react';
 
-const AccountSection = ({ user }) => {
-  // Format date helper
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+const AccountSection = ({ user, handleLogout }) => {
 
-  // Generate badge display
+  // Generate badge display with enhanced styling
   const getBadgeDisplay = (badge) => {
     const badges = {
-      newbie: { label: 'Newbie', color: 'bg-blue-600' },
-      rising: { label: 'Rising', color: 'bg-green-600' },
-      pro: { label: 'Pro', color: 'bg-purple-600' },
-      trendsetter: { label: 'Trendsetter', color: 'bg-yellow-600' }
+      newbie: { 
+        label: 'Newbie', 
+        color: 'bg-gradient-to-r from-blue-600 to-blue-400', 
+        icon: '🌱',
+        description: 'Just getting started on your creative journey',
+        glow: 'shadow-blue-500/20'
+      },
+      rising: { 
+        label: 'Rising', 
+        color: 'bg-gradient-to-r from-green-600 to-emerald-400', 
+        icon: '📈',
+        description: 'You\'re making an impact with your content',
+        glow: 'shadow-green-500/20'
+      },
+      pro: { 
+        label: 'Pro', 
+        color: 'bg-gradient-to-r from-purple-600 to-violet-400', 
+        icon: '⭐',
+        description: 'A recognized creator with a growing audience',
+        glow: 'shadow-purple-500/20'
+      },
+      trendsetter: { 
+        label: 'Trendsetter', 
+        color: 'bg-gradient-to-r from-yellow-600 to-amber-400', 
+        icon: '🔥',
+        description: 'Your content is making waves across the platform',
+        glow: 'shadow-yellow-500/20'
+      }
     };
 
     return badges[badge] || badges.newbie;
   };
 
-  // Sample subscription plans
-  const plans = [
-    { id: 'free', name: 'Free', price: '$0', storage: '10GB', features: ['Basic editing tools', 'Standard quality exports', 'Public collections'] },
-    { id: 'pro', name: 'Pro', price: '$9.99/mo', storage: '100GB', features: ['Advanced editing tools', 'HD exports', 'Private collections', 'Analytics dashboard', 'No watermarks'] },
-    { id: 'premium', name: 'Premium', price: '$19.99/mo', storage: 'Unlimited', features: ['All Pro features', '4K exports', 'Priority support', 'Commercial usage rights', 'Custom branding'] },
-  ];
-  const [currentPlan, setCurrentPlan] = useState('free');
+  // Get account status display
+  const getAccountStatusDisplay = (status) => {
+    const statuses = {
+      active: { 
+        label: 'Active', 
+        color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        icon: <Shield className="w-4 h-4" />,
+        description: 'Your account is active and in good standing'
+      },
+      suspended: { 
+        label: 'Suspended', 
+        color: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        icon: <Clock className="w-4 h-4" />,
+        description: 'Your account is temporarily suspended'
+      },
+      inactive: { 
+        label: 'Inactive', 
+        color: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+        icon: <UserCheck className="w-4 h-4" />,
+        description: 'Your account has been deactivated'
+      }
+    };
+
+    return statuses[status] || statuses.active;
+  };
+
+  const accountStatus = getAccountStatusDisplay(user?.accountStatus || 'active');
+  const badgeInfo = getBadgeDisplay(user?.badge || 'newbie');
 
   return (
-    <>
-      <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-6">Account Status</h2>
-
-        <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-white/5 mb-6">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full ${user?.accountStatus === 'active' ? 'bg-green-500/20 text-green-300' :
-                user?.accountStatus === 'suspended' ? 'bg-yellow-500/20 text-yellow-300' :
-                  'bg-red-500/20 text-red-300'
-              }`}>
-              <UserCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-medium">Account Status</h3>
-              <p className="text-sm text-gray-400">
-                {user?.accountStatus === 'active' ? 'Your account is active and in good standing' :
-                  user?.accountStatus === 'suspended' ? 'Your account is temporarily suspended' :
-                    'Your account has been deleted or deactivated'}
-              </p>
-            </div>
+    <div className="space-y-6">
+      {/* Account Status Card */}
+      <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-8 backdrop-blur-xl transition-all duration-300 hover:border-violet-500/20">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-violet-500/20 rounded-lg">
+            <Activity className="w-5 h-5 text-violet-400" />
           </div>
-          <div className={`px-3 py-1 rounded-full text-xs ${user?.accountStatus === 'active' ? 'bg-green-500/20 text-green-300' :
-              user?.accountStatus === 'suspended' ? 'bg-yellow-500/20 text-yellow-300' :
-                'bg-red-500/20 text-red-300'
-            }`}>
-            <span className="capitalize">{user?.accountStatus || 'active'}</span>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Account Status</h2>
+        </div>
+
+        <div className="p-6 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-full ${accountStatus.color} border`}>
+                {accountStatus.icon}
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Account Status</h3>
+                <p className="text-sm text-gray-400">{accountStatus.description}</p>
+              </div>
+            </div>
+            <div className={`px-4 py-2 rounded-full text-sm font-medium border ${accountStatus.color}`}>
+              {accountStatus.label}
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {user?.isPremium ? (
-            <div className="border border-violet-500 rounded-xl p-4 bg-violet-900/20">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold">Premium</h3>
-                <span className="text-xs bg-violet-600 rounded-full px-2 py-0.5">Current</span>
-              </div>
-              <p className="text-sm text-gray-300 mb-2">
-                You&apos;re enjoying premium benefits, including unlimited storage and advanced features.
-              </p>
-              <button className="text-violet-400 hover:text-violet-300 text-sm">
-                Manage subscription
-              </button>
+        {/* Account Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group">
+            <div className="flex items-center gap-3 mb-2">
+              <Users className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-sm text-gray-400">Followers</span>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`border rounded-xl p-4 transition-all ${currentPlan === plan.id
-                      ? 'border-violet-500 bg-violet-900/20'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
-                    }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold">{plan.name}</h3>
-                    {currentPlan === plan.id && (
-                      <span className="text-xs bg-violet-600 rounded-full px-2 py-0.5">Current</span>
-                    )}
-                  </div>
-                  <p className="text-xl font-bold mb-2">{plan.price}</p>
-                  <p className="text-sm text-gray-400 mb-3">{plan.storage} Storage</p>
-
-                  <ul className="space-y-2 mb-4">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="text-xs flex items-start gap-2">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400 flex-shrink-0 mt-0.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    onClick={() => setCurrentPlan(plan.id)}
-                    className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${currentPlan === plan.id
-                        ? 'bg-white/20 text-white cursor-default'
-                        : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white'
-                      }`}
-                    disabled={currentPlan === plan.id}
-                  >
-                    {currentPlan === plan.id ? 'Current Plan' : 'Upgrade'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="border border-white/10 rounded-lg p-4 bg-white/5">
-            <h3 className="font-medium mb-2">Account Activity</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Followers</span>
-                <span>{user?.followersCount || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Following</span>
-                <span>{user?.followingCount || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Posts</span>
-                <span>{user?.postsCount || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Likes Received</span>
-                <span>{user?.likesCount || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Interactions</span>
-                <span>{user?.interactionsCount || 0}</span>
-              </div>
-            </div>
+            <div className="text-2xl font-bold text-blue-400">{user?.followersCount || 0}</div>
           </div>
+          
+          <div className="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group">
+            <div className="flex items-center gap-3 mb-2">
+              <Users className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-sm text-gray-400">Following</span>
+            </div>
+            <div className="text-2xl font-bold text-green-400">{user?.followingCount || 0}</div>
+          </div>
+          
+          <div className="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group">
+            <div className="flex items-center gap-3 mb-2">
+              <ImageIcon className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-sm text-gray-400">Posts</span>
+            </div>
+            <div className="text-2xl font-bold text-purple-400">{user?.postsCount || 0}</div>
+          </div>
+          
+          <div className="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group">
+            <div className="flex items-center gap-3 mb-2">
+              <Heart className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-sm text-gray-400">Likes</span>
+            </div>
+            <div className="text-2xl font-bold text-rose-400">{user?.likesCount || 0}</div>
+          </div>
+        </div>
 
-          <div className="border border-white/10 rounded-lg p-4 bg-white/5">
-            <h3 className="font-medium mb-2">Badge</h3>
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${getBadgeDisplay(user?.badge || 'newbie').color}`}>
-                <Award className="w-5 h-5" />
+        {/* Badge Section */}
+        <div className="p-6 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Star className="w-5 h-5 text-amber-400" />
+            <h3 className="font-semibold text-lg">Achievement Badge</h3>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className={`p-4 rounded-2xl ${badgeInfo.color} shadow-lg ${badgeInfo.glow} transform transition-all duration-300 hover:scale-105`}>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{badgeInfo.icon}</span>
+                <div>
+                  <div className="font-bold text-white">{badgeInfo.label}</div>
+                  <div className="text-xs text-white/80">Achievement</div>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">{getBadgeDisplay(user?.badge || 'newbie').label}</p>
-                <p className="text-xs text-gray-400">
-                  {user?.badge === 'newbie' && 'Just getting started on your creative journey'}
-                  {user?.badge === 'rising' && 'You\'re making an impact with your content'}
-                  {user?.badge === 'pro' && 'A recognized creator with a growing audience'}
-                  {user?.badge === 'trendsetter' && 'Your content is making waves across the platform'}
-                </p>
-              </div>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-gray-300 leading-relaxed">{badgeInfo.description}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-6">Account Actions</h2>
-
-        <div className="space-y-4">
-          <div className="p-4 border border-white/10 rounded-lg bg-white/5 flex items-center justify-between">
-            <div>
-              <h3 className="font-medium">Download Your Data</h3>
-              <p className="text-sm text-gray-400">Get a copy of your data, including images, collections, and profile information.</p>
-            </div>
-            <button className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm">Download</button>
+      {/* Account Actions */}
+      <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-8 backdrop-blur-xl transition-all duration-300 hover:border-violet-500/20">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-rose-500/20 rounded-lg">
+            <LogOut className="w-5 h-5 text-rose-400" />
           </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Account Actions</h2>
+        </div>
 
-          <div className="p-4 border border-violet-500/20 rounded-lg bg-violet-950/10 flex items-center justify-between">
+        <div className="p-6 border border-rose-500/20 rounded-xl bg-rose-950/10 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-medium text-violet-400">Log Out</h3>
+              <h3 className="font-semibold text-lg text-rose-300 mb-1">Sign Out</h3>
               <p className="text-sm text-gray-400">Sign out of your account on this device</p>
             </div>
             <button
-              onClick={() => {/* handled by parent */}}
-              className="px-3 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 rounded-lg text-sm flex items-center gap-1"
+              onClick={handleLogout}
+              className="px-6 py-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105 border border-rose-500/30"
             >
-              <LogOut className="w-3 h-3" />
-              Log Out
-            </button>
-          </div>
-
-          <div className="p-4 border border-rose-500/20 rounded-lg bg-rose-950/10 flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-rose-400">Delete Account</h3>
-              <p className="text-sm text-gray-400">Permanently delete your account and all associated data.</p>
-            </div>
-            <button className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg text-sm flex items-center gap-1">
-              <Trash className="w-3 h-3" />
-              Delete
+              <LogOut className="w-4 h-4" />
+              Sign Out
             </button>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

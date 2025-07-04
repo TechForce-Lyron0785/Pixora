@@ -24,7 +24,6 @@ const LoggedInHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState("discover");
   const [isCreatingMode, setIsCreatingMode] = useState(false);
-  const [userStatus, setUserStatus] = useState("online");
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const [query, setQuery] = useState("");
@@ -37,6 +36,8 @@ const LoggedInHeader = () => {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const api = useApi();
+
+  const [userStatus, setUserStatus] = useState(user?.userStatus || "online");
 
   // Handle scroll effect for navbar appearance
   useEffect(() => {
@@ -107,6 +108,13 @@ const LoggedInHeader = () => {
   const toggleCreatorMode = () => {
     setIsCreatingMode(!isCreatingMode);
   };
+
+  // Sync userStatus with user data
+  useEffect(() => {
+    if (user?.userStatus) {
+      setUserStatus(user.userStatus);
+    }
+  }, [user?.userStatus]);
 
   // Derive current tab from pathname
   useEffect(() => {

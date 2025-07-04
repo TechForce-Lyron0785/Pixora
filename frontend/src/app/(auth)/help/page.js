@@ -184,60 +184,6 @@ export default function HelpPage() {
               </div>
             </div>
           </section>
-
-          {/* Contact Information */}
-          <section className="bg-zinc-900/50 rounded-xl p-6 border border-white/10">
-            <h2 className="text-2xl font-semibold mb-6 text-violet-400">Contact Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">General Support</h3>
-                  <p className="text-gray-300 text-sm mb-2">For general questions and account issues</p>
-                  <p className="text-violet-400">support@pixora.com</p>
-                </div>
-
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">Technical Issues</h3>
-                  <p className="text-gray-300 text-sm mb-2">For bugs and technical problems</p>
-                  <p className="text-violet-400">tech@pixora.com</p>
-                </div>
-
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">Content Moderation</h3>
-                  <p className="text-gray-300 text-sm mb-2">For reporting inappropriate content</p>
-                  <p className="text-violet-400">moderation@pixora.com</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">Response Times</h3>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• General inquiries: 24-48 hours</li>
-                    <li>• Technical issues: 12-24 hours</li>
-                    <li>• Urgent matters: 2-6 hours</li>
-                    <li>• Content reports: 24 hours</li>
-                  </ul>
-                </div>
-
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">Business Inquiries</h3>
-                  <p className="text-gray-300 text-sm mb-2">For partnerships and business opportunities</p>
-                  <p className="text-violet-400">business@pixora.com</p>
-                </div>
-
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-white/5">
-                  <h3 className="text-lg font-medium text-violet-300 mb-2">Office Hours</h3>
-                  <p className="text-gray-300 text-sm">
-                    Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-                    Saturday: 10:00 AM - 4:00 PM EST<br />
-                    Sunday: Closed
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </div>

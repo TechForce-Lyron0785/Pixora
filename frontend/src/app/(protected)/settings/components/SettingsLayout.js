@@ -3,9 +3,6 @@ import React, { useState } from 'react';
 import { Users, CreditCard, Bell, Lock, Globe, Shield, Smartphone } from 'lucide-react';
 import ProfileSection from './ProfileSection';
 import AccountSection from './AccountSection';
-import NotificationsSection from './NotificationsSection';
-import PrivacySection from './PrivacySection';
-import ConnectionsSection from './ConnectionsSection';
 import SecuritySection from './SecuritySection';
 import DevicesSection from './DevicesSection';
 import SettingsSidebar from './SettingsSidebar';
@@ -16,8 +13,8 @@ const SettingsLayout = ({ user, loading, updateProfile, updatePassword, logout }
   // If still loading and no user data
   if (loading && !user) {
     return (
-      <div className="p-6 bg-zinc-950 text-white flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Loading...</p>
       </div>
     );
   }
@@ -35,9 +32,6 @@ const SettingsLayout = ({ user, loading, updateProfile, updatePassword, logout }
           {[
             { id: 'profile', name: 'Profile', icon: <Users className="w-4 h-4" /> },
             { id: 'account', name: 'Account', icon: <CreditCard className="w-4 h-4" /> },
-            { id: 'notifications', name: 'Notifications', icon: <Bell className="w-4 h-4" /> },
-            { id: 'privacy', name: 'Privacy', icon: <Lock className="w-4 h-4" /> },
-            { id: 'connections', name: 'Connections', icon: <Globe className="w-4 h-4" /> },
             { id: 'security', name: 'Security', icon: <Shield className="w-4 h-4" /> },
             { id: 'devices', name: 'Devices', icon: <Smartphone className="w-4 h-4" /> },
           ].map((tab) => (
@@ -45,8 +39,8 @@ const SettingsLayout = ({ user, loading, updateProfile, updatePassword, logout }
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap ${activeTab === tab.id
-                  ? 'bg-violet-600 text-white'
-                  : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                ? 'bg-violet-600 text-white'
+                : 'bg-white/5 hover:bg-white/10 text-gray-300'
                 } transition-colors duration-200`}
             >
               {tab.icon}
@@ -61,10 +55,7 @@ const SettingsLayout = ({ user, loading, updateProfile, updatePassword, logout }
         {/* Main settings area */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
           {activeTab === 'profile' && <ProfileSection user={user} updateProfile={updateProfile} />}
-          {activeTab === 'account' && <AccountSection user={user} />}
-          {activeTab === 'notifications' && <NotificationsSection />}
-          {activeTab === 'privacy' && <PrivacySection user={user} updateProfile={updateProfile} />}
-          {activeTab === 'connections' && <ConnectionsSection />}
+          {activeTab === 'account' && <AccountSection handleLogout={logout} user={user} />}
           {activeTab === 'security' && <SecuritySection user={user} updatePassword={updatePassword} />}
           {activeTab === 'devices' && <DevicesSection user={user} handleLogout={logout} />}
         </div>

@@ -39,7 +39,7 @@ const DevicesSection = ({ user, handleLogout }) => {
                   </span>
                 ) : (
                   <button className="text-rose-400 hover:text-rose-300 text-sm">
-                    Log out
+                    Not active
                   </button>
                 )}
               </div>

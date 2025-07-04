@@ -221,27 +221,38 @@ const LoadingScreen = () => {
             }}
           />
           
-          <div className="relative z-10 bg-gradient-to-br from-zinc-900/90 to-zinc-800/90 p-6 rounded-full shadow-2xl backdrop-blur-lg border border-white/10 hover:border-white/20 transition-all">
-            <Image
-              src="/images/logo.png"
-              className="w-24 h-24"
-              alt="Pixora logo"
-              height={96}
-              width={96}
-              priority
-            />
+          <div className="relative z-10 bg-gradient-to-br from-black via-zinc-900 to-black p-8 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-xl border-2 border-white/30 hover:border-white/50 transition-all ring-4 ring-white/10">
+            <div className="relative w-24 h-24">
+              <Image
+                src="/images/logo.png"
+                className="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                alt="Pixora logo"
+                height={96}
+                width={96}
+                priority
+                style={{
+                  filter: 'contrast(1.1) brightness(1.1)',
+                  imageRendering: 'crisp-edges'
+                }}
+              />
+            </div>
           </div>
         </motion.div>
         
         {/* Brand name with dynamic gradient */}
         <motion.h1 
-          className="text-6xl font-bold mb-12 text-center"
+          className="text-7xl font-bold mb-12 text-center tracking-tight"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.7 }}
+          style={{
+            textShadow: '0 0 40px rgba(138, 43, 226, 0.5), 0 0 80px rgba(255, 20, 147, 0.3), 0 4px 16px rgba(0, 0, 0, 0.8)',
+            fontWeight: 800,
+            letterSpacing: '0.02em'
+          }}
         >
           <motion.span 
-            className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-purple-400"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-fuchsia-300 to-purple-300"
             animate={{ 
               backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               backgroundSize: ['200% 200%', '300% 300%', '200% 200%']
@@ -250,6 +261,11 @@ const LoadingScreen = () => {
               duration: 8, 
               repeat: Infinity, 
               ease: "easeInOut" 
+            }}
+            style={{
+              WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.3)',
+              paintOrder: 'stroke fill',
+              filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.4)) brightness(1.2)'
             }}
           >
             Pixora
@@ -315,18 +331,22 @@ const LoadingScreen = () => {
           <AnimatePresence mode="wait">
             <motion.p
               key={Math.floor(progress / 20)}
-              className="text-white/90 text-xl font-medium tracking-wide px-6 py-3 rounded-full inline-block"
+              className="text-white text-xl font-semibold tracking-wide px-8 py-3 rounded-full inline-block"
               initial={{ opacity: 0, y: 5 }}
               animate={{ 
                 opacity: 1, 
                 y: 0,
-                background: 'rgba(255, 255, 255, 0.05)',
-                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                background: 'rgba(0, 0, 0, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(12px)',
               }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
+              style={{
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 0 16px rgba(138, 43, 226, 0.3)',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale'
+              }}
             >
               {progress < 100 ? (
                 <>
@@ -343,7 +363,7 @@ const LoadingScreen = () => {
                 <motion.span
                   animate={{ 
                     scale: [1, 1.05, 1],
-                    textShadow: ['0 0 8px rgba(255,255,255,0.3)', '0 0 16px rgba(255,255,255,0.5)', '0 0 8px rgba(255,255,255,0.3)']
+                    textShadow: ['0 2px 16px rgba(255,255,255,0.5)', '0 2px 24px rgba(255,255,255,0.7)', '0 2px 16px rgba(255,255,255,0.5)']
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -357,18 +377,22 @@ const LoadingScreen = () => {
         {/* Interactive elements that appear based on progress */}
         {progress > 50 && progress < 100 && (
           <motion.button
-            className="mt-8 text-white/80 text-sm border border-white/20 px-6 py-2.5 rounded-full bg-black/30 backdrop-blur-lg hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+            className="mt-8 text-white text-sm font-medium border-2 border-white/30 px-6 py-2.5 rounded-full bg-black/50 backdrop-blur-xl hover:bg-black/70 hover:text-white hover:border-white/50 transition-all flex items-center gap-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ 
               scale: 1.05,
-              boxShadow: '0 0 15px rgba(138, 43, 226, 0.3)'
+              boxShadow: '0 0 20px rgba(138, 43, 226, 0.4), 0 0 40px rgba(255, 20, 147, 0.2)'
             }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 300 }}
+            style={{
+              textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)',
+              WebkitFontSmoothing: 'antialiased'
+            }}
           >
             <span>Skip Introduction</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </motion.button>
@@ -376,19 +400,24 @@ const LoadingScreen = () => {
         
         {progress === 100 && (
           <motion.button
-            className="mt-12 px-10 py-4 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-3 group"
+            className="mt-12 px-12 py-5 rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 text-white text-lg font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-3 group border-2 border-white/20"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ 
               opacity: 1, 
               scale: 1,
-              boxShadow: '0 10px 30px -10px rgba(138, 43, 226, 0.5)'
+              boxShadow: '0 12px 40px -10px rgba(138, 43, 226, 0.6), 0 0 60px rgba(255, 20, 147, 0.3)'
             }}
             whileHover={{ 
               scale: 1.05,
-              boxShadow: '0 15px 40px -10px rgba(255, 20, 147, 0.6)'
+              boxShadow: '0 16px 50px -10px rgba(255, 20, 147, 0.7), 0 0 80px rgba(138, 43, 226, 0.4)'
             }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 300 }}
+            style={{
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)',
+              WebkitFontSmoothing: 'antialiased',
+              letterSpacing: '0.025em'
+            }}
           >
             <span>Enter Pixora</span>
             <motion.span
@@ -399,7 +428,7 @@ const LoadingScreen = () => {
               }}
               className="group-hover:translate-x-1 transition-transform"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </motion.span>

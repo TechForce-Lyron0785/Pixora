@@ -111,7 +111,7 @@ export default function TermsPage() {
             </p>
             <div className="mt-4 p-4 bg-zinc-800/50 rounded-lg border border-white/5">
               <p className="text-violet-400 font-medium">Email:</p>
-              <p className="text-gray-300">support@pixora.com</p>
+              <p className="text-gray-300">rehman.contact9@gmail.com</p>
               <p className="text-violet-400 font-medium mt-2">Address:</p>
               <p className="text-gray-300">Pixora Support Team<br />
               [Your Company Address]<br />

@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { LogOut, Moon, Sun, Globe, MessageSquare, Lock, Shield, ChevronRight } from 'lucide-react';
 
 const SettingsSidebar = ({ user, handleLogout }) => {
-  const [theme, setTheme] = useState('dark');
-
   // Format date helper
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -92,29 +90,6 @@ const SettingsSidebar = ({ user, handleLogout }) => {
       </div>
 
       <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
-        <h2 className="text-lg font-bold mb-4">Need Help?</h2>
-        <div className="space-y-3">
-          {[
-            { label: 'Documentation', icon: <Globe className="w-4 h-4" /> },
-            { label: 'Contact Support', icon: <MessageSquare className="w-4 h-4" /> },
-            { label: 'Privacy Policy', icon: <Lock className="w-4 h-4" /> },
-            { label: 'Terms of Service', icon: <Shield className="w-4 h-4" /> },
-          ].map((item, index) => (
-            <button
-              key={index}
-              className="flex items-center justify-between w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                {item.icon}
-                <span>{item.label}</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">App Info</h2>
           <span className="bg-white/10 text-xs rounded-full px-2 py-0.5">v2.3.1</span>
@@ -122,11 +97,11 @@ const SettingsSidebar = ({ user, handleLogout }) => {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-400">Release Date</span>
-            <span>April 2, 2023</span>
+            <span>Oct 13, 2025</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400">Last Updated</span>
-            <span>April 4, 2023</span>
+            <span>Recently</span>
           </div>
         </div>
       </div>

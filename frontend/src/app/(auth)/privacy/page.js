@@ -170,7 +170,7 @@ export default function PrivacyPage() {
             </p>
             <div className="p-4 bg-zinc-800/50 rounded-lg border border-white/5">
               <p className="text-violet-400 font-medium">Email:</p>
-              <p className="text-gray-300">privacy@pixora.com</p>
+              <p className="text-gray-300">rehman.contact9@gmail.com</p>
               <p className="text-violet-400 font-medium mt-2">Data Protection Officer:</p>
               <p className="text-gray-300">Pixora Privacy Team<br />
               [Your Company Address]<br />

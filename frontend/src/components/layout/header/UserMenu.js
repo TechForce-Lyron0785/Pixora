@@ -3,17 +3,45 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, User, Grid, Settings, BookmarkIcon, LogOut } from "lucide-react";
+import { ChevronDown, User, Grid, Settings, BookmarkIcon, LogOut, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, userStatus, setUserStatus, handleLogout }) => {
-  // User status options
+  const { updateProfile } = useAuth();
+  
+  // User status options - matching ProfileSection
   const statusOptions = [
-    { id: "online", label: "Online", color: "bg-emerald-500" },
-    { id: "away", label: "Away", color: "bg-amber-500" },
-    { id: "busy", label: "Busy", color: "bg-rose-500" },
-    { id: "invisible", label: "Invisible", color: "bg-gray-500" },
+    { id: "online", label: "🟢 Online", color: "bg-emerald-500" },
+    { id: "away", label: "🌙 Away", color: "bg-amber-500" },
+    { id: "busy", label: "⛔ Busy", color: "bg-rose-500" },
+    { id: "offline", label: "⚫ Offline", color: "bg-gray-500" },
   ];
+
+  // Handle status update
+  const handleStatusUpdate = async (newStatus) => {
+    if (!user || newStatus === userStatus) return;
+    
+    try {
+      const result = await updateProfile(user._id, { userStatus: newStatus });
+      
+      if (result.success) {
+        setUserStatus(newStatus);
+        toast.custom((t) => (
+          <div className="bg-emerald-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+            <Check className="w-4 h-4" />
+            <p className="text-sm">Status updated to {statusOptions.find(s => s.id === newStatus)?.label}</p>
+          </div>
+        ));
+      } else {
+        toast.error(result.error || 'Failed to update status');
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating your status');
+      console.error(error);
+    }
+  };
 
   return (
     <div className="relative dropdown-container">
@@ -32,11 +60,11 @@ const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, use
           />
           <div
             className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-zinc-900 ${
-              userStatus === "online"
+              user?.userStatus === "online"
                 ? "bg-emerald-500"
-                : userStatus === "away"
+                : user?.userStatus === "away"
                 ? "bg-amber-500"
-                : userStatus === "busy"
+                : user?.userStatus === "busy"
                 ? "bg-rose-500"
                 : "bg-gray-500"
             }`}
@@ -74,19 +102,21 @@ const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, use
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-xs text-gray-400 mb-1">Status</div>
+                <div className="text-xs text-gray-400 mb-2">Status</div>
                 <div className="flex gap-1">
                   {statusOptions.map((status) => (
                     <button
                       key={status.id}
-                      onClick={() => setUserStatus(status.id)}
-                      className={`flex-1 p-1 rounded-md text-xs font-medium transition-colors ${
-                        userStatus === status.id ? "bg-white/10" : "hover:bg-white/5"
+                      onClick={() => handleStatusUpdate(status.id)}
+                      className={`flex-1 p-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+                        user?.userStatus === status.id 
+                          ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" 
+                          : "hover:bg-white/5 text-gray-300 border border-transparent"
                       }`}
                     >
-                      <div className="flex justify-center items-center">
-                        <div className={`w-2 h-2 rounded-full ${status.color} mr-1`}></div>
-                        <span>{status.label}</span>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full ${status.color}`}></div>
+                        <span className="text-[10px]">{status.label.split(' ')[1]}</span>
                       </div>
                     </button>
                   ))}

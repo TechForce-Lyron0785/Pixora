@@ -260,13 +260,13 @@ const ProfileSection = ({ user, updateProfile }) => {
           <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
           <div className="flex items-center">
             <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-3 px-4 font-mono">
-              pixora.io/
+              profile/
             </div>
             <input
               type="text"
               name="username"
               value={formData.username}
-              onChange={handleInputChange}
+              // onChange={handleInputChange}
               className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-3 px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono transition-all duration-300"
               disabled
             />
@@ -279,7 +279,7 @@ const ProfileSection = ({ user, updateProfile }) => {
             type="email"
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
+            // onChange={handleInputChange}
             className="bg-zinc-800/50 border border-white/10 rounded-lg py-3 px-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
             disabled
           />

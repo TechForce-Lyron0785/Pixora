@@ -142,7 +142,7 @@ const SecuritySection = ({ user, updatePassword }) => {
             </div>
           ) : (
             <div className="bg-zinc-800/50 border border-white/10 rounded-lg py-2 px-3">
-              <span className="text-gray-400">Password last updated: {user?.updatedAt ? formatDate(user.updatedAt) : 'N/A'}</span>
+              <span className="text-gray-400">Set strong password to protect your account</span>
             </div>
           )}
         </div>
@@ -198,18 +198,6 @@ const SecuritySection = ({ user, updatePassword }) => {
                 <p className="text-sm text-gray-400">No login history available</p>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-white/10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-medium">Security Notifications</h3>
-              <p className="text-xs text-gray-400">Get alerted about suspicious activity</p>
-            </div>
-            <button className="relative w-12 h-6 rounded-full bg-violet-600">
-              <span className="absolute top-1 left-1 bg-white w-4 h-4 rounded-full translate-x-6"></span>
-            </button>
           </div>
         </div>
       </div>
