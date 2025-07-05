@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Image, Search, Upload, Clock, TrendingUp } from "lucide-react";
+import { Image, Search, Upload, Clock, TrendingUp, Menu, Sparkles } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useApi } from "@/hooks/useApi";
@@ -17,7 +17,7 @@ import QuickView from "./QuickView";
 import UserMenu from "./UserMenu";
 import Link from "next/link";
 
-const LoggedInHeader = () => {
+const LoggedInHeader = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchActive, setSearchActive] = useState(false);
@@ -77,6 +77,20 @@ const LoggedInHeader = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [activeDropdown, quickViewOpen]);
+
+  // Handle escape key to close search modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        if (searchOpen) {
+          setSearchOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [searchOpen]);
 
   // Toggle dropdown menu
   const toggleDropdown = (index) => {
@@ -177,28 +191,49 @@ const LoggedInHeader = () => {
 
   return (
     <motion.header
-      className={`fixed top-0 right-0 left-0 ml-20 lg:ml-64 z-50 transition-all duration-300 border-b ${
+      className={`fixed top-0 right-0 left-0 z-40 transition-all duration-300 border-b ${
         scrolled
           ? "bg-zinc-950/90 backdrop-blur-xl py-2.5 border-white/10"
           : "bg-transparent py-4 border-transparent"
+      } ${
+        // Mobile: no left margin, Desktop: left margin for sidebar
+        "ml-0 lg:ml-20 xl:ml-64"
       }`}
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="px-6 mx-auto">
+      <div className="px-4 lg:px-6 mx-auto">
         <div className="flex items-center justify-between">
-          {/* Left side - Tabs and navigation */}
-          <NavTabs
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            isCreatingMode={isCreatingMode}
-            toggleCreatorMode={toggleCreatorMode}
-          />
+          {/* Mobile: Left side - Menu button and Pixora logo */}
+          <div className="flex items-center space-x-3 lg:hidden">
+            <button
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="p-2.5 text-gray-300 hover:text-white rounded-full transition-colors hover:bg-white/5"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link href={"/dashboard"} className="flex items-center gap-2">
+              <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-lg p-1.5 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Pixora</h1>
+            </Link>
+          </div>
 
-          {/* Search button centered modal trigger */}
-          <div className="flex-1 flex justify-center px-4">
-            <div className="hidden md:block w-full max-w-xl">
+          {/* Desktop: Left side - Tabs and navigation */}
+          <div className="hidden lg:block">
+            <NavTabs
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
+              isCreatingMode={isCreatingMode}
+              toggleCreatorMode={toggleCreatorMode}
+            />
+          </div>
+
+          {/* Search button centered modal trigger - Desktop only */}
+          <div className="hidden lg:flex flex-1 justify-center px-4">
+            <div className="w-full max-w-xl">
               <button
                 onClick={toggleSearch}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
@@ -212,15 +247,15 @@ const LoggedInHeader = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-2 dropdown-container">
-            {/* Search toggle */}
-            {/* <button
+            {/* Mobile: Search button */}
+            <button
               onClick={toggleSearch}
-              className={`p-2.5 text-gray-300 hover:text-white rounded-full transition-colors ${
+              className={`lg:hidden p-2.5 text-gray-300 hover:text-white rounded-full transition-colors ${
                 searchActive ? "bg-white/10" : "hover:bg-white/5"
               }`}
             >
               <Search className="w-5 h-5" />
-            </button> */}
+            </button>
 
             {/* Create New Button & Menu */}
             <CreateMenu
@@ -228,15 +263,6 @@ const LoggedInHeader = () => {
               toggleDropdown={toggleDropdown}
               setActiveDropdown={setActiveDropdown}
             />
-
-            {/* 
-            <Link
-              href={"/upload-image"}
-              className={`hidden md:flex items-center px-4 py-2 transition-all hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white text-sm font-medium duration-300 `}
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              <span>Upload Image</span>
-            </Link> */}
 
             {/* Notifications Button & Menu */}
             <NotificationsMenu
@@ -273,16 +299,16 @@ const LoggedInHeader = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -50, scale: 0.97 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl mx-4 z-[130]"
+              className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[calc(100%-1rem)] max-w-2xl mx-auto z-[130] sm:top-20 sm:w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-                <form onSubmit={onSubmitSearch} className="flex items-center p-4 border-b border-white/10">
-                  <Search className="w-5 h-5 text-gray-400 mr-3" />
+                <form onSubmit={onSubmitSearch} className="flex items-center p-3 sm:p-4 border-b border-white/10">
+                  <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
                   <input
                     type="text"
                     placeholder="Search for images, artists, collections, or tags..."
-                    className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none"
+                    className="flex-1 bg-transparent text-white text-sm sm:text-base placeholder-gray-400 focus:outline-none"
                     autoFocus
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -290,9 +316,9 @@ const LoggedInHeader = () => {
                   <span className="text-xs text-gray-500 bg-white/10 px-2 py-1 rounded font-mono">ESC</span>
                 </form>
 
-                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Recent Searches */}
-                  <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                  <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/10">
                     <div className="flex items-center gap-2 mb-2">
                       <Clock className="w-4 h-4 text-violet-300" />
                       <h4 className="text-sm font-semibold text-violet-300">Recent</h4>
@@ -315,7 +341,7 @@ const LoggedInHeader = () => {
                   </div>
 
                   {/* Trending Tags (chips like search page) */}
-                  <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                  <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/10">
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingUp className="w-4 h-4 text-amber-300" />
                       <h4 className="text-sm font-semibold text-amber-300">Trending searches</h4>
@@ -341,10 +367,10 @@ const LoggedInHeader = () => {
                   </div>
                 </div>
 
-                <div className="p-3 pt-0">
+                <div className="p-3">
                   <button
                     onClick={onSubmitSearch}
-                    className="w-full py-2.5 text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-white font-medium transition-colors"
+                    className="w-full py-2.5 sm:py-3 text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-white font-medium transition-colors"
                   >
                     Search
                   </button>

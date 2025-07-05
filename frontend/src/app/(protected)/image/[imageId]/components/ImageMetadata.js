@@ -11,13 +11,13 @@ const ImageMetadata = ({
   handleFollowToggle 
 }) => {
   return (
-    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-6">
-      <h1 className="text-2xl font-bold mb-2">{image.title}</h1>
-      <p className="text-gray-300 mb-6">{image.description}</p>
+    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold mb-2">{image.title}</h1>
+      <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">{image.description}</p>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
         <Link href={`/profile/${image.user.username}`} className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-violet-500">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-violet-500">
             <img 
               src={image.user.profilePicture} 
               alt={image.user.username} 
@@ -48,16 +48,16 @@ const ImageMetadata = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
-          <Calendar className="w-5 h-5 text-gray-400" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3 bg-white/5 p-2.5 sm:p-3 rounded-lg">
+          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <div>
             <p className="text-xs text-gray-400">Upload Date</p>
-            <p className="text-sm">{formatDate(image.createdAt)}</p>
+            <p className="text-xs sm:text-sm">{formatDate(image.createdAt)}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
+        <div className="flex items-center gap-2 sm:gap-3 bg-white/5 p-2.5 sm:p-3 rounded-lg">
           <Eye className="w-5 h-5 text-gray-400" />
           <div>
             <p className="text-xs text-gray-400">Views</p>

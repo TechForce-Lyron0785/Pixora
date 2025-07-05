@@ -499,7 +499,7 @@ const Header = () => {
                   <span className="text-xs text-gray-500 bg-white/10 px-2 py-1 rounded font-mono">ESC</span>
                 </div>
                 <div className="p-4">
-                  <p className="text-gray-400 text-sm">Try searching for "digital art", "3D renders", or "AI portraits"</p>
+                  <p className="text-gray-400 text-sm">Try searching for &quot;digital art&quot;, &quot;3D renders&quot;, or &quot;AI portraits&quot;</p>
                 </div>
               </div>
             </motion.div>
@@ -714,15 +714,6 @@ const Header = () => {
 
               {/* Mobile User Section */}
               <div className="border-t border-white/10 pt-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-400 to-fuchsia-400 rounded-xl flex items-center justify-center">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">John Doe</p>
-                    <p className="text-gray-400 text-sm">Free Plan</p>
-                  </div>
-                </div>
 
                 {/* Mobile Auth Buttons */}
                 <div className="space-y-3">
@@ -730,7 +721,7 @@ const Header = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full p-4 rounded-xl bg-white/10 hover:bg-white/20 text:white font-medium flex items-center justify-center transition-colors"
+                    className="w-full p-4 rounded-xl text-white bg-white/10 hover:bg-white/20 text:white font-medium flex items-center justify-center transition-colors"
                     onClick={() => navigateTo("/login")}
                   >
                     <LogIn className="w-5 h-5 mr-2" />

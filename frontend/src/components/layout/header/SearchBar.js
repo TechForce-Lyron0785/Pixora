@@ -288,7 +288,7 @@ const SearchBar = ({ searchActive, toggleSearch, setActiveDropdown, activeDropdo
                   {/* No results message */}
                   {!loading && suggestions.length === 0 && recentSearches.length === 0 && trendingSearches.length === 0 && searchQuery.trim() && (
                     <div className="p-4 text-center text-gray-400">
-                      <p>No results found for "{searchQuery}"</p>
+                      <p>No results found for &quot;{searchQuery}&quot;</p>
                       <p className="text-sm mt-1">Try searching for something else</p>
                     </div>
                   )}

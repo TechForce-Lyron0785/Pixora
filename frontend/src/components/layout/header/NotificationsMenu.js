@@ -438,7 +438,7 @@ const NotificationsMenu = ({ activeDropdown, toggleDropdown }) => {
   };
 
   return (
-    <div className="relative dropdown-container" ref={notificationRef}>
+    <div className="md:relative dropdown-container" ref={notificationRef}>
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -472,12 +472,11 @@ const NotificationsMenu = ({ activeDropdown, toggleDropdown }) => {
             animate={{ 
               opacity: 1, 
               y: 0, 
-              scale: 1,
-              width: isExpanded ? "480px" : "420px"
+              scale: 1
             }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`absolute right-0 mt-3 rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800/50 shadow-2xl shadow-black/40 overflow-hidden z-50 backdrop-blur-xl`}
+            className={`absolute md:right-0 right-4 mt-3 rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800/50 shadow-2xl shadow-black/40 overflow-hidden z-50 backdrop-blur-xl w-[calc(100vw-2rem)] sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl`}
           >
             {/* Header with expanded toggle */}
             <div className="p-4 border-b border-zinc-800/50">
@@ -597,7 +596,7 @@ const NotificationsMenu = ({ activeDropdown, toggleDropdown }) => {
               ))}
             </div>
 
-            <div className="max-h-[55vh] overflow-y-auto p-3 custom-scrollbar">
+            <div className="max-h-[50vh] sm:max-h-[55vh] overflow-y-auto p-3 custom-scrollbar">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16">
                   <div className="w-12 h-12 relative">

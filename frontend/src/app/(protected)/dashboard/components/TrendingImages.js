@@ -45,25 +45,25 @@ const TrendingImages = ({ category }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold">Trending Images</h3>
-        <Link href={"/feed"} className="text-sm text-violet-400 hover:text-violet-300 flex items-center">
+        <h3 className="text-lg sm:text-xl font-bold">Trending Images</h3>
+        <Link href={"/feed"} className="text-xs sm:text-sm text-violet-400 hover:text-violet-300 flex items-center">
           See all
-          <ChevronDown className="w-4 h-4 ml-1" />
+          <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
         </Link>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {Array.from({ length: 6 }).map((_, index) => (
             <ImageSkeleton key={`skeleton-${index}`} heightClass="aspect-[3/4]" />
           ))}
         </div>
       ) : trendingImages.length < 1 ? (
-        <div className="flex justify-center items-center h-64 bg-zinc-900/60 border border-white/10 rounded-xl">
-          <p className="text-gray-400">No images available for this category</p>
+        <div className="flex justify-center items-center h-48 sm:h-64 bg-zinc-900/60 border border-white/10 rounded-xl">
+          <p className="text-gray-400 text-sm sm:text-base text-center px-4">No images available for this category</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {trendingImages.slice(0,6).map((image, index) => (
             <ImageCard
               key={image._id}

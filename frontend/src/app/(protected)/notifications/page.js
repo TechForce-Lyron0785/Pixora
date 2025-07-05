@@ -308,7 +308,7 @@ const NotificationsPage = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <div className="min-h-screen bg-gray-950 text-white p-4 sm:p-6">
       {/* Main container */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -317,78 +317,78 @@ const NotificationsPage = () => {
         className="relative z-10 mx-auto"
       >
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-600">
-                <Bell className="h-7 w-7 text-white" />
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-purple-600">
+                <Bell className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                   Notifications
                 </h1>
-                <p className="text-gray-400">
+                <p className="text-sm sm:text-base text-gray-400">
                   {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All caught up!'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-3 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors"
+                className="p-2 sm:p-3 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors"
               >
-                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleSelectMode}
-                className={`p-3 rounded-xl transition-colors ${isSelectMode ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'
+                className={`p-2 sm:p-3 rounded-xl transition-colors ${isSelectMode ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'
                   }`}
               >
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowFilters(!showFilters)}
-                className="p-3 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors"
+                className="p-2 sm:p-3 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors"
               >
-                <Filter className="w-5 h-5" />
+                <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
             </div>
           </div>
 
           {/* Search and Actions */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="Search notifications..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 text-sm sm:text-base"
               />
             </div>
 
             {isSelectMode && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button
                   onClick={selectAll}
-                  className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-xs sm:text-sm"
                 >
                   Select All
                 </button>
                 <button
                   onClick={deselectAll}
-                  className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-xs sm:text-sm"
                 >
                   Deselect All
                 </button>
@@ -396,13 +396,13 @@ const NotificationsPage = () => {
                   <>
                     <button
                       onClick={() => markAsRead(selectedNotifications)}
-                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition-colors text-sm"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition-colors text-xs sm:text-sm"
                     >
                       Mark Read
                     </button>
                     <button
                       onClick={() => deleteNotifications(selectedNotifications)}
-                      className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 transition-colors text-sm"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 hover:bg-red-500 transition-colors text-xs sm:text-sm"
                     >
                       Delete
                     </button>
@@ -412,10 +412,10 @@ const NotificationsPage = () => {
             )}
 
             {!isSelectMode && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={markAllAsRead}
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors text-sm"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors text-xs sm:text-sm"
                 >
                   Mark All Read
                 </button>
@@ -424,19 +424,20 @@ const NotificationsPage = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
             {filters.map(filter => (
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${activeFilter === filter.id
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl transition-all text-xs sm:text-sm ${activeFilter === filter.id
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
                     : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
               >
                 {filter.icon}
-                <span>{filter.label}</span>
-                <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                <span className="hidden sm:inline">{filter.label}</span>
+                <span className="sm:hidden">{filter.label.charAt(0)}</span>
+                <span className="text-xs bg-white/20 px-1.5 sm:px-2 py-0.5 rounded-full">
                   {filter.count}
                 </span>
               </button>
@@ -450,15 +451,15 @@ const NotificationsPage = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-6 p-4 rounded-xl bg-gray-800/50 border border-gray-700"
+                className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-gray-800/50 border border-gray-700"
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">Sort By</label>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                      className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-xs sm:text-sm"
                     >
                       <option value="latest">Latest First</option>
                       <option value="oldest">Oldest First</option>
@@ -467,8 +468,8 @@ const NotificationsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Show Read</label>
-                    <div className="flex items-center gap-3">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">Show Read</label>
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <label className="flex items-center">
                         <input
                           type="checkbox"
@@ -476,23 +477,23 @@ const NotificationsPage = () => {
                           onChange={(e) => setShowRead(e.target.checked)}
                           className="rounded border-gray-600 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="ml-2 text-sm">Include read notifications</span>
+                        <span className="ml-2 text-xs sm:text-sm">Include read notifications</span>
                       </label>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Quick Actions</label>
-                    <div className="flex gap-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1 sm:mb-2">Quick Actions</label>
+                    <div className="flex gap-1.5 sm:gap-2">
                       <button
                         onClick={() => deleteNotifications(notifications.filter(n => n.read).map(n => n._id))}
-                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 transition-colors text-xs"
+                        className="px-2 sm:px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 transition-colors text-xs"
                       >
                         Delete Read
                       </button>
                       <button
                         onClick={() => deleteNotifications(notifications.map(n => n._id))}
-                        className="px-3 py-1 rounded-lg bg-red-700 hover:bg-red-600 transition-colors text-xs"
+                        className="px-2 sm:px-3 py-1 rounded-lg bg-red-700 hover:bg-red-600 transition-colors text-xs"
                       >
                         Delete All
                       </button>
@@ -523,10 +524,10 @@ const NotificationsPage = () => {
               </button>
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="text-center py-12">
-              <Bell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-300 mb-2">No notifications</h3>
-              <p className="text-gray-500">
+            <div className="text-center py-8 sm:py-12">
+              <Bell className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-300 mb-2">No notifications</h3>
+              <p className="text-sm sm:text-base text-gray-500 px-4">
                 {activeFilter === 'all'
                   ? "You're all caught up! Check back later for new notifications."
                   : `No ${activeFilter} notifications found.`}
@@ -540,7 +541,7 @@ const NotificationsPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: idx * 0.05 }}
-                  className={`relative flex items-start gap-4 p-4 rounded-xl transition-all cursor-pointer group border ${notification.read
+                  className={`relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-all cursor-pointer group border ${notification.read
                       ? 'bg-gray-800/30 border-gray-700/50'
                       : 'bg-purple-900/20 border-purple-500/30'
                     } hover:bg-gray-800/50 hover:border-purple-500/50`}
@@ -552,18 +553,18 @@ const NotificationsPage = () => {
                       type="checkbox"
                       checked={selectedNotifications.includes(notification._id)}
                       onChange={() => toggleNotificationSelection(notification._id)}
-                      className="mt-2 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
+                      className="mt-1.5 sm:mt-2 rounded border-gray-600 text-purple-600 focus:ring-purple-500"
                       onClick={(e) => e.stopPropagation()}
                     />
                   )}
 
                   {/* Unread indicator */}
                   {!notification.read && (
-                    <div className="absolute top-4 right-4 w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-purple-500 rounded-full"></div>
                   )}
 
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-700/30 to-gray-800 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-700/30 to-gray-800 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all flex-shrink-0">
                     {notification.sender?.profilePicture ? (
                       <img
                         src={notification.sender.profilePicture}
@@ -571,7 +572,7 @@ const NotificationsPage = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-gray-200 font-bold text-xl">
+                      <span className="text-gray-200 font-bold text-lg sm:text-xl">
                         {notification.sender?.username?.charAt(0).toUpperCase() || "?"}
                       </span>
                     )}
@@ -580,27 +581,27 @@ const NotificationsPage = () => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm">
                           <span className="font-semibold text-white">{notification.sender?.username || 'Someone'}</span>
                           <span className="text-gray-300"> {notification.content}</span>
                         </p>
 
                         {/* Preview of related content if available */}
                         {notification.relatedImage && notification.relatedImage.title && (
-                          <div className="mt-2 p-2 rounded-lg bg-gray-800/70 border border-gray-700/50 text-xs text-gray-300 truncate group-hover:bg-gray-800 transition-colors">
+                          <div className="mt-1.5 sm:mt-2 p-1.5 sm:p-2 rounded-lg bg-gray-800/70 border border-gray-700/50 text-xs text-gray-300 truncate group-hover:bg-gray-800 transition-colors">
                             &quot;{notification.relatedImage.title}&quot;
                           </div>
                         )}
 
-                        <div className="flex items-center mt-2">
+                        <div className="flex items-center mt-1.5 sm:mt-2">
                           <Clock className="w-3 h-3 text-purple-300/50 mr-1" />
                           <p className="text-xs text-purple-300/70">{formatTime(notification.createdAt)}</p>
                         </div>
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-2 ml-4">
+                      <div className="flex items-center gap-1 sm:gap-2 ml-2 sm:ml-4">
                         {getActivityIcon(notification.type)}
 
                         {!isSelectMode && (
@@ -610,9 +611,9 @@ const NotificationsPage = () => {
                                 e.stopPropagation();
                                 markAsRead(notification._id);
                               }}
-                              className="p-1 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors mr-2 cursor-pointer"
+                              className="p-1 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors mr-1 sm:mr-2 cursor-pointer"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                             <button
                               onClick={(e) => {
@@ -621,7 +622,7 @@ const NotificationsPage = () => {
                               }}
                               className="p-1 rounded-lg bg-red-600 hover:bg-red-500 transition-colors cursor-pointer"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                           </div>
                         )}
@@ -633,10 +634,10 @@ const NotificationsPage = () => {
 
               {/* Load More */}
               {hasMore && (
-                <div className="text-center py-6">
+                <div className="text-center py-4 sm:py-6">
                   <button
                     onClick={() => setPage(prev => prev + 1)}
-                    className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors"
+                    className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors text-sm sm:text-base"
                   >
                     Load More
                   </button>

@@ -103,23 +103,23 @@ const FavoritesPage = () => {
   }, [user, selectedCategory]);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
+    <div className="p-2 sm:p-6 w-full max-w-full overflow-hidden">
+      <div className="mb-3 sm:mb-6">
         <div className="flex items-center mb-2">
-          <Bookmark className="w-6 h-6 mr-3 text-violet-500" />
-          <h1 className="text-2xl font-bold">Your Favorites Collection</h1>
+          <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-violet-500 flex-shrink-0" />
+          <h1 className="text-lg sm:text-2xl font-bold truncate">Your Favorites Collection</h1>
         </div>
-        <p className="text-gray-400">Browse all the images you&apos;ve saved to your favorites</p>
+        <p className="text-gray-400 text-sm sm:text-base">Browse all the images you&apos;ve saved to your favorites</p>
       </div>
 
       {/* Category filter */}
-      <div className="mb-6">
+      <div className="grid grid-cols-1 mb-3">
         <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
       </div>
 
       {/* Images grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-4 mt-2 sm:mt-4 w-full">
           {Array.from({ length: 12 }).map((_, index) => (
             <ImageSkeleton key={`skeleton-${index}`} heightClass="aspect-[3/4]" />
           ))}
@@ -129,19 +129,19 @@ const FavoritesPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center h-64 bg-zinc-900/60 border border-white/10 rounded-xl mt-4"
+          className="flex flex-col items-center justify-center h-48 sm:h-64 bg-zinc-900/60 border border-white/10 rounded-xl mt-2 sm:mt-4 mx-1 sm:mx-0"
         >
-          <BookmarkX className="w-16 h-16 text-gray-400 mb-4" />
-          <p className="text-gray-400 text-lg mb-2">No favorites found</p>
-          <p className="text-gray-500 mb-6">You haven&apos;t added any images to your favorites in this category yet</p>
+          <BookmarkX className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mb-3 sm:mb-4" />
+          <p className="text-gray-400 text-base sm:text-lg mb-1 sm:mb-2 text-center px-4">No favorites found</p>
+          <p className="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base text-center px-4">You haven&apos;t added any images to your favorites in this category yet</p>
           <Link href="/feed">
-            <button className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40">
+            <button className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40">
               Discover Images
             </button>
           </Link>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-3 mt-2 sm:mt-4 w-full">
           <AnimatePresence>
             {images.map((image, index) => (
               <motion.div
@@ -151,6 +151,7 @@ const FavoritesPage = () => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 layout
+                className="w-full"
               >
                 <ImageCard
                   image={image}
@@ -168,9 +169,9 @@ const FavoritesPage = () => {
 
       {/* Load more button */}
       {hasMore && !loading && images.length > 0 && (
-        <div className="flex justify-center mt-8 mb-8">
+        <div className="flex justify-center mt-6 sm:mt-8 mb-6 sm:mb-8 px-2 sm:px-0">
           <button
-            className={`px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 ${loadingMore ? 'opacity-70 cursor-wait' : ''}`}
+            className={`w-full max-w-xs sm:max-w-none px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 ${loadingMore ? 'opacity-70 cursor-wait' : ''}`}
             onClick={handleLoadMore}
             disabled={loadingMore}
           >

@@ -252,14 +252,14 @@ const ImageCard = ({
         </AnimatePresence>
 
         {/* Top actions bar */}
-        <div className="absolute top-0 left-0 right-0 px-3 py-3 flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity z-10">
+        <div className="absolute top-0 left-0 right-0 px-2 sm:px-3 py-2 sm:py-3 flex items-center gap-1.5 sm:gap-2 opacity-80 group-hover:opacity-100 transition-opacity z-10">
           {image.user?.profilePicture && (
             <Link
               href={`/profile/${image.user.username}`}
               onClick={(e) => e.stopPropagation()}
-              className="transform hover:scale-110 transition-transform"
+              className="transform hover:scale-110 transition-transform flex-shrink-0"
             >
-              <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/30 hover:ring-white/90 transition-all shadow-lg">
+              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full overflow-hidden ring-2 ring-white/30 hover:ring-white/90 transition-all shadow-lg">
                 <Image
                   src={image.user.profilePicture}
                   alt={image.user.username}
@@ -272,7 +272,7 @@ const ImageCard = ({
           )}
           <Link
             href={`/profile/${image.user?.username}`}
-            className="text-sm font-medium text-white/90 hover:text-white hover:underline transition-colors"
+            className="text-xs sm:text-sm font-medium text-white/90 hover:text-white hover:underline transition-colors truncate min-w-0"
             onClick={(e) => e.stopPropagation()}
           >
             {image.user?.username}
@@ -280,41 +280,41 @@ const ImageCard = ({
         </div>
 
         {/* Image actions overlay */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col gap-1.5 sm:gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
           <button
-            className={`p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isLiked
+            className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isLiked
               ? 'bg-rose-500/30 text-rose-300'
               : 'bg-white/10 hover:bg-white/20'
               }`}
             onClick={handleLikeToggle}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-300' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isLiked ? 'fill-rose-300' : ''}`} />
           </button>
           <button
-            className={`p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isFavorited
+            className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-colors cursor-pointer ${isFavorited
               ? 'bg-amber-500/30 text-amber-300'
               : 'bg-white/10 hover:bg-white/20'
               }`}
             onClick={handleFavoriteToggle}
           >
-            <BookmarkIcon className={`w-4 h-4 ${isFavorited ? 'fill-amber-300' : ''}`} />
+            <BookmarkIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFavorited ? 'fill-amber-300' : ''}`} />
           </button>
           <button
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
             onClick={handleAddToCollection}
           >
-            <FolderPlus className="w-4 w-4" />
+            <FolderPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           {onCollectionOptions && (
             <button
-              className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
               onClick={handleRemoveFromCollection}
             >
-              <MoreVertical className="w-4 h-4" />
+              <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           )}
           <button
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -326,38 +326,38 @@ const ImageCard = ({
               setTimeout(() => setShowTooltip(false), 2000);
             }}
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-lg bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
             onClick={handleViewDetails}
           >
-            <Info className="w-4 h-4" />
+            <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
 
         {/* Info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
-          <div className="flex flex-col gap-2 backdrop-blur-sm bg-black/30 p-3 rounded-xl">
-            <h4 className="text-lg font-medium leading-tight text-white/90 group-hover:text-white transition-colors line-clamp-2">
+        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">
+          <div className="flex flex-col gap-1.5 sm:gap-2 backdrop-blur-sm bg-black/30 p-2 sm:p-3 rounded-lg sm:rounded-xl">
+            <h4 className="text-sm sm:text-lg font-medium leading-tight text-white/90 group-hover:text-white transition-colors line-clamp-2">
               {image.title}
             </h4>
             <div className="flex justify-between items-center">
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <motion.span
-                  className="flex items-center text-xs text-rose-300 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-full"
+                  className="flex items-center text-xs text-rose-300 bg-black/40 backdrop-blur-md px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Heart className={`w-3 h-3 mr-1.5 ${isLiked ? 'fill-rose-300' : ''}`} />
+                  <Heart className={`w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 ${isLiked ? 'fill-rose-300' : ''}`} />
                   {likesCount.toString()}
                 </motion.span>
                 <motion.span
-                  className="flex items-center text-xs text-blue-300 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-full"
+                  className="flex items-center text-xs text-blue-300 bg-black/40 backdrop-blur-md px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <MessageSquare className="w-3 h-3 mr-1.5" />
+                  <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                   {image.commentsCount?.toString() || '0'}
                 </motion.span>
               </div>
@@ -378,7 +378,7 @@ const ImageCard = ({
             onClick={() => setShowImageDetails(false)}
           >
             <motion.div
-              className="relative max-w-5xl w-full max-h-[90vh] m-4 overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-white/10 shadow-2xl backdrop-blur-xl"
+              className="relative max-w-5xl w-full max-h-[90vh] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-white/10 shadow-2xl backdrop-blur-xl"
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
@@ -386,16 +386,16 @@ const ImageCard = ({
               onClick={(e) => e.stopPropagation()}
             >
               <motion.button
-                className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-black/60 text-white/90 hover:text-white hover:bg-black/80 transition-colors"
+                className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 p-2 sm:p-2.5 rounded-full bg-black/60 text-white/90 hover:text-white hover:bg-black/80 transition-colors"
                 onClick={() => setShowImageDetails(false)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
 
               <div className="flex flex-col md:flex-row h-full">
-                <div className="md:w-2/3 h-[50vh] md:h-auto relative overflow-hidden">
+                <div className="md:w-2/3 h-[40vh] sm:h-[50vh] md:h-auto relative overflow-hidden">
                   <Image
                     src={image.imageUrl}
                     alt={image.title}
@@ -405,11 +405,11 @@ const ImageCard = ({
                   />
 
                   {/* Image overlay with glass effect */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <div className="flex items-center gap-3">
+                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {image.user?.profilePicture && (
                         <Link href={`/profile/${image.user.username}`} className="block" onClick={(e) => e.stopPropagation()}>
-                          <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-violet-500/40 hover:ring-violet-500/70 transition-all">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-violet-500/40 hover:ring-violet-500/70 transition-all">
                             <Image
                               src={image.user.profilePicture}
                               alt={image.user.username}
@@ -421,61 +421,62 @@ const ImageCard = ({
                         </Link>
                       )}
                       <Link href={`/profile/${image.user?.username}`} className="block" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="font-medium text-white hover:text-violet-300 transition-colors">{image.user?.username}</h4>
+                        <h4 className="font-medium text-white hover:text-violet-300 transition-colors text-sm sm:text-base">{image.user?.username}</h4>
                       </Link>
                     </div>
                   </div>
                 </div>
 
-                <div className="md:w-1/3 p-8 flex flex-col h-full bg-gradient-to-br from-zinc-900/50 to-zinc-950/50 backdrop-blur-sm">
-                  <h2 className="text-2xl font-semibold text-white mb-4">{image.title}</h2>
+                <div className="md:w-1/3 p-4 sm:p-8 flex flex-col h-full bg-gradient-to-br from-zinc-900/50 to-zinc-950/50 backdrop-blur-sm">
+                  <h2 className="text-lg sm:text-2xl font-semibold text-white mb-3 sm:mb-4">{image.title}</h2>
 
                   {image.description && (
-                    <p className="text-white/70 mb-6 text-sm">{image.description}</p>
+                    <p className="text-white/70 mb-4 sm:mb-6 text-xs sm:text-sm">{image.description}</p>
                   )}
 
-                  <div className="flex gap-4 mb-8">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6 sm:mb-8">
                     <motion.button
-                      className={`flex items-center gap-2 px-5 py-3 rounded-xl ${isLiked ? 'bg-rose-500 text-white' : 'bg-zinc-800 text-white/90 hover:bg-zinc-700'} transition-colors shadow-lg`}
+                      className={`flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-3 rounded-xl ${isLiked ? 'bg-rose-500 text-white' : 'bg-zinc-800 text-white/90 hover:bg-zinc-700'} transition-colors shadow-lg text-sm`}
                       onClick={handleLikeToggle}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Heart className={`w-5 h-5 ${isLiked ? 'fill-white' : ''}`} />
+                      <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'fill-white' : ''}`} />
                       <span>{likesCount}</span>
                     </motion.button>
 
                     <motion.button
-                      className={`flex items-center gap-2 px-5 py-3 rounded-xl ${isFavorited ? 'bg-amber-500 text-white' : 'bg-zinc-800 text-white/90 hover:bg-zinc-700'} transition-colors shadow-lg`}
+                      className={`flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-3 rounded-xl ${isFavorited ? 'bg-amber-500 text-white' : 'bg-zinc-800 text-white/90 hover:bg-zinc-700'} transition-colors shadow-lg text-sm`}
                       onClick={handleFavoriteToggle}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <BookmarkIcon className={`w-5 h-5 ${isFavorited ? 'fill-white' : ''}`} />
+                      <BookmarkIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorited ? 'fill-white' : ''}`} />
                       <span>Save</span>
                     </motion.button>
 
                     <motion.button
-                      className="flex items-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 text-white/90 hover:bg-zinc-700 transition-colors shadow-lg"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-3 rounded-xl bg-zinc-800 text-white/90 hover:bg-zinc-700 transition-colors shadow-lg text-sm"
                       onClick={handleAddToCollection}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <FolderPlus className="w-5 h-5" />
-                      <span>Add to Collection</span>
+                      <FolderPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden sm:inline">Add to Collection</span>
+                      <span className="sm:hidden">Add</span>
                     </motion.button>
                   </div>
 
                   {/* Tags section */}
                   {image.tags && image.tags.length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="text-sm font-medium text-white/70 mb-2">Tags</h4>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="mb-6 sm:mb-8">
+                      <h4 className="text-xs sm:text-sm font-medium text-white/70 mb-2">Tags</h4>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {image.tags.map((tag, i) => (
                           <Link
                             href={`/tags/${tag}`}
                             key={i}
-                            className="bg-zinc-800/70 hover:bg-zinc-700 text-white/80 hover:text-white text-xs px-3 py-1.5 rounded-full transition-colors"
+                            className="bg-zinc-800/70 hover:bg-zinc-700 text-white/80 hover:text-white text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
                             #{tag}
@@ -487,7 +488,7 @@ const ImageCard = ({
 
                   <Link
                     href={`/image/${image._id}`}
-                    className="mt-auto text-center px-5 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-medium transition-all shadow-lg hover:shadow-violet-500/30"
+                    className="mt-auto text-center px-4 sm:px-5 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-medium transition-all shadow-lg hover:shadow-violet-500/30 text-sm sm:text-base"
                     onClick={(e) => e.stopPropagation()}
                   >
                     View Full Details

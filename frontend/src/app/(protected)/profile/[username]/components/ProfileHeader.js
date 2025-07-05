@@ -113,7 +113,7 @@ const ProfileHeader = ({
   return (
     <>
       {/* Cover Image */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-r from-violet-900 to-fuchsia-900 overflow-hidden">
+      <div className="relative h-48 sm:h-64 md:h-80 bg-gradient-to-r from-violet-900 to-fuchsia-900 overflow-hidden">
         <img
           src={profile.coverPicture}
           alt="Cover"
@@ -122,30 +122,32 @@ const ProfileHeader = ({
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
 
         {/* Cover Stats */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-end gap-3">
-          <div className="px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-2 text-sm">
-            <Camera className="w-4 h-4 text-violet-400" />
-            <span>{profile.postsCount || 0} Posts</span>
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 flex justify-end gap-2 sm:gap-3">
+          <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-violet-400" />
+            <span className="hidden sm:inline">{profile.postsCount || 0} Posts</span>
+            <span className="sm:hidden">{profile.postsCount || 0}</span>
           </div>
-          <div className="px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-2 text-sm">
-            <Heart className="w-4 h-4 text-rose-400" />
-            <span>{profile.likesCount || 0} Likes</span>
+          <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-black/40 backdrop-blur-md rounded-lg flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-rose-400" />
+            <span className="hidden sm:inline">{profile.likesCount || 0} Likes</span>
+            <span className="sm:hidden">{profile.likesCount || 0}</span>
           </div>
         </div>
 
         {/* Cover edit button */}
         {isOwnProfile && (
-          <Link href={"/settings"} className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur-md rounded-lg hover:bg-black/50 transition-colors">
-            <Camera className="w-5 h-5" />
+          <Link href={"/settings"} className="absolute top-3 sm:top-4 right-3 sm:right-4 p-1.5 sm:p-2 bg-black/30 backdrop-blur-md rounded-lg hover:bg-black/50 transition-colors">
+            <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         )}
       </div>
 
-      <div className="px-6 md:px-10 -mt-16 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end mb-8">
+      <div className="px-4 sm:px-6 md:px-10 -mt-12 sm:-mt-16 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end mb-6 sm:mb-8">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-32 h-32 rounded-xl border-4 border-zinc-950 overflow-hidden bg-zinc-900">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl border-4 border-zinc-950 overflow-hidden bg-zinc-900">
               <img
                 src={profile.profilePicture}
                 alt={profile.fullName}
@@ -153,118 +155,121 @@ const ProfileHeader = ({
               />
             </div>
             {isOwnProfile && (
-              <button onClick={() => setProfileOpen(true)} className="absolute bottom-2 right-2 p-1.5 bg-violet-600 rounded-lg text-white hover:bg-violet-500 transition-colors">
-                <Edit2 className="w-4 h-4" />
+              <button onClick={() => setProfileOpen(true)} className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 p-1 sm:p-1.5 bg-violet-600 rounded-lg text-white hover:bg-violet-500 transition-colors">
+                <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>
 
           {/* User info */}
-          <div className="mt-4 md:mt-0 md:ml-6 md:flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">{profile.fullName}</h1>
+          <div className="mt-3 sm:mt-4 md:mt-0 md:ml-6 md:flex-1">
+            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">{profile.fullName}</h1>
               {profile.isVerified && (
-                <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Verified
+                <span className="bg-blue-500/20 text-blue-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
+                  <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                  <span className="hidden sm:inline">Verified</span>
                 </span>
               )}
               {profile.isPremium ? (
-                <span className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Premium
+                <span className="bg-amber-500/20 text-amber-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
+                  <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                  <span className="hidden sm:inline">Premium</span>
                 </span>
               ) : (
-                <span className="bg-fuchsia-500/20 text-fuchsia-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                  <TreePine className="w-3 h-3 mr-1" />
-                  Standard
+                <span className="bg-fuchsia-500/20 text-fuchsia-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
+                  <TreePine className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                  <span className="hidden sm:inline">Standard</span>
                 </span>
               )}
-              <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 mr-1"></div>
-                {profile.userStatus || "Online"}
+              <span className="bg-emerald-500/20 text-emerald-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 mr-0.5 sm:mr-1"></div>
+                <span className="hidden sm:inline">{profile.userStatus || "Online"}</span>
               </span>
             </div>
-            <p className="text-sm text-gray-400 mb-3 flex items-center gap-2">
+            <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 flex-wrap">
               @{profile.username}
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/5 text-xs">
-                <Calendar className="w-3 h-3 mr-1 text-gray-500" />
-                Joined {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ""}
+              <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md bg-white/5 text-xs">
+                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1 text-gray-500" />
+                <span className="hidden sm:inline">Joined {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ""}</span>
+                <span className="sm:hidden">{profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ""}</span>
               </span>
             </p>
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
               {/* Display the main badge */}
               <span
-                className={`bg-${getBadgeColor(profile.badge)}/20 text-${getBadgeColor(profile.badge)} px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1`}
+                className={`bg-${getBadgeColor(profile.badge)}/20 text-${getBadgeColor(profile.badge)} px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-0.5 sm:gap-1`}
               >
                 {getBadgeIcon(getBadgeIconName(profile.badge))}
                 {profile.badge || "newbie"}
               </span>
 
               {/* Add achievement badges */}
-              <span className="bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1">
-                <Award className="w-3.5 h-3.5 mr-1" />
-                New Creator
+              <span className="bg-violet-500/20 text-violet-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-0.5 sm:gap-1">
+                <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1" />
+                <span className="hidden sm:inline">New Creator</span>
               </span>
-              <span className="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1">
-                <TrendingUp className="w-3.5 h-3.5 mr-1" />
-                Growing
+              <span className="bg-rose-500/20 text-rose-400 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-0.5 sm:gap-1">
+                <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-0.5 sm:mr-1" />
+                <span className="hidden sm:inline">Growing</span>
               </span>
             </div>
             {/* Quick stats bar */}
-            <div className="flex gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg">
-                <Users className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium">{profile.followersCount || 0}</span>
+            <div className="flex gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+                <span className="text-xs sm:text-sm font-medium">{profile.followersCount || 0}</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg">
-                <Grid className="w-4 h-4 text-violet-400" />
-                <span className="text-sm font-medium">{profile.postsCount || 0}</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
+                <Grid className="w-3 h-3 sm:w-4 sm:h-4 text-violet-400" />
+                <span className="text-xs sm:text-sm font-medium">{profile.postsCount || 0}</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg">
-                <Heart className="w-4 h-4 text-rose-400" />
-                <span className="text-sm font-medium">{profile.likesCount || 0}</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
+                <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-rose-400" />
+                <span className="text-xs sm:text-sm font-medium">{profile.likesCount || 0}</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg">
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm font-medium">{profile.interactionsCount || 0}</span>
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-white/5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg">
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
+                <span className="text-xs sm:text-sm font-medium">{profile.interactionsCount || 0}</span>
               </div>
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-2 mt-4 md:mt-0">
+          <div className="flex gap-1 sm:gap-2 mt-3 sm:mt-4 md:mt-0">
             {isOwnProfile ? (
-              <Link href={"/settings"} className="flex items-center px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors font-medium text-sm">
-                <UserPen className='size-4 mr-1.5' /> Edit Profile
+              <Link href={"/settings"} className="flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors font-medium text-xs sm:text-sm">
+                <UserPen className='w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5' /> 
+                <span className="hidden sm:inline">Edit Profile</span>
+                <span className="sm:hidden">Edit</span>
               </Link>
             ) : (
               <button
                 onClick={handleFollowToggle}
                 disabled={followLoading}
-                className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center gap-2 ${isFollowing
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 ${isFollowing
                   ? 'bg-white/10 hover:bg-white/20 text-white'
                   : 'bg-violet-600 hover:bg-violet-500 text-white'
                   }`}
               >
                 {isFollowing ? (
                   <>
-                    <UserMinus className="w-4 h-4" />
-                    Unfollow
+                    <UserMinus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Unfollow</span>
                   </>
                 ) : (
                   <>
-                    <UserPlus className="w-4 h-4" />
-                    Follow
+                    <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Follow</span>
                   </>
                 )}
               </button>
             )}
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+            <button className="p-1.5 sm:p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
               {/* TODO: Make message working */}
-              <MessageSquare className="w-5 h-5" />
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+            <button className="p-1.5 sm:p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -273,7 +278,7 @@ const ProfileHeader = ({
                 toast.success('Profile link copied to clipboard!');
               }}
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             {/* <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
               <MoreHorizontal className="w-5 h-5" />

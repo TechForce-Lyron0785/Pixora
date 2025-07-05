@@ -85,7 +85,7 @@ const TagPage = () => {
       </div>
 
       {/* Category filter */}
-      <div className="mb-6">
+      <div className="grid grid-cols-1 mb-3">
         <CategoryFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
       </div>
 
@@ -101,7 +101,7 @@ const TagPage = () => {
           <p className="text-gray-400">No images found with tag #{tag}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
           {images.map((image, index) => (
             <ImageCard
               key={image._id}

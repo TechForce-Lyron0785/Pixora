@@ -19,25 +19,26 @@ const ProfileTabs = ({ activeTab, setActiveTab, profile }) => {
 
   return (
     <div className="border-b border-white/10">
-      <div className="flex space-x-1 overflow-x-auto no-scrollbar">
+      <div className="flex space-x-0.5 sm:space-x-1 overflow-x-auto no-scrollbar">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
+            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
               ? 'border-violet-600 text-violet-400'
               : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-white/20'
               }`}
           >
             {tab.icon}
-            {tab.name}
+            <span className="hidden sm:inline">{tab.name}</span>
+            <span className="sm:hidden">{tab.name.charAt(0)}</span>
             {tab.id === 'followers' && profile.followersCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-violet-600/20 text-violet-400 rounded-full text-xs">
+              <span className="ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-0.5 bg-violet-600/20 text-violet-400 rounded-full text-xs">
                 {profile.followersCount}
               </span>
             )}
             {tab.id === 'following' && profile.followingCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-violet-600/20 text-violet-400 rounded-full text-xs">
+              <span className="ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-0.5 bg-violet-600/20 text-violet-400 rounded-full text-xs">
                 {profile.followingCount}
               </span>
             )}

@@ -43,11 +43,11 @@ const FileUpload = ({
   };
 
   return (
-    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6">
-      <h2 className="text-xl font-bold mb-6">Select Images to Upload</h2>
+    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-4 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Select Images to Upload</h2>
 
       <div
-        className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center ${
+        className={`border-2 border-dashed rounded-xl p-6 sm:p-10 flex flex-col items-center justify-center ${
           dragActive ? 'border-violet-500 bg-violet-900/20' : 'border-white/20 hover:border-violet-500/50'
         } transition-all duration-300 cursor-pointer`}
         onDragEnter={handleDrag}
@@ -69,22 +69,22 @@ const FileUpload = ({
           <Upload className="w-8 h-8 text-violet-400" />
         </div>
 
-        <h3 className="text-lg font-medium mb-2">Drag & Drop your images here</h3>
-        <p className="text-gray-400 text-center mb-6 max-w-md">
+        <h3 className="text-base sm:text-lg font-medium mb-2 text-center">Drag & Drop your images here</h3>
+        <p className="text-gray-400 text-center mb-4 sm:mb-6 max-w-md text-sm sm:text-base">
           Upload high-quality images in JPG, PNG, or WebP format.
           Maximum file size: 15MB per image.
         </p>
 
-        <button className="py-2.5 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2">
+        <button className="w-full sm:w-auto py-2.5 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2">
           <ImageIcon className="w-4 h-4" />
           Browse Files
         </button>
       </div>
 
       {files.length > 0 && (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="mt-4 sm:mt-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           {files.map((file, index) => (
-            <div key={index} className="relative group">
+            <div key={index} className="relative group touch-manipulation">
               <div className="aspect-square rounded-lg overflow-hidden bg-zinc-800 border border-white/10">
                 <img
                   src={file.preview}
@@ -108,9 +108,9 @@ const FileUpload = ({
 
               <button
                 onClick={() => removeFile(index)}
-                className="absolute top-2 right-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 p-2 sm:p-1.5 bg-black/50 backdrop-blur-sm rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
 
               <div className="text-xs text-gray-400 mt-1 truncate">
@@ -122,23 +122,23 @@ const FileUpload = ({
         </div>
       )}
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium">Upload Guidelines</h3>
-          <button className="text-violet-400 text-sm flex items-center gap-1">
+      <div className="mt-6 sm:mt-8">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h3 className="font-medium text-sm sm:text-base">Upload Guidelines</h3>
+          <button className="text-violet-400 text-xs sm:text-sm flex items-center gap-1">
             <HelpCircle className="w-4 h-4" />
             Help
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           {[
             { title: 'High Quality', description: 'Minimum 1200px on the longest side', icon: <Eye /> },
             { title: 'Original Content', description: 'Must own rights to the content', icon: <Info /> },
             { title: 'Be Creative', description: 'Showcase your unique perspective', icon: <Sparkles /> }
           ].map((guideline, idx) => (
-            <div key={idx} className="bg-white/5 rounded-lg p-4">
-              <div className="flex items-start gap-3">
+            <div key={idx} className="bg-white/5 rounded-lg p-3 sm:p-4">
+              <div className="flex items-start gap-2 sm:gap-3">
                 <div className="p-2 bg-white/10 rounded-lg">
                   {guideline.icon}
                 </div>

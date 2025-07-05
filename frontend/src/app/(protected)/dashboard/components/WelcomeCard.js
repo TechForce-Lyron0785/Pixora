@@ -101,8 +101,8 @@ const WelcomeCard = ({ user }) => {
       <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-cyan-500/20 blur-3xl"></div>
 
       <div className="relative z-10">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <div className="flex items-center ">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="flex items-center">
             {/* <img src={user.profilePicture} className='h-16 w-16 rounded-full mr-3' alt="user Profile Picture" /> */}
             <div className="group relative mr-3">
               <div
@@ -119,22 +119,22 @@ const WelcomeCard = ({ user }) => {
               <img
                 src={user.profilePicture} 
                 alt="Selected avatar"
-                className="h-16 w-16 rounded-full border-2 border-indigo-500 shadow-lg object-cover relative z-10"
+                className="h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 border-indigo-500 shadow-lg object-cover relative z-10"
               />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
                 {timeOfDay === 'morning' ?
-                  <Calendar className="w-5 h-5 text-amber-400" /> :
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> :
                   timeOfDay === 'afternoon' ?
-                    <Zap className="w-5 h-5 text-amber-400" /> :
-                    <Star className="w-5 h-5 text-indigo-400" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" /> :
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" />
                 }
-                <h2 className="text-2xl font-bold text-white">Good {timeOfDay}, {user?.fullName?.split(' ')[0] || "User"}!</h2>
+                <h2 className="text-lg sm:text-2xl font-bold text-white">Good {timeOfDay}, {user?.fullName?.split(' ')[0] || "User"}!</h2>
               </div>
-              <p className="text-gray-300 flex items-center gap-2">
+              <p className="text-gray-300 flex flex-wrap items-center gap-1 sm:gap-2">
                 {getBadgeIcon(user?.badge)}
-                <span className={`font-medium capitalize ${user?.badge === 'trendsetter' ? 'text-pink-400' :
+                <span className={`font-medium capitalize text-sm sm:text-base ${user?.badge === 'trendsetter' ? 'text-pink-400' :
                   user?.badge === 'pro' ? 'text-amber-400' :
                     user?.badge === 'rising' ? 'text-indigo-400' :
                       'text-cyan-400'}`}
@@ -165,42 +165,43 @@ const WelcomeCard = ({ user }) => {
 
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className={`hidden md:flex items-center gap-2 bg-gradient-to-r ${getBadgeColor(user?.badge)} px-3 py-1.5 rounded-full text-white text-sm mt-2 md:mt-0 shadow-lg shadow-indigo-900/20`}
+            className={`hidden sm:flex items-center gap-2 bg-gradient-to-r ${getBadgeColor(user?.badge)} px-3 py-1.5 rounded-full text-white text-sm mt-2 sm:mt-0 shadow-lg shadow-indigo-900/20`}
           >
             <TrendingUp className="w-4 h-4" />
-            <span>{user?.badge === 'newbie' ? 'Make 5 posts to level up!' : user?.badge === 'rising' ? 'Get 50 followers to level up!' : user?.badge === 'pro' ? 'Get 100 likes to level up!' : 'You reached the highest level!'}</span>
+            <span className="hidden md:inline">{user?.badge === 'newbie' ? 'Make 5 posts to level up!' : user?.badge === 'rising' ? 'Get 50 followers to level up!' : user?.badge === 'pro' ? 'Get 100 likes to level up!' : 'You reached the highest level!'}</span>
+            <span className="md:hidden">Level up!</span>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {analyticsData.map((stat, idx) => (
             <motion.div
               key={idx}
               whileHover={{ y: -5, scale: 1.02 }}
-              className={`bg-white/5 rounded-lg p-4 backdrop-blur-lg border border-white/5 shadow-lg`}
+              className={`bg-white/5 rounded-lg p-3 sm:p-4 backdrop-blur-lg border border-white/5 shadow-lg`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-300 text-sm">{stat.label}</span>
-                {stat.icon}
+                <span className="text-gray-300 text-xs sm:text-sm">{stat.label}</span>
+                <div className="scale-75 sm:scale-100">{stat.icon}</div>
               </div>
-              <div className="flex items-end gap-2">
-                <span className={`text-2xl font-bold`}>{stat.value.toLocaleString()}</span>
-                <TrendingUp className={`w-4 h-4 ${stat.textColor} mb-1`} />
+              <div className="flex items-end gap-1 sm:gap-2">
+                <span className={`text-lg sm:text-2xl font-bold`}>{stat.value.toLocaleString()}</span>
+                <TrendingUp className={`w-3 h-3 sm:w-4 sm:h-4 ${stat.textColor} mb-1`} />
               </div>
             </motion.div>
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <motion.div
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className="relative group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg blur opacity-50 group-hover:opacity-90 transition duration-300"></div>
-            <Link href="/upload-image" className="relative bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500  flex items-center gap-2 py-2.5 px-5 rounded-lg transition-all duration-300 shadow-lg">
+            <Link href="/upload-image" className="relative bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 flex items-center justify-center gap-2 py-2.5 px-4 sm:px-5 rounded-lg transition-all duration-300 shadow-lg">
               <Upload className="w-4 h-4" />
-              <span>Upload New</span>
+              <span className="text-sm sm:text-base">Upload New</span>
             </Link>
           </motion.div>
 
@@ -208,9 +209,9 @@ const WelcomeCard = ({ user }) => {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <Link href={`/profile/@${user?.username}`} className="bg-white/5 hover:bg-white/10 flex items-center gap-2 py-2.5 px-5 rounded-lg transition-all duration-300 border border-white/10">
+            <Link href={`/profile/@${user?.username}`} className="bg-white/5 hover:bg-white/10 flex items-center justify-center gap-2 py-2.5 px-4 sm:px-5 rounded-lg transition-all duration-300 border border-white/10">
               <User className="w-4 h-4" />
-              <span>View Profile</span>
+              <span className="text-sm sm:text-base">View Profile</span>
               <ChevronRight className="w-3 h-3 ml-1" />
             </Link>
           </motion.div>

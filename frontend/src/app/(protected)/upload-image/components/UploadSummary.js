@@ -49,14 +49,19 @@ const UploadSummary = ({
   const visibilityInfo = getVisibilityInfo();
 
   return (
-    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6 sticky top-6">
-      <h2 className="text-xl font-bold mb-6">Upload Summary</h2>
+    <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-4 sm:p-6 sticky top-4 sm:top-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-bold">Upload Summary</h2>
+        <button className="md:hidden text-sm text-violet-400 hover:text-violet-300">
+          View Summary
+        </button>
+      </div>
       
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         <div>
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm text-gray-400">File Status</h3>
-            <span className="text-xs bg-violet-600/20 text-violet-400 py-1 px-2 rounded-full">
+            <span className="text-xs bg-violet-600/20 text-violet-400 py-1 px-2.5 rounded-full">
               {files.every(f => f.uploaded) ? 'Ready to Publish' : 'Processing...'}
             </span>
           </div>
@@ -65,9 +70,9 @@ const UploadSummary = ({
             {files.map((file, index) => (
               <div 
                 key={index} 
-                className="flex items-center gap-3 p-2 rounded-lg bg-zinc-800/50"
+                className="flex items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-zinc-800/50"
               >
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                <div className="w-12 h-12 sm:w-10 sm:h-10 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
                   <img 
                     src={file.preview} 
                     alt={file.name} 
@@ -75,16 +80,16 @@ const UploadSummary = ({
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{file.name}</p>
+                  <p className="text-xs sm:text-sm truncate">{file.name}</p>
                   <p className="text-xs text-gray-400">{file.size} MB</p>
                 </div>
-                <div>
+                <div className="flex-shrink-0">
                   {file.error ? (
                     <span className="text-red-400 text-xs">Error</span>
                   ) : file.uploaded ? (
-                    <FileCheck className="w-4 h-4 text-green-400" />
+                    <FileCheck className="w-5 h-5 sm:w-4 sm:h-4 text-green-400" />
                   ) : (
-                    <div className="w-4 h-4 border-2 border-t-transparent border-violet-500 rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 sm:w-4 sm:h-4 border-2 border-t-transparent border-violet-500 rounded-full animate-spin"></div>
                   )}
                 </div>
               </div>
@@ -93,49 +98,49 @@ const UploadSummary = ({
         </div>
         
         <div className="border-t border-white/10 pt-4">
-          <h3 className="text-sm text-gray-400 mb-3">Image Details</h3>
+          <h3 className="text-sm text-gray-400 mb-2 sm:mb-3">Image Details</h3>
           
           <div className="space-y-3">
             {imageDetails.title && (
               <div>
-                <h4 className="text-xs text-gray-400 mb-1">Title</h4>
-                <p className="text-sm">{imageDetails.title}</p>
+                <h4 className="text-xs text-gray-400 mb-0.5 sm:mb-1">Title</h4>
+                <p className="text-xs sm:text-sm">{imageDetails.title}</p>
               </div>
             )}
             
             {imageDetails.category && (
               <div>
-                <h4 className="text-xs text-gray-400 mb-1">Category</h4>
-                <p className="text-sm">{getCategoryName(imageDetails.category)}</p>
+                <h4 className="text-xs text-gray-400 mb-0.5 sm:mb-1">Category</h4>
+                <p className="text-xs sm:text-sm">{getCategoryName(imageDetails.category)}</p>
               </div>
             )}
             
             {imageDetails.license && (
               <div>
-                <h4 className="text-xs text-gray-400 mb-1">License</h4>
-                <p className="text-sm">{getLicenseName(imageDetails.license)}</p>
+                <h4 className="text-xs text-gray-400 mb-0.5 sm:mb-1">License</h4>
+                <p className="text-xs sm:text-sm">{getLicenseName(imageDetails.license)}</p>
               </div>
             )}
             
             {collection && (
               <div>
-                <h4 className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                <h4 className="text-xs text-gray-400 mb-0.5 sm:mb-1 flex items-center gap-1">
                   <FolderPlus className="w-3 h-3 text-violet-400" />
                   Collection
                 </h4>
-                <p className="text-sm">{collection.name}</p>
+                <p className="text-xs sm:text-sm">{collection.name}</p>
               </div>
             )}
           </div>
         </div>
         
         <div className="border-t border-white/10 pt-4">
-          <h3 className="text-sm text-gray-400 mb-3">Publishing Settings</h3>
+          <h3 className="text-sm text-gray-400 mb-2 sm:mb-3">Publishing Settings</h3>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center gap-2">
               {visibilityInfo.icon}
-              <span className="text-sm">{visibilityInfo.name}</span>
+              <span className="text-xs sm:text-sm">{visibilityInfo.name}</span>
             </div>
           </div>
         </div>

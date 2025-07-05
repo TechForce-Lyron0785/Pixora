@@ -257,9 +257,9 @@ const ImageDetail = () => {
   };
 
   return (
-    <div className="px-6 pt-5">
+    <div className="px-3 sm:px-6 pt-3 sm:pt-5">
       {/* Back navigation */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <button 
           className="flex items-center text-gray-400 hover:text-white transition-colors gap-1"
           onClick={() => window.history.back()}
@@ -270,9 +270,9 @@ const ImageDetail = () => {
       </div>
 
       {/* Image detail layout */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Main image and info */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
+        <div className="col-span-1 lg:col-span-8 space-y-4 sm:space-y-6">
           {/* Image Header Component */}
           <ImageHeader
             image={image}
@@ -298,10 +298,10 @@ const ImageDetail = () => {
 
           {/* Owner edit modal */}
           {user && image?.user?._id === user._id && editMode && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div className="absolute inset-0 bg-black/70" onClick={() => setEditMode(false)} />
-              <div className="relative z-10 w-full max-w-lg rounded-xl border border-white/10 bg-zinc-900/90 backdrop-blur-md p-6">
-                <h3 className="text-lg font-semibold mb-4">Edit post</h3>
+              <div className="relative z-10 w-full max-w-lg rounded-xl border border-white/10 bg-zinc-900/90 backdrop-blur-md p-4 sm:p-6">
+                <h3 className="text-lg font-semibold mb-3 sm:mb-4">Edit post</h3>
                 <form onSubmit={handleEditSave} className="space-y-3">
                   <div>
                     <label className="block text-xs text-gray-400 mb-1">Title</label>
@@ -368,22 +368,20 @@ const ImageDetail = () => {
           )}
 
           {/* Comments Section Component */}
-          {image.commentsAllowed ? <CommentsSection
+            {image.commentsAllowed ? <CommentsSection
             imageId={imageId}
             user={user}
           /> : (
-            <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-6 py-10 text-center my-4">
+            <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-4 sm:px-6 py-8 sm:py-10 text-center my-4">
               <MessageSquareOff className="w-6 h-6 text-gray-400 mx-auto mb-2" />
               <p className="text-gray-300 font-medium">Comments are disabled for this image</p>
               <p className="text-gray-400 text-sm mt-1">The creator has turned off commenting for this content</p>
             </div>
-          )}
-
-          {/* Likers section (lazy-loaded) */}
-          <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-6 py-5">
-            <div className="flex items-center justify-between mb-3">
+          )}          {/* Likers section (lazy-loaded) */}
+          <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-3 sm:px-6 py-4 sm:py-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
               <h3 className="text-sm font-semibold text-gray-200">Liked by</h3>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3">
                 <span className="text-xs text-gray-400">{likesCount} likes</span>
                 <button
                   onClick={handleToggleLikers}
@@ -400,7 +398,7 @@ const ImageDetail = () => {
                 ) : likers.length === 0 ? (
                   <div className="text-sm text-gray-400">No likes yet</div>
                 ) : (
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {likers.map((u) => (
                       <li key={u._id}>
                         <button

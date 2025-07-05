@@ -146,7 +146,7 @@ export default function PrivacyPage() {
           </section>
 
           <section className="bg-zinc-900/50 rounded-xl p-6 border border-white/10">
-            <h2 className="text-2xl font-semibold mb-4 text-violet-400">9. Children's Privacy</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-violet-400">9. Children&apos;s Privacy</h2>
             <p className="text-gray-300 leading-relaxed">
               Our platform is not intended for children under 13 years of age. We do not knowingly 
               collect personal information from children under 13. If you are a parent or guardian 
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-semibold mb-4 text-violet-400">10. Changes to This Policy</h2>
             <p className="text-gray-300 leading-relaxed">
               We may update this Privacy Policy from time to time. We will notify you of any material 
-              changes by posting the new policy on this page and updating the "Last updated" date. 
+              changes by posting the new policy on this page and updating the &quot;Last updated&quot; date. 
               Your continued use of our platform after such changes constitutes acceptance of the updated policy.
             </p>
           </section>

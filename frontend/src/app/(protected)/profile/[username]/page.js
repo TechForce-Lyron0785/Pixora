@@ -278,7 +278,7 @@ const ProfilePage = () => {
       />
 
       {/* Bio and stats section */}
-      <div className="px-6 md:px-10">
+      <div className="px-4 sm:px-6 md:px-10">
         <ProfileBio profile={profile} isOwnProfile={isOwnProfile} />
 
         {/* Tabs Navigation */}
@@ -291,16 +291,16 @@ const ProfilePage = () => {
 
       {/* Conditional Profile Status Banners */}
       {(profile.profileVisibility === "private" && !isOwnProfile && !isFollowing) ? (
-        <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/10 rounded-lg p-6 my-6 text-center mx-6 md:mx-10">
+        <div className="bg-zinc-900/60 backdrop-blur-sm border border-white/10 rounded-lg p-4 sm:p-6 my-4 sm:my-6 text-center mx-4 sm:mx-6 md:mx-10">
           <div className="bg-violet-500/20 p-3 rounded-full w-fit mx-auto mb-3">
-            <Lock className="h-6 w-6 text-violet-400" />
+            <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-violet-400" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-1">This Profile is Private</h3>
-          <p className="text-gray-400 mb-4">Follow this user to view their photos and content</p>
+          <h3 className="text-base sm:text-lg font-semibold text-white mb-1">This Profile is Private</h3>
+          <p className="text-sm sm:text-base text-gray-400 mb-4">Follow this user to view their photos and content</p>
           <button
             onClick={handleFollowToggle}
             disabled={followLoading}
-            className="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2 mx-auto"
+            className="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2 mx-auto text-sm sm:text-base"
           >
             <UserPlus className="h-4 w-4" />
             Follow
@@ -308,7 +308,7 @@ const ProfilePage = () => {
         </div>
       ) : (
         // Tab Content
-        <div className="px-6 md:px-10 py-8">
+        <div className="px-4 sm:px-6 md:px-10 py-4 sm:py-6 md:py-8">
           {activeTab === 'works' && <WorksTab user={profile} />}
 
           {activeTab === 'collections' && (

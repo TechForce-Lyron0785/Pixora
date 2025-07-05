@@ -12,10 +12,10 @@ const StorageUsage = ({ user }) => {
   const percentageUsed = Math.min((storageUsedKB / totalStorageKB) * 100, 100).toFixed(0); // Clamp to 100%
 
   return (
-    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-6">
-      <h3 className="text-lg font-bold mb-4">Storage Usage</h3>
-      <div className="mb-4">
-        <div className="flex justify-between text-sm mb-1">
+    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Storage Usage</h3>
+      <div className="mb-3 sm:mb-4">
+        <div className="flex justify-between text-xs sm:text-sm mb-1">
           <span className="text-gray-400">{storageUsedMB} MB / {totalStorageMB} MB Used</span>
           <span className="text-violet-400">{percentageUsed}%</span>
         </div>
@@ -26,7 +26,7 @@ const StorageUsage = ({ user }) => {
           ></div>
         </div>
       </div>
-      <Link href="/settings" className="w-full text-center text-sm text-violet-400 hover:text-violet-300">
+      <Link href="/settings" className="w-full text-center text-xs sm:text-sm text-violet-400 hover:text-violet-300">
         Upgrade for more storage
       </Link>
     </div>

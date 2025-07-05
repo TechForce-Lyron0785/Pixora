@@ -66,18 +66,18 @@ const AchievementCard = ({user}) => {
     : 0;
 
   return (
-    <div className="rounded-xl bg-gradient-to-br from-amber-900/50 to-zinc-900/60 border border-white/10 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Achievements</h3>
-        <Award className="text-amber-400 w-5 h-5" />
+    <div className="rounded-xl bg-gradient-to-br from-amber-900/50 to-zinc-900/60 border border-white/10 p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-bold">Achievements</h3>
+        <Award className="text-amber-400 w-4 h-4 sm:w-5 sm:h-5" />
       </div>
-      <div className="bg-white/5 rounded-lg p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-amber-900/50 rounded-lg">
-            {currentAchievement.icon}
+      <div className="bg-white/5 rounded-lg p-3 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3">
+          <div className="p-1.5 sm:p-2 bg-amber-900/50 rounded-lg">
+            <div className="scale-75 sm:scale-100">{currentAchievement.icon}</div>
           </div>
           <div>
-            <p className="font-medium text-sm">{currentAchievement.title}</p>
+            <p className="font-medium text-xs sm:text-sm">{currentAchievement.title}</p>
             {currentAchievement.nextBadge ? (
               <p className="text-xs text-gray-400">{remaining} {currentAchievement.message}</p>
             ) : (

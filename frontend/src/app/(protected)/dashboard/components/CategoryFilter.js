@@ -13,12 +13,12 @@ const CategoryFilter = ({ selectedCategory, setSelectedCategory }) => {
   ];
 
   return (
-    <div className="flex items-center gap-3 overflow-x-auto py-2 no-scrollbar">
+    <div className="flex items-center gap-1.5 sm:gap-3 overflow-x-auto py-1 sm:py-2 no-scrollbar">
       {categories.map(category => (
         <button
           key={category.id}
           onClick={() => setSelectedCategory(category.id)}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${selectedCategory === category.id
+          className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 ${selectedCategory === category.id
             ? 'bg-violet-600 text-white'
             : 'bg-white/5 hover:bg-white/10 text-gray-300'
             } transition-colors duration-200`}
@@ -26,8 +26,8 @@ const CategoryFilter = ({ selectedCategory, setSelectedCategory }) => {
           {category.name}
         </button>
       ))}
-      <button className="p-2 rounded-full bg-white/5 hover:bg-white/10">
-        <Filter className="w-4 h-4" />
+      <button className="p-1.5 sm:p-2 rounded-full bg-white/5 hover:bg-white/10 flex-shrink-0">
+        <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       </button>
     </div>
   );

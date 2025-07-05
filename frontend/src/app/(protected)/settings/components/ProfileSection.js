@@ -154,78 +154,80 @@ const ProfileSection = ({ user, updateProfile }) => {
           )}
         </div>
 
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Display Name</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1.5 sm:mb-2">Display Name</label>
             {editingName ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 <input
                   type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="bg-zinc-800/50 border border-white/10 rounded-lg py-3 px-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  className="bg-zinc-800/50 border border-white/10 rounded-lg py-2 sm:py-3 px-3 sm:px-4 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                   maxLength={33}
                   placeholder="Enter your display name"
                 />
-                <button
-                  onClick={() => {
-                    handleProfileUpdate();
-                    setEditingName(false);
-                  }}
-                  disabled={isSubmitting}
-                  className="p-3 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all duration-300"
-                >
-                  <Check className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => {
-                    setFormData({ ...formData, fullName: user?.fullName || '' });
-                    setEditingName(false);
-                  }}
-                  className="p-3 bg-rose-500/20 text-rose-400 rounded-lg hover:bg-rose-500/30 transition-all duration-300"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex w-full sm:w-auto gap-2">
+                  <button
+                    onClick={() => {
+                      handleProfileUpdate();
+                      setEditingName(false);
+                    }}
+                    disabled={isSubmitting}
+                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all duration-300"
+                  >
+                    <Check className="w-4 sm:w-5 h-4 sm:h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFormData({ ...formData, fullName: user?.fullName || '' });
+                      setEditingName(false);
+                    }}
+                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-rose-500/20 text-rose-400 rounded-lg hover:bg-rose-500/30 transition-all duration-300"
+                  >
+                    <X className="w-4 sm:w-5 h-4 sm:h-5" />
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center justify-between group">
-                <h3 className="text-xl font-medium">{formData.fullName}</h3>
+                <h3 className="text-lg sm:text-xl font-medium">{formData.fullName}</h3>
                 <button
                   onClick={() => setEditingName(true)}
-                  className="p-2 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
+                  className="p-2 bg-white/5 rounded-lg sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </button>
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Bio</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1.5 sm:mb-2">Bio</label>
             {editingBio ? (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3">
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleInputChange}
                   rows={4}
                   maxLength={260}
-                  className="bg-zinc-800/50 border border-white/10 rounded-lg py-3 px-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  className="bg-zinc-800/50 border border-white/10 rounded-lg py-2 sm:py-3 px-3 sm:px-4 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                   placeholder="Tell us about yourself..."
                 />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">{formData.bio.length}/260</span>
-                  <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                  <span className="text-xs sm:text-sm text-gray-400">{formData.bio.length}/260</span>
+                  <div className="flex w-full sm:w-auto gap-2">
                     <button
                       onClick={() => {
                         handleProfileUpdate();
                         setEditingBio(false);
                       }}
                       disabled={isSubmitting}
-                      className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 text-sm font-medium flex items-center gap-2 transition-all duration-300"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300"
                     >
-                      <Check className="w-4 h-4" />
+                      <Check className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                       Save
                     </button>
                     <button
@@ -233,7 +235,7 @@ const ProfileSection = ({ user, updateProfile }) => {
                         setFormData({ ...formData, bio: user?.bio || '' });
                         setEditingBio(false);
                       }}
-                      className="px-4 py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 text-sm font-medium transition-all duration-300"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 text-xs sm:text-sm font-medium transition-all duration-300"
                     >
                       Cancel
                     </button>
@@ -242,12 +244,12 @@ const ProfileSection = ({ user, updateProfile }) => {
               </div>
             ) : (
               <div className="flex items-start justify-between group">
-                <p className="text-gray-300 text-sm leading-relaxed">{formData.bio || 'No bio added yet'}</p>
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{formData.bio || 'No bio added yet'}</p>
                 <button
                   onClick={() => setEditingBio(true)}
-                  className="p-2 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10 flex-shrink-0 ml-2"
+                  className="p-1.5 sm:p-2 bg-white/5 rounded-lg sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10 flex-shrink-0 ml-2"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </button>
               </div>
             )}
@@ -255,11 +257,11 @@ const ProfileSection = ({ user, updateProfile }) => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
+          <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1.5 sm:mb-2">Username</label>
           <div className="flex items-center">
-            <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-3 px-4 font-mono">
+            <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base font-mono">
               profile/
             </div>
             <input
@@ -267,31 +269,31 @@ const ProfileSection = ({ user, updateProfile }) => {
               name="username"
               value={formData.username}
               // onChange={handleInputChange}
-              className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-3 px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono transition-all duration-300"
+              className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-2 sm:py-3 px-3 sm:px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono text-sm sm:text-base transition-all duration-300"
               disabled
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
+          <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1.5 sm:mb-2">Email</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             // onChange={handleInputChange}
-            className="bg-zinc-800/50 border border-white/10 rounded-lg py-3 px-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+            className="bg-zinc-800/50 border border-white/10 rounded-lg py-2 sm:py-3 px-3 sm:px-4 w-full focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm sm:text-base transition-all duration-300"
             disabled
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Social Links</label>
+          <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1.5 sm:mb-2">Social Links</label>
           {editingSocials ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center">
-                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-3 px-4">
-                  <Instagram className="w-5 h-5" />
+                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-2 sm:py-3 px-3 sm:px-4">
+                  <Instagram className="w-4 sm:w-5 h-4 sm:h-5" />
                 </div>
                 <input
                   type="text"
@@ -299,13 +301,13 @@ const ProfileSection = ({ user, updateProfile }) => {
                   value={formData.socialLinks.instagram}
                   onChange={handleInputChange}
                   placeholder="instagram.com/yourusername"
-                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-3 px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-2 sm:py-3 px-3 sm:px-4 flex-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                 />
               </div>
 
               <div className="flex items-center">
-                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-3 px-4">
-                  <Twitter className="w-5 h-5" />
+                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-2 sm:py-3 px-3 sm:px-4">
+                  <Twitter className="w-4 sm:w-5 h-4 sm:h-5" />
                 </div>
                 <input
                   type="text"
@@ -313,13 +315,13 @@ const ProfileSection = ({ user, updateProfile }) => {
                   value={formData.socialLinks.twitter}
                   onChange={handleInputChange}
                   placeholder="twitter.com/yourusername"
-                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-3 px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-2 sm:py-3 px-3 sm:px-4 flex-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                 />
               </div>
 
               <div className="flex items-center">
-                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-3 px-4">
-                  <Facebook className="w-5 h-5" />
+                <div className="text-white/30 bg-zinc-800/50 border border-white/10 rounded-l-lg py-2 sm:py-3 px-3 sm:px-4">
+                  <Facebook className="w-4 sm:w-5 h-4 sm:h-5" />
                 </div>
                 <input
                   type="text"
@@ -327,20 +329,20 @@ const ProfileSection = ({ user, updateProfile }) => {
                   value={formData.socialLinks.facebook}
                   onChange={handleInputChange}
                   placeholder="facebook.com/yourusername"
-                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-3 px-4 flex-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
+                  className="bg-zinc-800/50 border border-white/10 border-l-0 rounded-r-lg py-2 sm:py-3 px-3 sm:px-4 flex-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all duration-300"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 mt-4">
+              <div className="flex justify-end gap-2 mt-3 sm:mt-4">
                 <button
                   onClick={() => {
                     handleProfileUpdate();
                     setEditingSocials(false);
                   }}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 text-sm font-medium flex items-center gap-2 transition-all duration-300"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2 transition-all duration-300"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   Save
                 </button>
                 <button
@@ -351,7 +353,7 @@ const ProfileSection = ({ user, updateProfile }) => {
                     });
                     setEditingSocials(false);
                   }}
-                  className="px-4 py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 text-sm font-medium transition-all duration-300"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 text-xs sm:text-sm font-medium transition-all duration-300"
                 >
                   Cancel
                 </button>
@@ -360,40 +362,40 @@ const ProfileSection = ({ user, updateProfile }) => {
           ) : (
             <div className="flex flex-col gap-3">
               {user?.socialLinks && Object.values(user.socialLinks).some(link => link) ? (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {user.socialLinks.instagram && (
                     <a href={user.socialLinks.instagram} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-lg hover:from-purple-600/30 hover:to-pink-600/30 text-sm font-medium transition-all duration-300 group"
+                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-lg hover:from-purple-600/30 hover:to-pink-600/30 text-xs sm:text-sm font-medium transition-all duration-300 group"
                     >
-                      <Instagram className="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform duration-300" />
+                      <Instagram className="w-4 sm:w-5 h-4 sm:h-5 text-pink-400 group-hover:scale-110 transition-transform duration-300" />
                       <span>Instagram</span>
                     </a>
                   )}
                   {user.socialLinks.twitter && (
                     <a href={user.socialLinks.twitter} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg hover:from-blue-600/30 hover:to-cyan-600/30 text-sm font-medium transition-all duration-300 group"
+                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg hover:from-blue-600/30 hover:to-cyan-600/30 text-xs sm:text-sm font-medium transition-all duration-300 group"
                     >
-                      <Twitter className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                      <Twitter className="w-4 sm:w-5 h-4 sm:h-5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                       <span>Twitter</span>
                     </a>
                   )}
                   {user.socialLinks.facebook && (
                     <a href={user.socialLinks.facebook} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/20 to-blue-600/20 rounded-lg hover:from-blue-800/30 hover:to-blue-600/30 text-sm font-medium transition-all duration-300 group"
+                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-800/20 to-blue-600/20 rounded-lg hover:from-blue-800/30 hover:to-blue-600/30 text-xs sm:text-sm font-medium transition-all duration-300 group"
                     >
-                      <Facebook className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                      <Facebook className="w-4 sm:w-5 h-4 sm:h-5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                       <span>Facebook</span>
                     </a>
                   )}
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">No social links added</p>
+                <p className="text-xs sm:text-sm text-gray-400">No social links added</p>
               )}
               <button
                 onClick={() => setEditingSocials(true)}
-                className="self-start text-violet-400 hover:text-violet-300 text-sm flex items-center gap-2 group transition-colors duration-300"
+                className="self-start text-violet-400 hover:text-violet-300 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 group transition-colors duration-300"
               >
-                <Edit className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                <Edit className="w-3.5 sm:w-4 h-3.5 sm:h-4 group-hover:rotate-12 transition-transform duration-300" />
                 Edit social links
               </button>
             </div>

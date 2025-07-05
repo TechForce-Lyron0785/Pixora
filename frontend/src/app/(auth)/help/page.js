@@ -43,11 +43,11 @@ export default function HelpPage() {
                 <div className="text-gray-300 space-y-2">
                   <p>To upload images to Pixora:</p>
                   <ol className="list-decimal list-inside space-y-1 ml-4">
-                    <li>Click the "Upload" button in the header or visit the upload page</li>
+                    <li>Click the &quot;Upload&quot; button in the header or visit the upload page</li>
                     <li>Drag and drop your images or click to browse files</li>
                     <li>Add a title, description, and tags to your image</li>
                     <li>Choose privacy settings and publishing options</li>
-                    <li>Click "Publish" to share your image</li>
+                    <li>Click &quot;Publish&quot; to share your image</li>
                   </ol>
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function HelpPage() {
                   <p>To create a collection:</p>
                   <ol className="list-decimal list-inside space-y-1 ml-4">
                     <li>Go to the Collections page</li>
-                    <li>Click "Create Collection"</li>
+                    <li>Click &quot;Create Collection&quot;</li>
                     <li>Add a name and description for your collection</li>
                     <li>Choose privacy settings (public or private)</li>
                     <li>Start adding images to your collection</li>
@@ -87,9 +87,9 @@ export default function HelpPage() {
                 <div className="text-gray-300">
                   <p>To follow other users:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Visit any user's profile page</li>
-                    <li>Click the "Follow" button on their profile</li>
-                    <li>You'll see their posts in your feed</li>
+                    <li>Visit any user&apos;s profile page</li>
+                    <li>Click the &quot;Follow&quot; button on their profile</li>
+                    <li>You&apos;ll see their posts in your feed</li>
                     <li>You can unfollow at any time by clicking the same button</li>
                   </ul>
                 </div>
@@ -102,7 +102,7 @@ export default function HelpPage() {
                   <ol className="list-decimal list-inside space-y-1 ml-4">
                     <li>Go to the image or user profile you want to report</li>
                     <li>Click the three dots menu (⋯)</li>
-                    <li>Select "Report" from the options</li>
+                    <li>Select &quot;Report&quot; from the options</li>
                     <li>Choose the reason for reporting</li>
                     <li>Add any additional details and submit</li>
                   </ol>
@@ -116,7 +116,7 @@ export default function HelpPage() {
                   <p>To change your account settings:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
                     <li>Click on your profile picture in the header</li>
-                    <li>Select "Settings" from the dropdown menu</li>
+                    <li>Select &quot;Settings&quot; from the dropdown menu</li>
                     <li>Navigate through different sections (Profile, Privacy, Notifications, etc.)</li>
                     <li>Make your changes and save them</li>
                   </ul>
@@ -129,10 +129,10 @@ export default function HelpPage() {
                   <p>To delete your account:</p>
                   <ol className="list-decimal list-inside space-y-1 ml-4">
                     <li>Go to Settings → Account</li>
-                    <li>Scroll down to the "Danger Zone" section</li>
-                    <li>Click "Delete Account"</li>
+                    <li>Scroll down to the &quot;Danger Zone&quot; section</li>
+                    <li>Click &quot;Delete Account&quot;</li>
                     <li>Confirm your password and reason for deletion</li>
-                    <li>Click "Delete Account" to permanently remove your account</li>
+                    <li>Click &quot;Delete Account&quot; to permanently remove your account</li>
                   </ol>
                   <p className="mt-2 text-red-300">⚠️ This action is irreversible and will permanently delete all your data.</p>
                 </div>
@@ -189,5 +189,3 @@ export default function HelpPage() {
     </div>
   );
 }
-
-

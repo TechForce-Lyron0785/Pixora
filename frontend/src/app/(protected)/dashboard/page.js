@@ -36,12 +36,12 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <ProfilePicVerify isOpen={profileOpen} onClose={()=> setProfileOpen(false)} />
       {/* Dashboard grid */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Left column - Main content */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-4 sm:space-y-6">
           {/* Welcome card */}
           <WelcomeCard user={user} />
 
@@ -59,7 +59,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Right column - Sidebar */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 sm:space-y-6">
           {/* Quick upload */}
           <QuickUpload />
 

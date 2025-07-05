@@ -145,7 +145,7 @@ const UsersPage = () => {
   };
   
   return (
-    <div className="w-full flex-1 min-h-screen bg-zinc-950 text-white">
+    <div className="w-full flex-1 min-h-screen bg-zinc-950 text-white overflow-hidden">
       {/* Top section */}
       <UsersHeader 
         searchQuery={searchQuery} 
@@ -155,7 +155,7 @@ const UsersPage = () => {
       />
       
       {/* Tabs */}
-      <div className="p-6 pb-0">
+      <div className="sm:p-6 pb-0">
         <UsersTabs 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
@@ -164,23 +164,25 @@ const UsersPage = () => {
         />
       </div>
       
-      <div className="p-6 grid grid-cols-12 gap-6">
+      <div className="p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Main content - Users list */}
-        <UsersList 
-          filteredUsers={paginatedUsers} 
-          usersLoading={usersLoading} 
-          isFollowing={isFollowing}
-          handleFollowToggle={handleFollowToggle}
-          followLoading={followLoading}
-          setSearchQuery={setSearchQuery}
-          setActiveTab={setActiveTab}
-          currentPage={safeCurrentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        <div className="lg:col-span-8">
+          <UsersList 
+            filteredUsers={paginatedUsers} 
+            usersLoading={usersLoading} 
+            isFollowing={isFollowing}
+            handleFollowToggle={handleFollowToggle}
+            followLoading={followLoading}
+            setSearchQuery={setSearchQuery}
+            setActiveTab={setActiveTab}
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
         
         {/* Right sidebar */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 sm:space-y-6">
           {/* User stats card */}
           <UserNetwork 
             followersCount={followers.length}

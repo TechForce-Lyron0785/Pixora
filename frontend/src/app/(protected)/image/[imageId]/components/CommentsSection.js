@@ -315,20 +315,20 @@ const CommentItem = ({
               <textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-3 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-white placeholder-gray-400"
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 sm:p-3 min-h-[60px] sm:min-h-[80px] text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-white placeholder-gray-400"
               />
               <div className="flex gap-2 mt-2">
                 <button 
                   onClick={handleSaveEdit}
-                  className="px-3 py-1 bg-violet-600 hover:bg-violet-500 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-1"
+                  className="px-2.5 sm:px-3 py-1 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1"
                 >
-                  <Check className="w-4 h-4" /> Save
+                  <Check className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> Save
                 </button>
                 <button 
                   onClick={handleCancelEdit}
-                  className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-all duration-300 flex items-center gap-1"
+                  className="px-2.5 sm:px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs sm:text-sm transition-all duration-300 flex items-center gap-1"
                 >
-                  <X className="w-4 h-4" /> Cancel
+                  <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> Cancel
                 </button>
               </div>
             </div>
@@ -336,16 +336,16 @@ const CommentItem = ({
             <p className="mt-2 text-gray-200">{comment.text}</p>
           )}
 
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-3 sm:gap-4 mt-2">
             <button 
-              className={`flex items-center gap-1 text-sm ${isLiked ? 'text-violet-400' : 'text-gray-400 hover:text-white'}`}
+              className={`flex items-center gap-1 text-xs sm:text-sm ${isLiked ? 'text-violet-400' : 'text-gray-400 hover:text-white'}`}
               onClick={handleToggleLike}
             >
-              <ThumbsUp className="w-4 h-4" />
+              <ThumbsUp className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               <span>{likesCount}</span>
             </button>
             <button 
-              className="text-sm text-gray-400 hover:text-white"
+              className="text-xs sm:text-sm text-gray-400 hover:text-white"
               onClick={handleStartReply}
             >
               Reply
@@ -555,13 +555,13 @@ const CommentsSection = ({
   };
 
   return (
-    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-6">
-      <h3 className="text-xl font-bold mb-6">Comments ({totalComments})</h3>
+    <div className="rounded-xl bg-zinc-900/60 border border-white/10 p-4 sm:p-6">
+      <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Comments ({totalComments})</h3>
 
       {/* Comment input */}
       {user ? (
-        <div className="flex gap-3 mb-8">
-          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+        <div className="flex gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0">
             <img 
               src={user?.profilePicture || "/images/default-profile.jpg"} 
               alt="Your avatar" 
@@ -574,7 +574,7 @@ const CommentsSection = ({
                 placeholder="Add a comment..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-3 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-white placeholder-gray-400"
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 sm:p-3 min-h-[60px] sm:min-h-[80px] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-violet-500 transition text-white placeholder-gray-400"
               />
             </div>
             <button 

@@ -352,14 +352,14 @@ const ImageUpload = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <UploadHeader />
       <ProgressSteps currentStep={currentStep} />
       <StorageLimitWarning isStorageFull={isStorageFull} />
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div className="lg:col-span-8">
           {/* Step 1: File Upload */}
           {currentStep === 1 && (
             <FileUpload
@@ -412,7 +412,7 @@ const ImageUpload = () => {
 
         </div>
 
-        <div className="col-span-12 lg:col-span-4">
+        <div className="lg:col-span-4">
           {/* Right sidebar */}
           {currentStep < 4 && (
             <UploadSummary
@@ -435,9 +435,9 @@ const ImageUpload = () => {
 
       {/* Error display for step 3 and general errors */}
       {uploadError && currentStep !== 2 && currentStep !== 1 && (
-        <div className="mt-4 p-4 bg-red-500/20 border border-red-600 rounded-lg flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-500" />
-          <p className="text-red-100">{uploadError}</p>
+        <div className="mt-4 p-3 sm:p-4 bg-red-500/20 border border-red-600 rounded-lg flex flex-wrap items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <p className="text-red-100 text-sm sm:text-base">{uploadError}</p>
         </div>
       )}
 

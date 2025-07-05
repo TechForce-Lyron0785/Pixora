@@ -16,7 +16,7 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
       } else if (window.innerWidth >= 768) {
         setColumnCount(3); // md
       } else {
-        setColumnCount(2); // default/mobile
+        setColumnCount(2); // mobile and sm - always 2 columns for mobile
       }
     };
 
@@ -64,17 +64,18 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
     const skeletonColumns = Array.from({ length: columnCount }, () => []);
     const heights = ["aspect-square", "aspect-[3/5]", "aspect-[3/4]", "aspect-[4/3]"];
     
-    // Create 8 skeltons (2 per column)
-    for (let i = 0; i < 8; i++) {
+    // Create skeletons based on column count (2 per column minimum)
+    const totalSkeletons = Math.max(columnCount * 2, 8);
+    for (let i = 0; i < totalSkeletons; i++) {
       const columnIndex = i % columnCount;
       const randomHeight = heights[Math.floor(Math.random() * heights.length)];
       skeletonColumns[columnIndex].push(randomHeight);
     }
     
     return (
-      <div className="flex w-full gap-4">
+      <div className="flex w-full gap-1.5 sm:gap-4 max-w-full overflow-hidden">
         {skeletonColumns.map((column, colIdx) => (
-          <div key={`skeleton-col-${colIdx}`} className="flex-1 flex flex-col gap-4">
+          <div key={`skeleton-col-${colIdx}`} className="flex-1 flex flex-col gap-1.5 sm:gap-4 min-w-0">
             {column.map((heightClass, idx) => (
               <ImageSkeleton key={`skeleton-${colIdx}-${idx}`} heightClass={heightClass} />
             ))}
@@ -85,13 +86,13 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
   };
 
   return (
-    <div className="mb-10 px-4">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-lg p-1.5">
-          <Zap className="w-4 h-4 text-white" />
+    <div className="mb-6 sm:mb-10 px-2 sm:px-4">
+      <div className="flex items-center gap-2 mb-3 sm:mb-6">
+        <div className="bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-lg p-1 sm:p-1.5">
+          <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
         </div>
-        <h2 className="text-xl font-bold">For You</h2>
-        <span className="text-sm text-gray-400">Curated based on your preferences</span>
+        <h2 className="text-base sm:text-xl font-bold">For You</h2>
+        <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline">Curated based on your preferences</span>
       </div>
 
       {/* Show skeleton loader while loading */}
@@ -99,9 +100,9 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
 
       {/* Masonry grid layout */}
       {!loading && columns.length > 0 && (
-        <div className="flex w-full gap-4">
+        <div className="flex w-full gap-1.5 sm:gap-4 max-w-full overflow-hidden">
           {columns.map((column, columnIndex) => (
-            <div key={`column-${columnIndex}`} className="flex-1 flex flex-col gap-4">
+            <div key={`column-${columnIndex}`} className="flex-1 flex flex-col gap-1.5 sm:gap-4 min-w-0">
               {column.map((image, imageIndex) => (
                 <ImageCard 
                   key={image._id}
@@ -118,8 +119,8 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
 
       {/* Empty state if no images and not loading */}
       {!loading && feedImages.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-gray-400">No images found. Try adjusting your preferences.</p>
+        <div className="text-center py-6 sm:py-10 px-2">
+          <p className="text-gray-400 text-sm sm:text-base">No images found. Try adjusting your preferences.</p>
         </div>
       )}
     </div>

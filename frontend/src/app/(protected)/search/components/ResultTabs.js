@@ -36,21 +36,22 @@ const ResultTabs = ({ activeTab, setActiveTab, counts }) => {
   ];
 
   return (
-    <div className="border-b border-white/10 mb-6">
-      <div className="flex items-center space-x-6 overflow-x-auto no-scrollbar">
+    <div className="border-b border-white/10 mb-4 sm:mb-6 w-full">
+      <div className="grid grid-cols-5 gap-1 sm:flex sm:items-center sm:space-x-4 md:space-x-6 w-full">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 py-4 border-b-2 text-sm font-medium whitespace-nowrap ${
+            className={`flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-0.5 sm:gap-2 py-2 sm:py-4 border-b-2 text-[10px] sm:text-sm font-medium ${
               activeTab === tab.id
                 ? 'border-violet-500 text-white'
                 : 'border-transparent text-gray-400 hover:text-gray-300'
             } transition-colors duration-200`}
           >
-            {tab.icon && tab.icon}
-            {tab.name}
-            <span className="bg-white/10 text-xs px-2 py-0.5 rounded-full">{tab.count}</span>
+            {tab.icon && <span className="sm:inline-flex">{tab.icon}</span>}
+            <span className="hidden sm:inline">{tab.name}</span>
+            <span className="sm:hidden text-center">{tab.name.split(' ')[0]}</span>
+            <span className="bg-white/10 text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 rounded-full">{tab.count}</span>
           </button>
         ))}
       </div>

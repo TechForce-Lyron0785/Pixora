@@ -282,7 +282,7 @@ const SearchPage = () => {
       />
 
       {/* Content */}
-      <div className="max-w-screen-2xl mx-auto px-6 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">
         {/* Active filters component */}
         <ActiveFilters
           activeFilters={activeFilters}
@@ -364,16 +364,16 @@ const SearchPage = () => {
         )}
 
         {!searchQuery && (
-          <div className="text-center py-12 bg-zinc-900/60 border border-white/10 rounded-xl">
-            <Search className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-            <h3 className="text-xl font-medium mb-2">Search the world of images</h3>
-            <p className="text-gray-400 mb-6">Use the search bar above to find images, users, collections, and tags</p>
+          <div className="text-center py-8 sm:py-12 bg-zinc-900/60 border border-white/10 rounded-xl">
+            <Search className="w-8 h-8 sm:w-12 sm:h-12 text-gray-500 mx-auto mb-3" />
+            <h3 className="text-lg sm:text-xl font-medium mb-2">Search the world of images</h3>
+            <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 px-4">Use the search bar above to find images, users, collections, and tags</p>
           </div>
         )}
 
         {/* If no search or on all tab, show trending */}
         {(!searchQuery || activeTab === 'all') && (
-          <div className={searchQuery ? '' : 'mt-8'}>
+          <div className={searchQuery ? '' : 'mt-6 sm:mt-8'}>
             <TrendingSearches
               loading={loading}
               trendingSearches={trendingSearches}

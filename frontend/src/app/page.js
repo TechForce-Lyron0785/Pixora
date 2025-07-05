@@ -1,6 +1,5 @@
 // TODO:
-// responsive
-// chat
+// Chat & Image filter or Ai Edit feature
 
 "use client";
 

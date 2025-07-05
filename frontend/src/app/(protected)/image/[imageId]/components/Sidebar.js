@@ -9,21 +9,31 @@ import ReportImage from './sidebar/ReportImage';
 
 const Sidebar = ({ image, relatedImages }) => {
   return (
-    <div className="col-span-12 lg:col-span-4 space-y-6">
+    <div className="col-span-1 lg:col-span-4 space-y-4 sm:space-y-6">
       {/* Technical details */}
-      <TechnicalDetails image={image} />
+      <div className="px-0 sm:px-4 lg:px-0">
+        <TechnicalDetails image={image} />
+      </div>
       
       {/* License info */}
-      <LicenseInfo image={image} />
+      <div className="px-0 sm:px-4 lg:px-0">
+        <LicenseInfo image={image} />
+      </div>
       
       {/* Ratings & reviews */}
-      <RatingsReviews imageId={image._id} />
+      <div className="px-0 sm:px-4 lg:px-0">
+        <RatingsReviews imageId={image._id} />
+      </div>
       
       {/* Related images */}
-      <RelatedImages image={image} relatedImages={relatedImages} />
+      <div className="px-0 sm:px-4 lg:px-0">
+        <RelatedImages image={image} relatedImages={relatedImages} />
+      </div>
       
       {/* Report section */}
-      <ReportImage imageId={image._id} ownerId={image.user?._id} />
+      <div className="px-0 sm:px-4 lg:px-0">
+        <ReportImage imageId={image._id} ownerId={image.user?._id} />
+      </div>
     </div>
   );
 };

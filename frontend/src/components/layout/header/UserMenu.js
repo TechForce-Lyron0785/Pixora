@@ -85,7 +85,7 @@ const UserMenu = ({ activeDropdown, toggleDropdown, setActiveDropdown, user, use
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-64 rounded-xl bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/30 overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-64 lg:w-64 sm:w-72 rounded-xl bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/30 overflow-hidden z-50"
           >
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center">
