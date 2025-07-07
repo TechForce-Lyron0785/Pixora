@@ -11,12 +11,14 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
   // Determine column count based on screen size
   useEffect(() => {
     const updateColumnCount = () => {
-      if (window.innerWidth >= 1024) {
-        setColumnCount(4); // lg
-      } else if (window.innerWidth >= 768) {
-        setColumnCount(3); // md
-      } else {
-        setColumnCount(2); // mobile and sm - always 2 columns for mobile
+      if (typeof window !== 'undefined') {
+        if (window.innerWidth >= 1024) {
+          setColumnCount(4); // lg
+        } else if (window.innerWidth >= 768) {
+          setColumnCount(3); // md
+        } else {
+          setColumnCount(2); // mobile and sm - always 2 columns for mobile
+        }
       }
     };
 
@@ -24,10 +26,12 @@ const CuratedSection = ({ feedImages = [], loadedImages = [], loading = false })
     updateColumnCount();
     
     // Add resize listener
-    window.addEventListener('resize', updateColumnCount);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', updateColumnCount);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updateColumnCount);
+      
+      // Clean up
+      return () => window.removeEventListener('resize', updateColumnCount);
+    }
   }, []);
 
   // Distribute images into columns using the height to determine placement

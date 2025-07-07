@@ -30,12 +30,14 @@ const MasonryGrid = ({
   // Determine column count based on screen size
   useEffect(() => {
     const updateColumnCount = () => {
-      if (window.innerWidth >= 1024) {
-        setColumnCount(columns[2]); // desktop
-      } else if (window.innerWidth >= 768) {
-        setColumnCount(columns[1]); // tablet
-      } else {
-        setColumnCount(columns[0]); // mobile
+      if (typeof window !== 'undefined') {
+        if (window.innerWidth >= 1024) {
+          setColumnCount(columns[2]); // desktop
+        } else if (window.innerWidth >= 768) {
+          setColumnCount(columns[1]); // tablet
+        } else {
+          setColumnCount(columns[0]); // mobile
+        }
       }
     };
 
@@ -43,10 +45,12 @@ const MasonryGrid = ({
     updateColumnCount();
     
     // Add resize listener
-    window.addEventListener('resize', updateColumnCount);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', updateColumnCount);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updateColumnCount);
+      
+      // Clean up
+      return () => window.removeEventListener('resize', updateColumnCount);
+    }
   }, [columns]);
 
   // Distribute images into columns for masonry layout

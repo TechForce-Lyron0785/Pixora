@@ -58,12 +58,16 @@ const Header = () => {
   // Handle scroll effect with more sophisticated detection
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      setScrolled(isScrolled);
+      if (typeof window !== 'undefined') {
+        const isScrolled = window.scrollY > 20;
+        setScrolled(isScrolled);
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   // Command palette keyboard shortcut
@@ -81,8 +85,10 @@ const Header = () => {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
   }, []);
 
   const navigationItems = [

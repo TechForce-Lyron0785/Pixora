@@ -384,7 +384,7 @@ export default function RegisterPage() {
           </div>
           
           <div className="absolute inset-0 z-0 overflow-hidden">
-            {[...Array(8)].map((_, i) => {
+            {typeof window !== 'undefined' && [...Array(8)].map((_, i) => {
               const size = Math.random() * 140 + 80;
               const delay = Math.random() * 5;
               const duration = Math.random() * 20 + 10;

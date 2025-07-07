@@ -1,5 +1,9 @@
 // TODO:
 // Chat & Image filter or Ai Edit feature
+// Automatic EXIF data processing
+// Real-time Updates: Live notifications and interactions
+// Ai powered image search
+// Complete personal analytics page
 
 "use client";
 
