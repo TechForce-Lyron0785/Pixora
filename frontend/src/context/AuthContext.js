@@ -53,6 +53,9 @@ export const AuthProvider = ({ children }) => {
       try {
         sessionStorage.removeItem('cachedUser');
         sessionStorage.removeItem('cachedUserTimestamp');
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('auth_token');
+        }
       } catch (cacheError) {
         console.error('Error clearing cached user data:', cacheError);
       }
@@ -74,6 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   // Verify user with API, but rate limit to prevent too many calls
   const verifyUser = useCallback(async (force = false) => {
+    
     // Don't verify if we already have user data and session is valid, unless forced
     if (!force && user && session && status === "authenticated") {
       return;
@@ -105,7 +109,9 @@ export const AuthProvider = ({ children }) => {
         console.error('Error caching user data:', cacheError);
       }
     } catch (error) {
-      console.error("Auth verification error:", error);
+      console.error("=== AUTH VERIFICATION ERROR ===");
+      console.error("Error details:", error);
+      console.error("Error response:", error.response?.data);
       setUser(null);
       
       // If verification fails, it means the token is expired or invalid
@@ -131,7 +137,11 @@ export const AuthProvider = ({ children }) => {
     // Regardless of NextAuth status, verify backend user if not loaded yet
     if (status !== "loading") {
       if (!user) {
-        verifyUser();
+        // Add a small delay to ensure any recent login cookies are available
+        const timer = setTimeout(() => {
+          verifyUser();
+        }, 500);
+        return () => clearTimeout(timer);
       } else {
         setLoading(false);
       }
@@ -161,11 +171,24 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-
       const response = await api.post("/api/users/register", userData);
+      
+      // Set user data immediately
       setUser(response.data.data);
+      try {
+        if (typeof window !== 'undefined' && response?.data?.data?.token) {
+          window.localStorage.setItem('auth_token', response.data.data.token);
+        }
+      } catch {}
+      
+      // Wait a bit for cookies to be set, then verify
+      setTimeout(async () => {
+        await verifyUser(true);
+      }, 100);
+      
       return { success: true, data: response.data.data };
     } catch (err) {
+      console.error("Registration error:", err);
       const errorMessage = err.response?.data?.message || "Registration failed";
       setError(errorMessage);
       return { success: false, error: errorMessage };
@@ -185,18 +208,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user
+  // Login user via NextAuth Credentials to ensure session cookie on frontend domain
   const login = async (credentials) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await api.post("/api/users/login", credentials);
-      setUser(response.data.data);
+      const result = await signIn("credentials", {
+        redirect: false,
+        identifier: credentials.identifier,
+        password: credentials.password,
+      });
 
+      if (result?.error) {
+        const errorMessage = result.error || "Login failed";
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+
+      // NextAuth session now contains backendToken via jwt/session callbacks
+      // Give a short delay for session to update
+      await new Promise((r) => setTimeout(r, 150));
+      await verifyUser(true);
       return { success: true };
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Login failed";
+      const errorMessage = err?.message || "Login failed";
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {

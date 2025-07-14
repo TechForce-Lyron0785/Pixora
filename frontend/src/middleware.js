@@ -37,11 +37,10 @@ const ROUTES = {
 export default async function middleware(request) {
   const path = request.nextUrl.pathname;
   
-  // Authentication check
-  const authToken = request.cookies.get('token')?.value;
+  // Authentication check via NextAuth JWT only. Avoid depending on backend cookie domain/samesite.
   const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const backendToken = session?.backendToken;
-  const isAuthenticated = !!authToken || !!backendToken;
+  const isAuthenticated = !!backendToken;
 
   // Check which route category this path belongs to
   const isProtectedRoute = ROUTES.protected.some(route => path.startsWith(route));

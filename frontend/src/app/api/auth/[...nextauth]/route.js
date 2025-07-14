@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 
 export const authOptions = {
@@ -8,7 +9,43 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        identifier: { label: "Email or Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        try {
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_API}/api/users/login`,
+            {
+              identifier: credentials?.identifier,
+              password: credentials?.password,
+            },
+            { withCredentials: true }
+          );
+
+          const data = response?.data?.data;
+          if (!data) return null;
+
+          // Return a minimal user object; attach backend data to merge in jwt callback
+          return {
+            id: data?.user?._id || data?.user?.id || data?._id || data?.id || data?.userId || undefined,
+            email: data?.user?.email || data?.email,
+            name: data?.user?.fullName || data?.fullName || data?.name,
+            image: data?.user?.profilePicture || data?.profilePicture || null,
+            backendData: data,
+          };
+        } catch (error) {
+          // Invalid credentials or server error
+          return null;
+        }
+      },
+    }),
   ],
+  session: { strategy: "jwt" },
+  trustHost: true,
   callbacks: {
     async signIn({ user, account }) {
       if (account.provider === "google") {
@@ -32,14 +69,18 @@ export const authOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      // Merge user info when signing in
       if (user) {
-        token.id = user.id;
-        token.backendToken = user.backendData?.token;
+        token.id = user.id || token.id;
+        // Prefer token from backendData if present
+        const backendToken = user.backendData?.token;
+        if (backendToken) token.backendToken = backendToken;
       }
       return token;
     },
     async session({ session, token }) {
+      if (!session.user) session.user = {};
       session.user.id = token.id;
       session.backendToken = token.backendToken;
       return session;

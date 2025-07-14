@@ -15,7 +15,6 @@ export const UsersProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
   const { following } = useFollow();
-  // console.log(following, "following");
   const api = useApi();
 
   // Get all users

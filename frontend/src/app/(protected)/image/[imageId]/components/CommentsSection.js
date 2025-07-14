@@ -498,7 +498,6 @@ const CommentsSection = ({
     
     try {
       // Post to backend
-      console.log(`Posting comment: ${commentText}`);
       const response = await api.post(`/api/comments/${imageId}`, { text: commentText });
       
       // Replace temporary comment with real one
