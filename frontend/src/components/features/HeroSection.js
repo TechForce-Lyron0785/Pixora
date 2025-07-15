@@ -19,6 +19,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 const HeroSection = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -338,20 +339,20 @@ const HeroSection = () => {
                 transition={{ duration: 0.6, delay: 0.5 }}
               >
                 {/* Primary CTA */}
-                <button className="group relative px-8 py-4 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-medium overflow-hidden shadow-lg shadow-violet-500/20">
+                <Link href={"/login"} className="group relative px-8 py-4 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-medium overflow-hidden shadow-lg shadow-violet-500/20">
                   <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
                   <span className="relative flex items-center justify-center">
                     <Sparkles className="w-5 h-5 mr-2" />
                     <span>Start sharing</span>
                     <ArrowUpRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </span>
-                </button>
+                </Link>
 
                 {/* Secondary CTA */}
-                <button className="px-8 py-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 text-white font-medium hover:bg-white/10 transition-colors duration-300 flex items-center justify-center">
+                <Link href={"/login"} className="px-8 py-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 text-white font-medium hover:bg-white/10 transition-colors duration-300 flex items-center justify-center">
                   <Compass className="w-5 h-5 mr-2" />
                   <span>Explore gallery</span>
-                </button>
+                </Link>
               </motion.div>
 
               {/* Trust indicators */}

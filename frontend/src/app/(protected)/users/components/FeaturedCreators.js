@@ -116,9 +116,11 @@ const FeaturedCreators = () => {
             <div key={creator._id} className="flex items-center justify-between hover:bg-white/5 p-2 rounded-lg transition-colors">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
-                    <img src={creator.profilePicture || "/images/default-profile.jpg"} alt={creator.fullName} className="w-full h-full object-cover" />
-                  </div>
+                  <Link href={`/profile/${creator.username}`} className="block">
+                    <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-violet-500/50 transition-all duration-200">
+                      <img src={creator.profilePicture || "/images/default-profile.jpg"} alt={creator.fullName} className="w-full h-full object-cover" />
+                    </div>
+                  </Link>
                   {creator.isVerified && (
                     <div className="absolute -bottom-0.5 -right-0.5 bg-violet-500 rounded-full p-0.5">
                       <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -128,7 +130,9 @@ const FeaturedCreators = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{creator.fullName}</p>
+                  <Link href={`/profile/${creator.username}`} className="block">
+                    <p className="text-sm font-medium hover:text-violet-300 cursor-pointer transition-colors duration-200 hover:underline">{creator.fullName}</p>
+                  </Link>
                   <p className="text-xs text-gray-400">{creator.followersCount || 0} followers</p>
                 </div>
               </div>

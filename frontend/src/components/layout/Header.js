@@ -34,6 +34,7 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [mobileActiveDropdown, setMobileActiveDropdown] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(3);
@@ -46,6 +47,7 @@ const Header = () => {
     setSearchOpen(false);
     setCommandPaletteOpen(false);
     setActiveDropdown(null);
+    setMobileActiveDropdown(null);
     setUserMenuOpen(false);
     router.push(href);
   }
@@ -197,11 +199,16 @@ const Header = () => {
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
+  const toggleMobileDropdown = (index) => {
+    setMobileActiveDropdown(mobileActiveDropdown === index ? null : index);
+  };
+
   // Close all dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setActiveDropdown(null);
+        setMobileActiveDropdown(null);
         setUserMenuOpen(false);
       }
     };
@@ -612,7 +619,7 @@ const Header = () => {
                     {item.hasDropdown ? (
                       <>
                         <button
-                          onClick={() => toggleDropdown(index)}
+                          onClick={() => toggleMobileDropdown(index)}
                           className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
                         >
                           <div className="flex items-center space-x-3">
@@ -624,13 +631,13 @@ const Header = () => {
                             )}
                           </div>
                           <ChevronDown
-                            className={`w-5 h-5 transition-transform duration-200 ${activeDropdown === index ? "rotate-180" : ""
+                            className={`w-5 h-5 transition-transform duration-200 ${mobileActiveDropdown === index ? "rotate-180" : ""
                               }`}
                           />
                         </button>
 
                         <AnimatePresence>
-                          {activeDropdown === index && (
+                          {mobileActiveDropdown === index && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}

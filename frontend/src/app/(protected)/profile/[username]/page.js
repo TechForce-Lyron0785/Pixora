@@ -286,6 +286,7 @@ const ProfilePage = () => {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           profile={profile}
+          isOwnProfile={isOwnProfile}
         />
       </div>
 

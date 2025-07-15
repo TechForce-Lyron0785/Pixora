@@ -9,9 +9,11 @@ const UserCard = ({ user, isFollowing, handleFollowToggle, followLoading }) => {
       <div className="flex items-start justify-between">
         <div className="flex gap-3">
           <div className="relative">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-zinc-700 group-hover:border-violet-500 transition-colors">
-              <img src={user.profilePicture || "/images/default-profile.jpg"} alt={user.fullName} className="w-full h-full object-cover" />
-            </div>
+            <Link href={`/profile/${user.username}`} className="block">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-zinc-700 group-hover:border-violet-500 transition-colors cursor-pointer hover:ring-2 hover:ring-violet-500/50">
+                <img src={user.profilePicture || "/images/default-profile.jpg"} alt={user.fullName} className="w-full h-full object-cover" />
+              </div>
+            </Link>
             {user.isVerified && (
               <div className="absolute -bottom-1 -right-1 bg-violet-500 rounded-full p-0.5">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -22,7 +24,9 @@ const UserCard = ({ user, isFollowing, handleFollowToggle, followLoading }) => {
           </div>
           <div>
             <div className="flex items-center">
-              <h3 className="font-medium text-base">{user.fullName}</h3>
+              <Link href={`/profile/${user.username}`} className="block">
+                <h3 className="font-medium text-base hover:text-violet-300 cursor-pointer transition-colors duration-200 hover:underline">{user.fullName}</h3>
+              </Link>
               {user.badge && (
                 <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                   user.badge === 'pro' ? 'bg-violet-900/60 text-violet-300' :
@@ -34,7 +38,9 @@ const UserCard = ({ user, isFollowing, handleFollowToggle, followLoading }) => {
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-400">@{user.username}</p>
+            <Link href={`/profile/${user.username}`} className="block">
+              <p className="text-sm text-gray-400 hover:text-violet-300 cursor-pointer transition-colors duration-200 hover:underline">@{user.username}</p>
+            </Link>
           </div>
         </div>
         <div className="flex gap-2">

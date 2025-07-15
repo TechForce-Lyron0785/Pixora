@@ -7,7 +7,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-const ProfileTabs = ({ activeTab, setActiveTab, profile }) => {
+const ProfileTabs = ({ activeTab, setActiveTab, profile, isOwnProfile }) => {
   const tabs = [
     { id: 'works', name: 'Works', icon: <Grid className="w-4 h-4" /> },
     { id: 'collections', name: 'Collections', icon: <BookmarkIcon className="w-4 h-4" /> },
@@ -28,6 +28,7 @@ const ProfileTabs = ({ activeTab, setActiveTab, profile }) => {
               ? 'border-violet-600 text-violet-400'
               : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-white/20'
               }`}
+            style={{ display: tab.id === 'activity' && !isOwnProfile ? 'none' : 'flex' }}
           >
             {tab.icon}
             <span className="hidden sm:inline">{tab.name}</span>

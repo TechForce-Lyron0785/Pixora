@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ThumbsUp, MoreHorizontal, Reply, Edit, Trash2, X, Check, Loader2 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
 
 const CommentActions = ({ 
   comment, 
@@ -284,17 +285,21 @@ const CommentItem = ({
   return (
     <div className="space-y-4">
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-          <img 
-            src={comment.user.profilePicture || "/images/default-profile.jpg"} 
-            alt={comment.user.username} 
-            className="w-full h-full object-cover" 
-          />
-        </div>
+        <Link href={`/profile/${comment.user.username}`} className="block">
+          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-violet-500/50 transition-all duration-200">
+            <img 
+              src={comment.user.profilePicture || "/images/default-profile.jpg"} 
+              alt={comment.user.username} 
+              className="w-full h-full object-cover" 
+            />
+          </div>
+        </Link>
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <div>
-              <p className="font-medium">{comment.user.fullName || comment.user.username}</p>
+              <Link href={`/profile/${comment.user.username}`} className="block">
+                <p className="font-medium hover:text-violet-300 cursor-pointer transition-colors duration-200 hover:underline">{comment.user.fullName || comment.user.username}</p>
+              </Link>
               <p className="text-xs text-gray-400">
                 {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
               </p>

@@ -29,6 +29,7 @@ import {
 import { useApi } from '@/hooks/useApi';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
@@ -564,26 +565,30 @@ const NotificationsPage = () => {
                   )}
 
                   {/* Avatar */}
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-700/30 to-gray-800 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all flex-shrink-0">
-                    {notification.sender?.profilePicture ? (
-                      <img
-                        src={notification.sender.profilePicture}
-                        alt={notification.sender?.username || 'User'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-gray-200 font-bold text-lg sm:text-xl">
-                        {notification.sender?.username?.charAt(0).toUpperCase() || "?"}
-                      </span>
-                    )}
-                  </div>
+                  <Link href={`/profile/${notification.sender?.username}`} className="block">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-gradient-to-br from-purple-700/30 to-gray-800 flex items-center justify-center ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all flex-shrink-0 cursor-pointer hover:ring-violet-500/50">
+                      {notification.sender?.profilePicture ? (
+                        <img
+                          src={notification.sender.profilePicture}
+                          alt={notification.sender?.username || 'User'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-gray-200 font-bold text-lg sm:text-xl">
+                          {notification.sender?.username?.charAt(0).toUpperCase() || "?"}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs sm:text-sm">
-                          <span className="font-semibold text-white">{notification.sender?.username || 'Someone'}</span>
+                          <Link href={`/profile/${notification.sender?.username}`} className="block">
+                            <span className="font-semibold text-white hover:text-violet-300 cursor-pointer transition-colors duration-200 hover:underline">{notification.sender?.username || 'Someone'}</span>
+                          </Link>
                           <span className="text-gray-300"> {notification.content}</span>
                         </p>
 
